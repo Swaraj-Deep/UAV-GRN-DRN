@@ -1,10 +1,10 @@
 {
     "N": 14,
     "M": 14,
-    "t": 0.31,
-    "epsilon": 0.52401,
+    "t": 0.50,
+    "epsilon": 0.55,
     "learning_rate": 0.98457,
-    "discount_factor": 0.0312,
+    "discount_factor": 0.00312,
     "max_iter": 10000,
     "number_UAV": 7,
     "radius_UAV": 2,

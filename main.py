@@ -1,6 +1,7 @@
 import json
 import random
 import numpy as np
+import os, os.path
 import networkx as nx
 import users_endpoint.users
 import grn_endpoint.grn_info
@@ -119,6 +120,10 @@ def reward_function(UAV_node, placed, pos_i):
         pos_j = UAV_location[j]
         user_connected_j = users_endpoint.users.get_users_cell_connections(
             pos_j)
+        if user_connected_i == user_connected_j:
+            neg_reward += 999999
+        else:
+            pos_reward += 9999999
         common_user = 0
         for user in user_connected_j:
             if user in user_connected_i:
@@ -144,7 +149,7 @@ def reward_function(UAV_node, placed, pos_i):
     reward *= power_UAV
     for node, pos in UAV_location.items():
         if pos == pos_i:
-            reward = -9999999
+            neg_reward += 999999 * 999
             break
     return reward
 
@@ -211,6 +216,16 @@ def simulation():
         for user in user_list:
             if user not in ground_placed:
                 ground_placed.append(user)
+    write_output(placed)
+
+def write_output (placed):
+    """
+    Function: write_output
+    Parameters: placed -> list of already placed UAVs
+    Functionality: write the output to the respective files
+    """
+    file_num = len([name for name in os.listdir('./output_files') if os.path.isfile(name)])
+    print (file_num)
     for UAV_node, loc in UAV_location.items():
         print(
             f'UAV: {UAV_node} can serve users: {users_endpoint.users.get_users_cell_connections(loc)}')
@@ -226,7 +241,6 @@ def simulation():
             if move_endpoint.movement.get_dist_UAV(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold:
                 G.add_edge(node1, node2)
     nx.draw(G, with_labels=True)
-    # plt.savefig('UAV_Graph.png')
     plt.show()
 
 
