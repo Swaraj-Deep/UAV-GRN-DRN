@@ -1,4 +1,4 @@
-for i in $(seq 1 2); do
+for i in $(seq 1 9); do
   python3 main.py 2
 done
 
