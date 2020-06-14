@@ -1,9 +1,11 @@
 import json
 import random
 import numpy as np
+import networkx as nx
 import users_endpoint.users
 import grn_endpoint.grn_info
 import move_endpoint.movement
+import matplotlib.pyplot as plt
 
 # Global variables declaration
 
@@ -100,7 +102,7 @@ def reward_function(UAV_node, placed, pos_i):
     global t
     global UAV_to_UAV_threshold
     global power_UAV
-    neg_reward = 1
+    neg_reward = -1
     pos_reward = 1
     for j in placed:
         pos_j = UAV_location[j]
@@ -111,24 +113,25 @@ def reward_function(UAV_node, placed, pos_i):
         neg_reward += 999999 * 999
     ground_users = users_endpoint.users.get_number_ground_users()
     user_served_temp = set()
+    user_connected_i = users_endpoint.users.get_users_cell_connections(
+        pos_i)
     for j in placed:
         pos_j = UAV_location[j]
         user_connected_j = users_endpoint.users.get_users_cell_connections(
             pos_j)
-        user_connected_i = users_endpoint.users.get_users_cell_connections(
-            pos_i)
         common_user = 0
         if user_connected_i == user_connected_j:
             neg_reward += 999999 * 999
         for user in user_connected_j:
             if user in user_connected_i:
                 common_user += 1
+        pos_reward += (ground_users - common_user) * 999
         neg_reward += common_user * 99
         for user in user_connected_i:
             user_served_temp.add(user)
         for user in user_connected_j:
             user_served_temp.add(user)
-    if len(user_served_temp) / ground_users < 0.92:
+    if len(user_served_temp) / ground_users < 1:
         neg_reward += 999999 * 999
     for j in placed:
         pos_j = UAV_location[j]
@@ -209,8 +212,20 @@ def simulation():
     for UAV_node, loc in UAV_location.items():
         print(
             f'UAV: {UAV_node} can serve users: {users_endpoint.users.get_users_cell_connections(loc)}')
-    print(sorted(ground_placed))
-    print(UAV_location)
+    print(
+        f'Total Number of users served: {len(ground_placed)}\nList of users: {sorted(ground_placed)}')
+    for node, loc in UAV_location.items():
+        print(f'UAV {node} is located at {loc}')
+    G = nx.Graph()
+    for node in placed:
+        G.add_node(node)
+    for node1 in placed:
+        for node2 in placed:
+            if move_endpoint.movement.get_dist_UAV(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold:
+                G.add_edge(node1, node2)
+    nx.draw(G, with_labels=True)
+    # plt.savefig('UAV_Graph.png')
+    plt.show()
 
 
 if __name__ == "__main__":
