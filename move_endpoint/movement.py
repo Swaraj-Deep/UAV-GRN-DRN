@@ -102,6 +102,7 @@ def get_random_move(loc, N, M):
     y += dy[action]
     return (x, y, action)
 
+
 def get_dist_UAV(pos_1, pos_2):
     """
     Function: get_dist_UAV\n
@@ -111,4 +112,5 @@ def get_dist_UAV(pos_1, pos_2):
     x1, y1 = pos_1
     x2, y2 = pos_2
     dist = (x1 - x2) ** 2 + (y1 - y2) ** 2
+    print(dist)
     return math.sqrt(dist)
