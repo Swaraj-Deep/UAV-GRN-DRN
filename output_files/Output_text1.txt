@@ -1,9 +1,0 @@
-UAV: 1 can serve users: [2, 3, 5, 6, 7, 9] when placed at (2, 2)
-UAV: 2 can serve users: [1, 4] when placed at (0, 9)
-UAV: 3 can serve users: [11, 18] when placed at (8, 6)
-UAV: 4 can serve users: [16] when placed at (11, 0)
-UAV: 5 can serve users: [16] when placed at (10, 2)
-UAV: 6 can serve users: [10, 13, 14, 15] when placed at (6, 12)
-UAV: 7 can serve users: [] when placed at (12, 12)
-Total Number of users served: 15
-List of users: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 13, 14, 15, 16, 18]
