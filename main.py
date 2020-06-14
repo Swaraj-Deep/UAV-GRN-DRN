@@ -1,7 +1,8 @@
 import json
 import random
 import numpy as np
-import os, os.path
+import os
+import os.path
 import networkx as nx
 import users_endpoint.users
 import grn_endpoint.grn_info
@@ -218,21 +219,27 @@ def simulation():
                 ground_placed.append(user)
     write_output(placed)
 
-def write_output (placed):
+
+def write_output(placed):
     """
     Function: write_output
     Parameters: placed -> list of already placed UAVs
     Functionality: write the output to the respective files
     """
-    file_num = len([name for name in os.listdir('./output_files') if os.path.isfile(name)])
-    print (file_num)
+    file_num = len([name for name in os.listdir(
+        './output_files')])
+    text_file_name = './output_files/' + \
+        'Output_text' + str(file_num // 2) + '.txt'
+    graph_file_name = './output_files/' + \
+        'Output_graph' + str(file_num // 2) + '.png'
+    text_file_data = []
     for UAV_node, loc in UAV_location.items():
-        print(
-            f'UAV: {UAV_node} can serve users: {users_endpoint.users.get_users_cell_connections(loc)}')
-    print(
+        text_file_data.append(
+            f'UAV: {UAV_node} can serve users: {users_endpoint.users.get_users_cell_connections(loc)} when placed at {loc}\n')
+    text_file_data.append(
         f'Total Number of users served: {len(ground_placed)}\nList of users: {sorted(ground_placed)}')
-    for node, loc in UAV_location.items():
-        print(f'UAV {node} is located at {loc}')
+    with open(text_file_name, 'w') as file_pointer:
+        file_pointer.writelines(text_file_data)
     G = nx.Graph()
     for node in placed:
         G.add_node(node)
@@ -241,7 +248,7 @@ def write_output (placed):
             if move_endpoint.movement.get_dist_UAV(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold:
                 G.add_edge(node1, node2)
     nx.draw(G, with_labels=True)
-    plt.show()
+    plt.savefig(graph_file_name)
 
 
 if __name__ == "__main__":
