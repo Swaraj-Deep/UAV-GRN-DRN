@@ -95,16 +95,10 @@ def reward_function(UAV_node, placed, pos_i):
     global UAV_to_UAV_threshold
     neg_reward = 1
     pos_reward = 1
-    # For distance threshold
     for j in placed:
         pos_j = UAV_location[j]
         if move_endpoint.movement.get_dist_UAV(pos_1=pos_i, pos_2=pos_j) < t:
             neg_reward += 999999
-    # For new User connectivity
-    # user_served = users_endpoint.users.get_users_cell_connections(pos_i)
-    # for users in user_served:
-    #     if users not in ground_placed:
-    #         pos_reward += 9999999
     connectivity = users_endpoint.users.get_ground_cell_connections(pos_i)
     if connectivity == 0:
         neg_reward += 999999
@@ -114,10 +108,9 @@ def reward_function(UAV_node, placed, pos_i):
             pos_reward += 999999
         else:
             pos_reward += 999
-    # For duplicate location
     for node, pos in UAV_location.items():
         if pos == pos_i:
-            neg_reward += 9999
+            neg_reward += 999999
     power_UAV = 5
     reward = pos_reward / neg_reward
     reward *= power_UAV
