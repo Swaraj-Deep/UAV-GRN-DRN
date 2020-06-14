@@ -144,9 +144,9 @@ def get_users_cell_connections(loc):
 
 def get_max_pos_density():
     """
-    Function: get_max_pos_density
-    Returns: a tuple of maximum user density and position
+    Function: get_max_pos_density\n
+    Returns: a tuple of maximum user density and position\n
     """
     global max_density
     global max_pos
-    return (max_density, max_pos)
+    return (max_pos, max_density)

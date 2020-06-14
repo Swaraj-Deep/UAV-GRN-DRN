@@ -112,5 +112,25 @@ def get_dist_UAV(pos_1, pos_2):
     x1, y1 = pos_1
     x2, y2 = pos_2
     dist = (x1 - x2) ** 2 + (y1 - y2) ** 2
-    print(dist)
     return math.sqrt(dist)
+
+
+def map_2d_to_1d(loc, N):
+    """
+    Function: map_2d_to_1d\n
+    Parameter: loc -> cell location which needs to be mapped in the 1D index, N -> number of rows in the grid\n
+    Return: the index of the mapped location\n
+    """
+    x, y = loc
+    return (((N - 1) * x) + y)
+
+
+def map_1d_to_2d(index, N, M):
+    """
+    Function: map_1d_to_2d\n
+    Parameter: index -> index which needs to be mapped to the 2D coordinates, N -> number of rows in the grid, M -> number of columns in the grid\n
+    Return: the location of the mapped index\n
+    """
+    x = index // (N - 1)
+    y = index % M
+    return (x, y)
