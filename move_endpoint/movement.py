@@ -8,8 +8,10 @@ def get_random_location(N, M):
     Parameters: N -> Number of rows in the Grid, M -> Number of columns in the Grid\n
     Returns: a tuple of any random location which is inside the Grid\n
     """
-    x = random.randint(0, N - 1)
-    y = random.randint(0, M - 1)
+    # x = random.randint(((N - 1) // 2), N - 1)
+    # y = random.randint(((M - 1) // 2), M - 1)
+    x = random.randint (0, N - 1)
+    y = random.randint (0, M - 1)
     return (x, y)
 
 
