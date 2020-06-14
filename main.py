@@ -55,6 +55,36 @@ UAV_location = {}
 ground_placed = []
 
 
+def init():
+    """
+    Function: init
+    Functionality: Sets all the global variables
+    """
+    global N
+    global M
+    global t
+    global epsilon
+    global learning_rate
+    global discount_factor
+    global max_iter
+    global number_UAV
+    global radius_UAV
+    global UAV_to_UAV_threshold
+    with open('input_files/scenario_input.json', 'r') as file_pointer:
+        file_data = json.load(file_pointer)
+        N = file_data['N']
+        M = file_data['M']
+        t = file_data['t']
+        epsilon = file_data['epsilon']
+        learning_rate = file_data['learning_rate']
+        discount_factor = file_data['discount_factor']
+        max_iter = file_data['max_iter']
+        number_UAV = file_data['number_UAV']
+        radius_UAV = file_data['radius_UAV']
+        UAV_to_UAV_threshold = file_data['UAV_to_UAV_threshold']
+    users_endpoint.users.init(radius_UAV, N, M)
+
+
 def reward_function(UAV_node, placed, pos_i):
     """
     Function: reward_function\n
@@ -63,8 +93,8 @@ def reward_function(UAV_node, placed, pos_i):
     """
     global t
     global UAV_to_UAV_threshold
-    neg_reward = 0
-    pos_reward = 0
+    neg_reward = 1
+    pos_reward = 1
     for j in placed:
         pos_j = UAV_location[j]
         if move_endpoint.movement.get_dist_UAV(pos_1=pos_i, pos_2=pos_j) < t:
@@ -79,12 +109,13 @@ def reward_function(UAV_node, placed, pos_i):
             pos_reward += 9
     for j in placed:
         pos_j = UAV_location[j]
-        if grn_endpoint.grn_info.GRN_edges(UAV_node, j) and move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
+        if grn_endpoint.grn_info.is_edge_grn(UAV_node, j) and move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
             pos_reward += 9999
         else:
             pos_reward += 99
     for node, pos in UAV_location.items():
         if pos == pos_i:
+            print ("duplicate")
             neg_reward += 9999
     power_UAV = 5
     reward = pos_reward / neg_reward
@@ -109,26 +140,28 @@ def q_learn(UAV_node, placed):
     for iterations in range(max_iter):
         x, y, action = move_endpoint.movement.get_random_move(loc, N, M)
         loc = (x, y)
-        if random.uniform (0, 1) <= epsilon:
-            index = move_endpoint.movement.map_2d_to_1d (loc, N)
+        if random.uniform(0, 1) <= epsilon:
+            index = move_endpoint.movement.map_2d_to_1d(loc, N)
             Q[index, action] = reward_function(UAV_node, placed, loc)
         else:
-            index = move_endpoint.movement.map_2d_to_1d (loc, N)
-            reward = reward_function (UAV_node, placed, loc)
-            Q[index, action] = Q[index, action] + learning_rate * (reward + discount_factor * np.max (Q[index, :]) - Q[index, action])
+            index = move_endpoint.movement.map_2d_to_1d(loc, N)
+            reward = reward_function(UAV_node, placed, loc)
+            Q[index, action] = Q[index, action] + learning_rate * \
+                (reward + discount_factor *
+                 np.max(Q[index, :]) - Q[index, action])
     max_reward = -1
     max_pos = -1
-    for state in Q:
-        expected_max = np.max(Q[state, :])
+    for index, rows in enumerate(Q):
+        expected_max = np.max(rows)
         if expected_max > max_reward:
             max_reward = expected_max
-            max_pos = state
-    x, y = move_endpoint.movement.map_1d_to_2d (max_pos, N, M)
+            max_pos = index
+    x, y = move_endpoint.movement.map_1d_to_2d(max_pos, N, M)
     print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
     return (x, y)
 
 
-def simulation ():
+def simulation():
     """
     Function: simulation\n
     Parameters: None\n
@@ -136,25 +169,29 @@ def simulation ():
     """
     placed = [1]
     unplaced = []
-    max_pos, max_density = users_endpoint.users.get_max_pos_density
+    max_pos, max_density = users_endpoint.users.get_max_pos_density()
     UAV_location[1] = max_pos
-    for UAV_node in range (2, number_UAV + 1):
-        unplaced.append (UAV_node)
+    user_list = users_endpoint.users.get_users_cell_connections(max_pos)
+    for user in user_list:
+            if user not in ground_placed:
+                ground_placed.append(user)
+    for UAV_node in range(2, number_UAV + 1):
+        unplaced.append(UAV_node)
     for UAV_node in unplaced:
-        loc = q_learn (UAV_node, placed)
+        loc = q_learn(UAV_node, placed)
         UAV_location[UAV_node] = loc
-        placed.append (UAV_node)
-    for UAV_node, location in UAV_location.items():
-        print (f'UAV: {UAV_node} can serve users: {users_endpoint.users.get_users_cell_connections(location)}')
+        placed.append(UAV_node)
+        user_list = users_endpoint.users.get_users_cell_connections(loc)
+        for user in user_list:
+            if user not in ground_placed:
+                ground_placed.append(user)
+    for UAV_node, loc in UAV_location.items():
+        print(
+            f'UAV: {UAV_node} can serve users: {users_endpoint.users.get_users_cell_connections(loc)}')
+    print(ground_placed)
+    print(UAV_location)
 
-def init():
-    """
-    Function: init
-    Functionality: Sets all the global variables
-    """
-    with open ('../input_files/scenario_input.json', 'r') as file_pointer:
-        file_data = json.load (file_pointer)
-    
 
 if __name__ == "__main__":
     init()
+    simulation()
