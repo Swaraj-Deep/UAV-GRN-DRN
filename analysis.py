@@ -31,12 +31,27 @@ def analyse_output_files():
             if curr_user_served > maxm_user_served:
                 maxm_user_served = curr_user_served
                 best_file = './output_files/' + file
-    print(f'#################################################################################')
-    print (f'############################ Analysis Report ####################################')
-    print(f'# Location of Best Output file is: {best_file}             #')
-    print(f'# Location of Worst Output file is: {worst_file}           #')
-    print(f'# Mean User Served: {sum_user_served / total_files}                                          #')
-    print(f'#################################################################################')
+    print(f'##################################################################################')
+    print(f'############################# Analysis Report ####################################')
+    print(f'##################################################################################')
+    op = len(f'# Location of Best Output file is: {best_file}')
+    print(f'# Location of Best Output file is: {best_file}', end='')
+    for i in range((81 - op) // 2):
+        print(' ', end=' ')
+    print('#')
+    print(f'# Location of Worst Output file is: {worst_file}', end='')
+    op = len(f'# Location of Worst Output file is: {worst_file}')
+    for i in range((81 - op) // 2):
+        print(' ', end=' ')
+    print('#')
+    print(f'# Mean User Served: {sum_user_served / total_files}', end='')
+    op = len(f'# Mean User Served: {sum_user_served / total_files}')
+    for i in range((81 - op) // 2):
+        print(' ', end=' ')
+    print('#')
+    print("##################################################################################")
+    print(best_file[26::])
+    print(best_file[-1:-5:])
 
 
 if __name__ == "__main__":
