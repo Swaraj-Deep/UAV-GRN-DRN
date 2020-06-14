@@ -95,27 +95,28 @@ def reward_function(UAV_node, placed, pos_i):
     global UAV_to_UAV_threshold
     neg_reward = 1
     pos_reward = 1
+    # For distance threshold
     for j in placed:
         pos_j = UAV_location[j]
         if move_endpoint.movement.get_dist_UAV(pos_1=pos_i, pos_2=pos_j) < t:
-            neg_reward += 99
-        else:
-            pos_reward += 999
-    user_served = users_endpoint.users.get_users_cell_connections(pos_i)
-    for users in user_served:
-        if users not in ground_placed:
-            pos_reward += 9999
-        else:
-            pos_reward += 9
+            neg_reward += 999999
+    # For new User connectivity
+    # user_served = users_endpoint.users.get_users_cell_connections(pos_i)
+    # for users in user_served:
+    #     if users not in ground_placed:
+    #         pos_reward += 9999999
+    connectivity = users_endpoint.users.get_ground_cell_connections(pos_i)
+    if connectivity == 0:
+        neg_reward += 999999
     for j in placed:
         pos_j = UAV_location[j]
         if grn_endpoint.grn_info.is_edge_grn(UAV_node, j) and move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
-            pos_reward += 9999
+            pos_reward += 999999
         else:
-            pos_reward += 99
+            pos_reward += 999
+    # For duplicate location
     for node, pos in UAV_location.items():
         if pos == pos_i:
-            print ("duplicate")
             neg_reward += 9999
     power_UAV = 5
     reward = pos_reward / neg_reward
@@ -173,8 +174,8 @@ def simulation():
     UAV_location[1] = max_pos
     user_list = users_endpoint.users.get_users_cell_connections(max_pos)
     for user in user_list:
-            if user not in ground_placed:
-                ground_placed.append(user)
+        if user not in ground_placed:
+            ground_placed.append(user)
     for UAV_node in range(2, number_UAV + 1):
         unplaced.append(UAV_node)
     for UAV_node in unplaced:
@@ -188,7 +189,7 @@ def simulation():
     for UAV_node, loc in UAV_location.items():
         print(
             f'UAV: {UAV_node} can serve users: {users_endpoint.users.get_users_cell_connections(loc)}')
-    print(ground_placed)
+    print(sorted(ground_placed))
     print(UAV_location)
 
 

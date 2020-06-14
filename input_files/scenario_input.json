@@ -5,8 +5,8 @@
     "epsilon": 0.54,
     "learning_rate": 0.96,
     "discount_factor": 0.043,
-    "max_iter": 10000,
+    "max_iter": 100000,
     "number_UAV": 7,
-    "radius_UAV": 3,
+    "radius_UAV": 2,
     "UAV_to_UAV_threshold": 5
 }
