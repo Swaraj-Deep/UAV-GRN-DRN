@@ -190,7 +190,7 @@ def q_learn(UAV_node, placed):
             max_reward = expected_max
             max_pos = index
     x, y = move_endpoint.movement.map_1d_to_2d(max_pos, N, M)
-    print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
+    # print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
     return (x, y)
 
 
