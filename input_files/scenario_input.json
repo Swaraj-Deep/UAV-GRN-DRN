@@ -2,12 +2,12 @@
     "N": 14,
     "M": 14,
     "t": 2,
-    "epsilon": 0.50,
-    "learning_rate": 0.98457,
-    "discount_factor": 0.00312,
+    "epsilon": 0.55,
+    "learning_rate": 0.9457,
+    "discount_factor": 0.003,
     "max_iter": 10000,
     "number_UAV": 5,
     "radius_UAV": 2,
-    "UAV_to_UAV_threshold": 4,
+    "UAV_to_UAV_threshold": 5,
     "power_UAV": 5
 }
