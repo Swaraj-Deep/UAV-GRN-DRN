@@ -136,6 +136,11 @@ def reward_function(UAV_node, placed, pos_i):
             pos_reward += 99999
     if len(user_served_temp) / ground_users < 1:
         neg_reward += 999999
+    for j in placed:
+        pos_j = UAV_location[j]
+        dist_uav = move_endpoint.movement.get_dist_UAV(pos_i, pos_j)
+        if dist_uav == 0 or dist_uav <= t:
+            neg_reward += 9999999
     reward = pos_reward / neg_reward
     reward *= power_UAV
     return reward
