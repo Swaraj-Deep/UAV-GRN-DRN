@@ -128,11 +128,14 @@ def reward_function(UAV_node, placed, pos_i):
         pos_j = UAV_location[j]
         user_connected_j = users_endpoint.users.get_users_cell_connections(
             pos_j)
+        for user in user_connected_j:
+            user_served_temp.add (user)
         if is_equal(user_connected_i, user_connected_j):
             neg_reward += 999999
         else:
             pos_reward += 99999
-    
+    if len(user_served_temp) / ground_users < 1:
+        neg_reward += 999999
     reward = pos_reward / neg_reward
     reward *= power_UAV
     return reward
