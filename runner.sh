@@ -1,4 +1,4 @@
-for i in $(seq 1 50); do
+for i in $(seq 1 15); do
   python3 main.py 2
   echo Executed main.py $i times.
 done

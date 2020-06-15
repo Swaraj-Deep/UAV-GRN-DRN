@@ -23,7 +23,7 @@ def analyse_output_files():
     for file in text_files:
         with open('./output_files/' + file, 'r') as file_pointer:
             lines = file_pointer.readlines()
-            curr_user_served = int(lines[7].split(':')[1])
+            curr_user_served = int(lines[-2].split(':')[1])
             sum_user_served += curr_user_served
             if curr_user_served < minm_user_served:
                 minm_user_served = curr_user_served
