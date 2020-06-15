@@ -114,6 +114,8 @@ def reward_function(UAV_node, placed, pos_i):
     user_served_temp = set()
     user_connected_i = users_endpoint.users.get_users_cell_connections(
         pos_i)
+    for user in user_connected_i:
+        user_served_temp.add(user)
     for j in placed:
         if grn_endpoint.grn_info.is_edge_grn(grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(UAV_node)):
             pos_reward += 99
@@ -131,8 +133,6 @@ def reward_function(UAV_node, placed, pos_i):
                 common_user += 1
         pos_reward += (ground_users - common_user) * 999
         neg_reward += common_user * 99
-        for user in user_connected_i:
-            user_served_temp.add(user)
         for user in user_connected_j:
             user_served_temp.add(user)
     if len(user_served_temp) / ground_users < 1:
@@ -141,17 +141,17 @@ def reward_function(UAV_node, placed, pos_i):
         pos_j = UAV_location[j]
         if grn_endpoint.grn_info.is_edge_grn(UAV_node, j) and move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
             pos_reward += 999999
-        else:
+        elif not grn_endpoint.grn_info.is_edge_grn(UAV_node, j) and move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
             pos_reward += 99999
     connectivity = users_endpoint.users.get_ground_cell_connections(pos_i)
     if connectivity == 0:
         neg_reward += 9999999
-    reward = pos_reward / neg_reward
-    reward *= power_UAV
     for node, pos in UAV_location.items():
         if pos == pos_i:
             neg_reward += 999999 * 999
             break
+    reward = pos_reward / neg_reward
+    reward *= power_UAV
     return reward
 
 

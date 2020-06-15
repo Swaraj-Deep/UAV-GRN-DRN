@@ -8,6 +8,6 @@
     "max_iter": 10000,
     "number_UAV": 7,
     "radius_UAV": 2,
-    "UAV_to_UAV_threshold": 5,
+    "UAV_to_UAV_threshold": 6,
     "power_UAV": 5
 }
