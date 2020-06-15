@@ -95,14 +95,19 @@ def init():
     users_endpoint.users.init(radius_UAV, N, M)
 
 
-def is_equal(l1, l2):
-    if len(l1) != len(l2):
+def is_equal(list_1, list_2):
+    """
+    Function: is_equal\n
+    Parameters: list_1 -> first list, list_2 -> second list\n
+    Return: True if both list_1 and list_2 are equal else False
+    """
+    if len(list_1) != len(list_2):
         return False
-    le = 0
-    for item in l2:
-        if item in l1:
-            le += 1
-    if le == len(l1):
+    len_list = 0
+    for item in list_2:
+        if item in list_1:
+            len_list += 1
+    if len_list == len(list_1):
         return True
     return False
 
@@ -129,7 +134,7 @@ def reward_function(UAV_node, placed, pos_i):
         user_connected_j = users_endpoint.users.get_users_cell_connections(
             pos_j)
         for user in user_connected_j:
-            user_served_temp.add (user)
+            user_served_temp.add(user)
         if is_equal(user_connected_i, user_connected_j):
             neg_reward += 999999
         else:
