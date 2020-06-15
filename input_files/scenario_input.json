@@ -2,7 +2,7 @@
     "N": 14,
     "M": 14,
     "t": 0.59,
-    "epsilon": 0.55,
+    "epsilon": 0.50,
     "learning_rate": 0.98457,
     "discount_factor": 0.00312,
     "max_iter": 1000,
