@@ -10,8 +10,8 @@ def get_random_location(N, M):
     """
     # x = random.randint(((N - 1) // 2), N - 1)
     # y = random.randint(((M - 1) // 2), M - 1)
-    x = random.randint (0, N - 1)
-    y = random.randint (0, M - 1)
+    x = random.randint(0, N - 1)
+    y = random.randint(0, M - 1)
     return (x, y)
 
 
