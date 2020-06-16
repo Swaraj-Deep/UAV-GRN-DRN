@@ -26,15 +26,15 @@ pip3 install numpy
 Clone the repository using the following command:
 
 ``` git
-git clone git@github.com:Krishnandu91/UAV_GRN_DRN.git
+git clone git@github.com:Krishnandu91/UAV-GRN-DRN.git
 ```
 
 ## Exceution
 
-Goto UAV_GRN_DRN folder and type the following command
+Goto UAV-GRN-DRN folder and type the following command
 
 ``` bash
-python3 new_imp.py
+python3 main.py
 ```
 
 ## License

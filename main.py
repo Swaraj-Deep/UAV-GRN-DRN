@@ -109,37 +109,30 @@ def q_learn(UAV_node, placed):
     global discount_factor
     global max_iter
     Q = np.zeros((N * M, 4))
-    for i in range (5):
-        if UAV_node not in UAV_location:
-            loc = move_endpoint.movement.get_random_location(N, M)
+    loc = move_endpoint.movement.get_random_location(N, M)
+    for iterations in range(max_iter):
+        x, y, action = move_endpoint.movement.get_random_move(loc, N, M)
+        loc = (x, y)
+        if random.uniform(0, 1) <= epsilon:
+            index = move_endpoint.movement.map_2d_to_1d(loc, N)
+            Q[index, action] = reward_endpoint.rewards.reward_function(UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold)
         else:
-            loc = UAV_location[UAV_node]
-        print (loc)
-        for iterations in range(max_iter):
-            x, y, action = move_endpoint.movement.get_random_move(loc, N, M)
-            loc = (x, y)
-            if random.uniform(0, 1) <= epsilon:
-                index = move_endpoint.movement.map_2d_to_1d(loc, N)
-                Q[index, action] = reward_endpoint.rewards.reward_function(
-                    UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold)
-            else:
-                index = move_endpoint.movement.map_2d_to_1d(loc, N)
-                reward = reward_endpoint.rewards.reward_function(
-                    UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold)
-                Q[index, action] = Q[index, action] + learning_rate * \
-                    (reward + discount_factor *
-                     np.max(Q[index, :]) - Q[index, action])
-        max_reward = -1
-        max_pos = -1
-        for index, rows in enumerate(Q):
-            expected_max = np.max(rows)
-            if expected_max > max_reward:
-                max_reward = expected_max
-                max_pos = index
-        x, y = move_endpoint.movement.map_1d_to_2d(max_pos, N, M)
-        UAV_location[UAV_node] = (x, y)
-        # print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
-    return UAV_location[UAV_node]
+            index = move_endpoint.movement.map_2d_to_1d(loc, N)
+            reward = reward_endpoint.rewards.reward_function(
+                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold)
+            Q[index, action] = Q[index, action] + learning_rate * \
+                (reward + discount_factor *
+                 np.max(Q[index, :]) - Q[index, action])
+    max_reward = -1
+    max_pos = -1
+    for index, rows in enumerate(Q):
+        expected_max = np.max(rows)
+        if expected_max > max_reward:
+            max_reward = expected_max
+            max_pos = index
+    x, y = move_endpoint.movement.map_1d_to_2d(max_pos, N, M)
+    # print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
+    return (x, y)
 
 
 def simulation():
