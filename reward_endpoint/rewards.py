@@ -2,6 +2,7 @@ import users_endpoint.users
 import move_endpoint.movement
 import grn_endpoint.grn_info
 
+
 def is_equal(list_1, list_2):
     """
     Function: is_equal\n
@@ -25,9 +26,6 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
     Parameters: UAV_node -> the UAV which needs to be placed, placed -> list of already placed UAVs, pos_i -> current position of the UAV_node\n
     Returns: the reward for this configuration\n
     """
-    # global t
-    # global UAV_to_UAV_threshold
-    # global power_UAV
     neg_reward = 1
     pos_reward = 1
     ground_users = users_endpoint.users.get_number_ground_users()
@@ -61,12 +59,48 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
     # New additions
     for j in placed:
         pos_j = UAV_location[j]
-        if grn_endpoint.grn_info.is_edge_grn (UAV_node, j) or grn_endpoint.grn_info.is_edge_grn (j, UAV_node):
+        if grn_endpoint.grn_info.is_edge_grn(UAV_node, j) or grn_endpoint.grn_info.is_edge_grn(j, UAV_node):
             if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
                 pos_reward += 9999
-            pos_reward += grn_endpoint.grn_info.get_emc(UAV_node, j) + 999
-            pos_reward += grn_endpoint.grn_info.get_emc(j, UAV_node) + 999
+            pos_reward += grn_endpoint.grn_info.get_emc(grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) + 999
+            pos_reward += grn_endpoint.grn_info.get_emc(grn_endpoint.grn_info.m(j), grn_endpoint.grn_info.m(UAV_node)) + 999
     # New Additions over
+    reward = pos_reward / neg_reward
+    reward *= power_UAV
+    return reward
+
+
+def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_UAV_threshold):
+    """
+    Function: reward_function\n
+    Parameters: UAV_node -> the UAV which needs to be placed, placed -> list of already placed UAVs, pos_i -> current position of the UAV_node\n
+    Returns: the reward for this configuration\n
+    """
+    pos_reward = 0
+    rho_reward = 0
+    neg_reward = 1
+    # RHO function
+    for j in placed:
+        pos_j = UAV_location[j]
+        if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
+            rho_reward = 1
+            break
+    # Indicator variable edge motif centrality
+    for j in placed:
+        if grn_endpoint.grn_info.is_edge_grn(UAV_node, j):
+            pos_reward += grn_endpoint.grn_info.get_emc(grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) + 1
+    # ETA function
+    eta_num = users_endpoint.users.get_ground_cell_connections(pos_i)
+    eta_den = 1
+    for j in placed:
+        pos_j = UAV_location[j]
+        eta_den += users_endpoint.users.get_ground_cell_connections(pos_j)
+    # Indicator variable for denominator
+    for j in placed:
+        pos_j = UAV_location[j]
+        if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < t:
+            neg_reward += 1
+    # Calculating reward
     reward = pos_reward / neg_reward
     reward *= power_UAV
     return reward

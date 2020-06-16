@@ -40,12 +40,12 @@ def analyse_output_files():
     print(f'# Location of Best Output file is: {best_file}', end='')
     for i in range((91 - op) // 2):
         print(' ', end=' ')
-    print('#')
+    print(' #')
     print(f'# Corresponding Graph file location is: {best_graph}', end='')
     op = len(f'# Corresponding Graph file location is: {best_graph}')
     for i in range((91 - op) // 2):
         print(' ', end=' ')
-    print('#')
+    print(' #')
     worst_graph = './output_files/Output_graph' + \
         worst_file[26:len(worst_file) - 4:] + '.png'
     print(
@@ -53,17 +53,17 @@ def analyse_output_files():
     op = len(f'# Location of Worst Output file is: {worst_file}')
     for i in range((91 - op) // 2):
         print(' ', end=' ')
-    print('#')
+    print(' #')
     print(f'# Corresponding Graph file location is: {worst_graph}', end='')
     op = len(f'# Corresponding Graph file location is: {worst_graph}')
     for i in range((91 - op) // 2):
         print(' ', end=' ')
-    print(' #')
+    print('#')
     print(f'# Mean User Served: {sum_user_served / total_files}', end='')
     op = len(f'# Mean User Served: {sum_user_served / total_files}')
     for i in range((91 - op) // 2):
         print(' ', end=' ')
-    print(' #')
+    print('#')
     print("############################################################################################")
 
 

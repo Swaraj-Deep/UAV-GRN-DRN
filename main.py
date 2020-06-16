@@ -96,9 +96,6 @@ def init():
     users_endpoint.users.init(radius_UAV, N, M)
 
 
-
-
-
 def q_learn(UAV_node, placed):
     """
     Function: q_learn\n
@@ -118,10 +115,12 @@ def q_learn(UAV_node, placed):
         loc = (x, y)
         if random.uniform(0, 1) <= epsilon:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
-            Q[index, action] = reward_endpoint.rewards.reward_function(UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold)
+            Q[index, action] = reward_endpoint.rewards.reward_function(
+                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold)
         else:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
-            reward = reward_endpoint.rewards.reward_function(UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold)
+            reward = reward_endpoint.rewards.reward_function(
+                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold)
             Q[index, action] = Q[index, action] + learning_rate * \
                 (reward + discount_factor *
                  np.max(Q[index, :]) - Q[index, action])
