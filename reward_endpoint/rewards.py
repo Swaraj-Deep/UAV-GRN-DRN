@@ -23,7 +23,7 @@ def is_equal(list_1, list_2):
 def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_UAV_threshold):
     """
     Function: reward_function\n
-    Parameters: UAV_node -> the UAV which needs to be placed, placed -> list of already placed UAVs, pos_i -> current position of the UAV_node\n
+    Parameters: UAV_node -> the UAV which needs to be placed, placed -> list of already placed UAVs, pos_i -> current position of the UAV_node, UAV_location -> Dictionary storing locations of UAVs, t -> threshold distance of UAV, power_UAV -> power of UAV, UAV_to_UAV_threshold -> UAV to UAV communication threshold\n
     Returns: the reward for this configuration\n
     """
     neg_reward = 1
@@ -62,8 +62,10 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
         if grn_endpoint.grn_info.is_edge_grn(UAV_node, j) or grn_endpoint.grn_info.is_edge_grn(j, UAV_node):
             if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
                 pos_reward += 9999
-            pos_reward += grn_endpoint.grn_info.get_emc(grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) + 999
-            pos_reward += grn_endpoint.grn_info.get_emc(grn_endpoint.grn_info.m(j), grn_endpoint.grn_info.m(UAV_node)) + 999
+            pos_reward += grn_endpoint.grn_info.get_emc(grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) + 9999
+            pos_reward += grn_endpoint.grn_info.get_emc(grn_endpoint.grn_info.m(j), grn_endpoint.grn_info.m(UAV_node)) + 9999
+        else:
+            neg_reward += 999999
     # New Additions over
     reward = pos_reward / neg_reward
     reward *= power_UAV
@@ -73,7 +75,7 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
 def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_UAV_threshold):
     """
     Function: reward_function\n
-    Parameters: UAV_node -> the UAV which needs to be placed, placed -> list of already placed UAVs, pos_i -> current position of the UAV_node\n
+    Parameters: UAV_node -> the UAV which needs to be placed, placed -> list of already placed UAVs, pos_i -> current position of the UAV_node, UAV_location -> Dictionary storing locations of UAVs, t -> threshold distance of UAV, power_UAV -> power of UAV, UAV_to_UAV_threshold -> UAV to UAV communication threshold\n
     Returns: the reward for this configuration\n
     """
     pos_reward = 0
@@ -94,7 +96,7 @@ def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, U
     eta_den = 1
     for j in placed:
         pos_j = UAV_location[j]
-        eta_den += users_endpoint.users.get_ground_cell_connections(pos_j)
+        eta_den += users_endpoint.users.get_ground_cell_connections(pos_j) + 1
     pos_reward += eta_num / eta_den
     # Indicator variable for denominator
     for j in placed:
