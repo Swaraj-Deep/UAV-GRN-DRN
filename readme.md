@@ -4,16 +4,16 @@ This is a repository for creating a UAV network based on the GRN graph using pyt
 
 ## Requirements
 
-You need python and following packages to run this code  
+You need python and following packages to run this code
 
-[python3.x](https://www.python.org/downloads/)  
-[networkx](https://networkx.github.io/)  
-[matplotlib](https://matplotlib.org/)  
+[python3.x](https://www.python.org/downloads/)
+[networkx](https://networkx.github.io/)
+[matplotlib](https://matplotlib.org/)
 [numpy](https://numpy.org/)
 
 ## Installation
 
-Install the python packages by issuing the follwing commands in your terminal  
+Install the python packages by issuing the follwing commands in your terminal
 
 ``` bash
 pip3 install networkx
@@ -31,13 +31,11 @@ git clone git@github.com:Krishnandu91/UAV_GRN_DRN.git
 
 ## Exceution
 
-Goto UAV_GRN_DRN folder and type the following command  
+Goto UAV_GRN_DRN folder and type the following command
 
 ``` bash
 python3 new_imp.py
 ```
-##  Output screenshot
-![Output snapshot](/fig1.png)
 
 ## License
 
