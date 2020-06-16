@@ -41,8 +41,8 @@ def analyse_output_files():
     for i in range((91 - op) // 2):
         print(' ', end=' ')
     print('#')
-    print(f'# Location of Best Graph file is: {best_graph}', end='')
-    op = len(f'# Location of Best Graph file is: {best_graph}')
+    print(f'# Corresponding Graph file location is: {best_graph}', end='')
+    op = len(f'# Corresponding Graph file location is: {best_graph}')
     for i in range((91 - op) // 2):
         print(' ', end=' ')
     print('#')
@@ -54,16 +54,16 @@ def analyse_output_files():
     for i in range((91 - op) // 2):
         print(' ', end=' ')
     print('#')
-    print(f'# Location of Worst Graph file is: {worst_graph}', end='')
-    op = len(f'# Location of Worst Graph file is: {worst_graph}')
+    print(f'# Corresponding Graph file location is: {worst_graph}', end='')
+    op = len(f'# Corresponding Graph file location is: {worst_graph}')
     for i in range((91 - op) // 2):
         print(' ', end=' ')
-    print('#')
+    print(' #')
     print(f'# Mean User Served: {sum_user_served / total_files}', end='')
     op = len(f'# Mean User Served: {sum_user_served / total_files}')
     for i in range((91 - op) // 2):
         print(' ', end=' ')
-    print('#')
+    print(' #')
     print("############################################################################################")
 
 

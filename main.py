@@ -7,6 +7,7 @@ import networkx as nx
 import users_endpoint.users
 import grn_endpoint.grn_info
 import move_endpoint.movement
+import reward_endpoint.rewards
 import matplotlib.pyplot as plt
 
 # Global variables declaration
@@ -95,74 +96,7 @@ def init():
     users_endpoint.users.init(radius_UAV, N, M)
 
 
-def is_equal(list_1, list_2):
-    """
-    Function: is_equal\n
-    Parameters: list_1 -> first list, list_2 -> second list\n
-    Return: True if both list_1 and list_2 are equal else False
-    """
-    if len(list_1) != len(list_2):
-        return False
-    len_list = 0
-    for item in list_2:
-        if item in list_1:
-            len_list += 1
-    if len_list == len(list_1):
-        return True
-    return False
 
-
-def reward_function(UAV_node, placed, pos_i):
-    """
-    Function: reward_function\n
-    Parameters: UAV_node -> the UAV which needs to be placed, placed -> list of already placed UAVs, pos_i -> current position of the UAV_node\n
-    Returns: the reward for this configuration\n
-    """
-    global t
-    global UAV_to_UAV_threshold
-    global power_UAV
-    neg_reward = 1
-    pos_reward = 1
-    ground_users = users_endpoint.users.get_number_ground_users()
-    user_served_temp = set()
-    connectivity = users_endpoint.users.get_ground_cell_connections(pos_i)
-    if connectivity == 0:
-        neg_reward += 9999999
-    user_connected_i = users_endpoint.users.get_users_cell_connections(pos_i)
-    for j in placed:
-        pos_j = UAV_location[j]
-        user_connected_j = users_endpoint.users.get_users_cell_connections(
-            pos_j)
-        for user in user_connected_j:
-            user_served_temp.add(user)
-        if is_equal(user_connected_i, user_connected_j):
-            neg_reward += 999999
-        else:
-            pos_reward += 99999
-    if len(user_served_temp) / ground_users < 1:
-        neg_reward += 999999
-    for j in placed:
-        pos_j = UAV_location[j]
-        dist_uav = move_endpoint.movement.get_dist_UAV(pos_i, pos_j)
-        if dist_uav == 0 or dist_uav <= t:
-            neg_reward += 99999999 * -999
-        # if dist_uav > t and dist_uav <= UAV_to_UAV_threshold:
-        #     if grn_endpoint.grn_info.is_edge_grn(UAV_node, j) or grn_endpoint.grn_info.is_edge_grn(j, UAV_node):
-        #         pos_reward += 99999
-        #     else:
-        #         pos_reward += 9999
-    # New additions
-    for j in placed:
-        pos_j = UAV_location[j]
-        if grn_endpoint.grn_info.is_edge_grn (UAV_node, j) or grn_endpoint.grn_info.is_edge_grn (j, UAV_node):
-            if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
-                pos_reward += 9999
-            pos_reward += grn_endpoint.grn_info.get_emc(UAV_node, j) + 999
-            pos_reward += grn_endpoint.grn_info.get_emc(j, UAV_node) + 999
-    # New Additions over
-    reward = pos_reward / neg_reward
-    reward *= power_UAV
-    return reward
 
 
 def q_learn(UAV_node, placed):
@@ -184,10 +118,10 @@ def q_learn(UAV_node, placed):
         loc = (x, y)
         if random.uniform(0, 1) <= epsilon:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
-            Q[index, action] = reward_function(UAV_node, placed, loc)
+            Q[index, action] = reward_endpoint.rewards.reward_function(UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold)
         else:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
-            reward = reward_function(UAV_node, placed, loc)
+            reward = reward_endpoint.rewards.reward_function(UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold)
             Q[index, action] = Q[index, action] + learning_rate * \
                 (reward + discount_factor *
                  np.max(Q[index, :]) - Q[index, action])
