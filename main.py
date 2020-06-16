@@ -151,6 +151,15 @@ def reward_function(UAV_node, placed, pos_i):
         #         pos_reward += 99999
         #     else:
         #         pos_reward += 9999
+    # New additions
+    for j in placed:
+        pos_j = UAV_location[j]
+        if grn_endpoint.grn_info.is_edge_grn (UAV_node, j) or grn_endpoint.grn_info.is_edge_grn (j, UAV_node):
+            if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
+                pos_reward += 9999
+            pos_reward += grn_endpoint.grn_info.get_emc(UAV_node, j) + 999
+            pos_reward += grn_endpoint.grn_info.get_emc(j, UAV_node) + 999
+    # New Additions over
     reward = pos_reward / neg_reward
     reward *= power_UAV
     return reward
