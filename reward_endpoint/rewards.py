@@ -95,6 +95,7 @@ def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, U
     for j in placed:
         pos_j = UAV_location[j]
         eta_den += users_endpoint.users.get_ground_cell_connections(pos_j)
+    pos_reward += eta_num / eta_den
     # Indicator variable for denominator
     for j in placed:
         pos_j = UAV_location[j]
@@ -102,5 +103,5 @@ def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, U
             neg_reward += 1
     # Calculating reward
     reward = pos_reward / neg_reward
-    reward *= power_UAV
+    reward *= power_UAV * rho_reward
     return reward
