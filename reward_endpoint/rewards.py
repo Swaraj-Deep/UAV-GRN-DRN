@@ -97,7 +97,7 @@ def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, U
             pos_reward += grn_endpoint.grn_info.get_emc(
                 grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) + 1
         eta_frac_sum = 0
-        for user in range (1, ground_users + 1):
+        for user in range(1, ground_users + 1):
             eta_num = 0
             eta_den = 1
             if users_endpoint.users.is_user_connected(user, pos_i, radius_UAV, N, M):
