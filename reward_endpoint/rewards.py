@@ -59,7 +59,7 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
     # New additions
     for j in placed:
         pos_j = UAV_location[j]
-        if grn_endpoint.grn_info.is_edge_grn(UAV_node, j) or grn_endpoint.grn_info.is_edge_grn(j, UAV_node):
+        if grn_endpoint.grn_info.is_edge_grn(grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) or grn_endpoint.grn_info.is_edge_grn(grn_endpoint.grn_info.m(j), grn_endpoint.grn_info.m(UAV_node)):
             if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
                 pos_reward += 9999
             pos_reward += grn_endpoint.grn_info.get_emc(
@@ -93,7 +93,7 @@ def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, U
             break
     # Indicator variable edge motif centrality
     for j in placed:
-        if grn_endpoint.grn_info.is_edge_grn(UAV_node, j):
+        if grn_endpoint.grn_info.is_edge_grn(grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)):
             pos_reward += grn_endpoint.grn_info.get_emc(
                 grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) + 1
         eta_frac_sum = 0
