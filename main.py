@@ -115,12 +115,12 @@ def q_learn(UAV_node, placed):
         loc = (x, y)
         if random.uniform(0, 1) <= epsilon:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
-            Q[index, action] = reward_endpoint.rewards.reward_function(
-                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold)
+            Q[index, action] = reward_endpoint.rewards.reward_function_paper(
+                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M)
         else:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
-            reward = reward_endpoint.rewards.reward_function(
-                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold)
+            reward = reward_endpoint.rewards.reward_function_paper(
+                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M)
             Q[index, action] = Q[index, action] + learning_rate * \
                 (reward + discount_factor *
                  np.max(Q[index, :]) - Q[index, action])
@@ -132,7 +132,7 @@ def q_learn(UAV_node, placed):
             max_reward = expected_max
             max_pos = index
     x, y = move_endpoint.movement.map_1d_to_2d(max_pos, N, M)
-    # print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
+    print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
     return (x, y)
 
 

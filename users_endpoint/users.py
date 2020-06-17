@@ -15,8 +15,8 @@ max_density = -1
 max_pos = (-1, -1)
 
 # Dictionary containing Ground User Positions
-# Key in this dictionary is Ground User
-# Value in this dictionary is Position of the ground user
+# Key in this dictionary is Position of the ground user
+# Value in this dictionary is Ground User at that position
 
 ground_user_pos = {}
 
@@ -83,7 +83,7 @@ def set_cell_helper(i, j, radius_UAV, N, M):
     radius_UAV -> radius of the UAV\n
     N -> number of rows in the grid\n
     M -> number of columns in the grid\n
-    Returns: a tuple of count of connected users and list of users which are connected from that cell
+    Returns: a tuple of count of connected users and list of users which are connected from that cell\n
     """
     up = max(0, i - radius_UAV)
     left = max(0, j - radius_UAV)
@@ -150,3 +150,33 @@ def get_max_pos_density():
     global max_density
     global max_pos
     return (max_pos, max_density)
+
+
+def is_user_connected(user, pos, radius_UAV, N, M):
+    """
+    Function: set_cell_helper\n
+    Parameters\n
+    user -> current ground user\n
+    pos -> current pos of the UAV\n
+    radius_UAV -> radius of the UAV\n
+    N -> number of rows in the grid\n
+    M -> number of columns in the grid\n
+    Returns: a tuple of count of connected users and list of users which are connected from that cell\n
+    """
+    i, j = pos
+    up = max(0, i - radius_UAV)
+    left = max(0, j - radius_UAV)
+    down = min(N - 1, i + radius_UAV)
+    right = min(M - 1, j + radius_UAV)
+    for i in range(up, down + 1):
+        for j in range(left, right + 1):
+            if (i, j) in ground_user_pos and ground_user_pos[(i, j)] == user:
+                return True
+    return False
+
+
+if __name__ == "__main__":
+    init (2, 14, 14)
+    print(ground_user_pos)
+    x, y = map (int, input("enter x, y").split(" "))
+    print(is_user_connected(2, (x, y), 2, 14, 14))
