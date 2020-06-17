@@ -128,7 +128,7 @@ def q_learn(UAV_node, placed):
     max_pos = -1
     for index, rows in enumerate(Q):
         expected_max = np.max(rows)
-        if expected_max > max_reward:
+        if expected_max >= max_reward:
             max_reward = expected_max
             max_pos = index
     x, y = move_endpoint.movement.map_1d_to_2d(max_pos, N, M)

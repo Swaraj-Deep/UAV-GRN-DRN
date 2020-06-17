@@ -6,7 +6,7 @@
     "learning_rate": 0.9457,
     "decay_factor": 0.98,
     "max_iter": 10000,
-    "number_UAV": 7,
+    "number_UAV": 5,
     "radius_UAV": 2,
     "UAV_to_UAV_threshold": 4,
     "power_UAV": 5
