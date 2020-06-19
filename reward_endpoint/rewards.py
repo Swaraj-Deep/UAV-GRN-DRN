@@ -33,7 +33,7 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
     connectivity = users_endpoint.users.get_ground_cell_connections(pos_i)
     # Give a very high -ve reward
     if connectivity == 0:
-        neg_reward += 99999999 * -99999
+        neg_reward += 999999999 * -99999
     user_connected_i = users_endpoint.users.get_users_cell_connections(pos_i)
     for j in placed:
         pos_j = UAV_location[j]
@@ -83,7 +83,7 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
 
 def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M):
     """
-    Function: reward_function\n
+    Function: reward_function_paper\n
     Parameters: UAV_node -> the UAV which needs to be placed, placed -> list of already placed UAVs, pos_i -> current position of the UAV_node, UAV_location -> Dictionary storing locations of UAVs, t -> threshold distance of UAV, power_UAV -> power of UAV, UAV_to_UAV_threshold -> UAV to UAV communication threshold, radius_UAV -> radius of the UAV, (N, M) -> size of the grid\n
     Returns: the reward for this configuration\n
     """
