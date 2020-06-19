@@ -87,7 +87,7 @@ def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, U
     Parameters: UAV_node -> the UAV which needs to be placed, placed -> list of already placed UAVs, pos_i -> current position of the UAV_node, UAV_location -> Dictionary storing locations of UAVs, t -> threshold distance of UAV, power_UAV -> power of UAV, UAV_to_UAV_threshold -> UAV to UAV communication threshold, radius_UAV -> radius of the UAV, (N, M) -> size of the grid\n
     Returns: the reward for this configuration\n
     """
-    pos_reward = 0
+    pos_reward = 1
     rho_reward = 0
     neg_reward = 1
     reward = 0
@@ -103,7 +103,7 @@ def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, U
         if grn_endpoint.grn_info.is_edge_grn(grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)):
             pos_reward += grn_endpoint.grn_info.get_emc(
                 grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) + 1
-        eta_frac_sum = 0
+        eta_frac_sum = 1
         for user in range(1, ground_users + 1):
             eta_num = 0
             eta_den = 1
