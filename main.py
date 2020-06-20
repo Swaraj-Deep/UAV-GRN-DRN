@@ -188,7 +188,7 @@ def write_output(placed):
         G.add_node(node)
     for node1 in placed:
         for node2 in placed:
-            if move_endpoint.movement.get_dist_UAV(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold:
+            if move_endpoint.movement.get_dist_UAV(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold and node1 != node2:
                 G.add_edge(node1, node2)
     nx.draw(G, with_labels=True)
     plt.savefig(graph_file_name)
