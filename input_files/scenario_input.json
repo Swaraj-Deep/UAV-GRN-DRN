@@ -1,7 +1,7 @@
 {
     "N": 14,
     "M": 14,
-    "t": 0.05,
+    "t": 1.85,
     "epsilon": 0.55,
     "learning_rate": 0.9457,
     "decay_factor": 0.98,
