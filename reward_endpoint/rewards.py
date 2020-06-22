@@ -28,43 +28,63 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
     """
     neg_reward = 1
     pos_reward = 1
-    user_connected_i = users_endpoint.users.get_users_cell_connections (pos_i)        
+    user_connected_i = users_endpoint.users.get_users_cell_connections(pos_i)
     user_served_temp = set()
     ground_users = users_endpoint.users.get_number_ground_users()
     for user in user_connected_i:
-        user_served_temp.add (user)
+        user_served_temp.add(user)
     edges_nodes = []
     for node1 in placed:
         pos_i = UAV_location[node1]
         for node2 in placed:
             pos_j = UAV_location[node2]
-            if node1 != node2 and move_endpoint.movement.get_dist_UAV (pos_i, pos_j) <= UAV_to_UAV_threshold:
-                edges_nodes.append (node1)
-                edges_nodes.append (node2)
+            if node1 != node2 and move_endpoint.movement.get_dist_UAV(pos_i, pos_j) <= UAV_to_UAV_threshold:
+                edges_nodes.append(node1)
+                edges_nodes.append(node2)
     for j in placed:
         pos_j = UAV_location[j]
-        dist_UAV = move_endpoint.movement.get_dist_UAV (pos_i, pos_j)
+        dist_UAV = move_endpoint.movement.get_dist_UAV(pos_i, pos_j)
         if dist_UAV >= UAV_to_UAV_threshold - t:
             pos_reward += 99
         else:
             neg_reward += 999999
-        
-        user_connected_j = users_endpoint.users.get_users_cell_connections (pos_j)
+
+        user_connected_j = users_endpoint.users.get_users_cell_connections(
+            pos_j)
         for user in user_connected_j:
-            user_served_temp.add (user)
-        if is_equal (user_connected_i, user_connected_j):
+            user_served_temp.add(user)
+        if is_equal(user_connected_i, user_connected_j):
             neg_reward += 999999
-        if grn_endpoint.grn_info.is_edge_grn (grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) or grn_endpoint.grn_info.is_edge_grn (grn_endpoint.grn_info.m(j), grn_endpoint.grn_info.m(UAV_node)):
+        if grn_endpoint.grn_info.is_edge_grn(grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) or grn_endpoint.grn_info.is_edge_grn(grn_endpoint.grn_info.m(j), grn_endpoint.grn_info.m(UAV_node)):
             pos_reward += 99
             if UAV_node not in edges_nodes and dist_UAV <= UAV_to_UAV_threshold:
                 pos_reward += 9999
-    if len (user_served_temp) / ground_users < 1:
+    if len(user_served_temp) / ground_users < 1:
         neg_reward += 999999
-    if len (user_connected_i) == 0:
+    if len(user_connected_i) == 0:
         pos_reward *= -99
     reward = pos_reward / neg_reward
     reward *= power_UAV
     return reward
+
+
+def user_coverage_count(user, placed, UAV_location, radius_UAV, N, M):
+    """
+    Function: user_coverage_count\n
+    Parameters: user-> user to be checked, placed -> list of UAVs already placed, UAV_location -> dict containing position of placed UAVs, radius_UAV -> radius of UAV, (N, M) -> size of the grid\n
+    Returns: Calculated reward
+    """
+    user_conn = 0
+    for j in placed:
+        pos_j = UAV_location[j]
+        if users_endpoint.users.is_user_connected(user, pos_j, radius_UAV, N, M):
+            user_conn += 1
+    if user_conn == 0:
+        user_conn = 4
+    else:
+        user_conn /= len(placed)
+        user_conn *= -4
+    return user_conn
 
 
 def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M):
@@ -76,7 +96,7 @@ def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, U
     pos_reward = 1
     rho_reward = 0
     neg_reward = 1
-    reward = 0
+    reward = 1
     ground_users = users_endpoint.users.get_number_ground_users()
     # RHO function
     for j in placed:
@@ -84,24 +104,22 @@ def reward_function_paper(UAV_node, placed, pos_i, UAV_location, t, power_UAV, U
         if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
             rho_reward = 1
             break
-    # Indicator variable edge motif centrality
+    # Outer Summation
     for j in placed:
+        pos_j = UAV_location[j]
+        emc_reward = 0
         if grn_endpoint.grn_info.is_edge_grn(grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)):
-            pos_reward += grn_endpoint.grn_info.get_emc(
-                grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) + 1
-        eta_frac_sum = 1
-        for user in range(1, ground_users + 1):
-            eta_num = 0
-            eta_den = 1
-            if users_endpoint.users.is_user_connected(user, pos_i, radius_UAV, N, M):
-                eta_num = 1
-                break
-            for j in placed:
-                pos_j = UAV_location[j]
-                if users_endpoint.users.is_user_connected(user, pos_i, radius_UAV, N, M):
-                    eta_den += 1
-            eta_frac_sum += eta_num / eta_den
-        pos_reward += eta_frac_sum
+            emc_reward = (grn_endpoint.grn_info.get_emc(
+                grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) + 1) / 3
+        user_conn = 0
+        for k in range(1, ground_users + 1):
+            user_conn = 0
+            if users_endpoint.users.is_user_connected(k, pos_i, radius_UAV, N, M):
+                user_conn = 1
+            user_conn *= user_coverage_count (k, placed, UAV_location, radius_UAV, N, M)
+        user_den = ground_users * len (placed)
+        user_conn /= user_den
+        pos_reward = emc_reward + user_conn
         if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < t:
             neg_reward += 1
         reward += pos_reward / neg_reward

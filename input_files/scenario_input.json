@@ -5,7 +5,7 @@
     "epsilon": 0.55,
     "learning_rate": 0.9457,
     "decay_factor": 0.98,
-    "max_iter": 10000,
+    "max_iter": 100,
     "number_UAV": 7,
     "radius_UAV": 3,
     "UAV_to_UAV_threshold": 6,
