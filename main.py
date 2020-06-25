@@ -116,7 +116,8 @@ def q_learn(UAV_node, placed):
     # Random Location
     loc = move_endpoint.movement.get_random_location(N, M)
     # Vicinity Location
-    loc = move_endpoint.movement.get_vicinity_location(N, M, UAV_location, UAV_to_UAV_threshold)
+    loc = move_endpoint.movement.get_vicinity_location(
+        N, M, UAV_location, UAV_to_UAV_threshold)
     for iterations in range(max_iter):
         x, y, action = move_endpoint.movement.get_random_move(loc, N, M)
         loc = (x, y)

@@ -81,10 +81,10 @@ def get_vicinity_location(N, M, UAV_location, UAV_to_UAV_threshold):
     Returns: a tuple of visinity location (within the range of UAV to UAV threshold) of one of the placed UAV so far disaster area\n
     """
     size = len(UAV_location)
-    rand_UAV = random.randint (1, size)
+    rand_UAV = random.randint(1, size)
     i, j = UAV_location[rand_UAV]
-    cell_list = get_cell_vicinity (i, j, UAV_to_UAV_threshold, N, M)
-    rand_loc = random.randint (0, len (cell_list) - 1)
+    cell_list = get_cell_vicinity(i, j, UAV_to_UAV_threshold, N, M)
+    rand_loc = random.randint(0, len(cell_list) - 1)
     x, y = cell_list[rand_loc]
     return (x, y)
 
