@@ -108,18 +108,25 @@ def q_learn(UAV_node, placed):
     global learning_rate
     global decay_factor
     global max_iter
-    Q = np.zeros((N * M, 4))
+    Q = np.zeros((N * M, 5))
+    # Centroid Location
+    # loc = move_endpoint.movement.get_centroid_location(N, M, UAV_location, UAV_to_UAV_threshold)
+    # Center Location
+    # loc = move_endpoint.movement.get_center_location(N, M)
+    # Random Location
     loc = move_endpoint.movement.get_random_location(N, M)
+    # Vicinity Location
+    loc = move_endpoint.movement.get_vicinity_location(N, M, UAV_location, UAV_to_UAV_threshold)
     for iterations in range(max_iter):
         x, y, action = move_endpoint.movement.get_random_move(loc, N, M)
         loc = (x, y)
         if random.uniform(0, 1) <= epsilon:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
-            Q[index, action] = reward_endpoint.rewards.reward_function_paper(
+            Q[index, action] = reward_endpoint.rewards.reward_function(
                 UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M)
         else:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
-            reward = reward_endpoint.rewards.reward_function_paper(
+            reward = reward_endpoint.rewards.reward_function(
                 UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M)
             Q[index, action] = Q[index, action] + learning_rate * \
                 (reward + decay_factor *
@@ -154,6 +161,13 @@ def simulation():
         unplaced.append(UAV_node)
     for UAV_node in unplaced:
         loc = q_learn(UAV_node, placed)
+        flag = True
+        while flag:
+            for UAV, location in UAV_location.items():
+                if location == loc:
+                    loc = q_learn(UAV_node, placed)
+                else:
+                    flag = False
         UAV_location[UAV_node] = loc
         placed.append(UAV_node)
         user_list = users_endpoint.users.get_users_cell_connections(loc)
