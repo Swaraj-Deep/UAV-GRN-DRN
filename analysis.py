@@ -7,6 +7,13 @@ def analyse_output_files():
     Function: analyse_output_files\n
     Functionality: Calculate the mean of the output files, provides the best and the worst output files\n
     """
+    with open('input_files/scenario_input.json', 'r') as file_pointer:
+        file_data = json.load(file_pointer)
+        epsilon = file_data['epsilon']
+        learning_rate = file_data['learning_rate']
+        decay_factor = file_data['decay_factor']
+    parent_dir = os.getcwd ()
+    
     text_files = []
     minm_user_served = 999999999
     maxm_user_served = -99999999

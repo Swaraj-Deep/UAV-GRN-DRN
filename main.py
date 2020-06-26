@@ -118,10 +118,11 @@ def q_learn(UAV_node, placed):
     # Vicinity Location
     loc = move_endpoint.movement.get_vicinity_location(
         N, M, UAV_location, UAV_to_UAV_threshold)
+    epsilon_val = epsilon
     for iterations in range(max_iter):
         x, y, action = move_endpoint.movement.get_random_move(loc, N, M)
         loc = (x, y)
-        if random.uniform(0, 1) <= epsilon:
+        if random.uniform(0, 1) <= epsilon_val:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
             Q[index, action] = reward_endpoint.rewards.reward_function(
                 UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M)
@@ -132,6 +133,7 @@ def q_learn(UAV_node, placed):
             Q[index, action] = Q[index, action] + learning_rate * \
                 (reward + decay_factor *
                  np.max(Q[index, :]) - Q[index, action])
+        epsilon_val *= decay_factor
     max_reward = -1
     max_pos = -1
     for index, rows in enumerate(Q):
@@ -184,12 +186,21 @@ def write_output(placed):
     Parameters: placed -> list of already placed UAVs
     Functionality: write the output to the respective files
     """
+    parent_dir = './output_files'
+    curr_dir = str(epsilon) + "_" + str(learning_rate) + "_" + str(decay_factor)
+    dir_path = os.path.join (parent_dir, curr_dir)
+    try:
+        os.mkdir(dir_path)
+    except OSError as error:
+        pass
     file_num = len([name for name in os.listdir(
-        './output_files')])
-    text_file_name = './output_files/' + \
-        'Output_text' + str(file_num // 2) + '.txt'
-    graph_file_name = './output_files/' + \
-        'Output_graph' + str(file_num // 2) + '.png'
+        dir_path)])
+    os.chdir(dir_path)
+    text_file_name = 'Output_text' + str(file_num // 2) + '.txt'
+    graph_file_name = 'Output_graph' + str(file_num // 2) + '.png'
+    print (text_file_name)
+    print (graph_file_name)
+    print (os.getcwd())
     text_file_data = []
     for UAV_node, loc in UAV_location.items():
         text_file_data.append(
