@@ -195,7 +195,8 @@ def get_random_move(loc, N, M):
         action = random.randint(0, 4)
     x += dx[action]
     y += dy[action]
-    return (x, y, action)
+    power_factor = random.randint(0, 2)
+    return (x, y, action, power_factor)
 
 
 def get_dist_UAV(pos_1, pos_2):

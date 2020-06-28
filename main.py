@@ -113,20 +113,25 @@ def q_learn(UAV_node, placed):
     global learning_rate
     global decay_factor
     global max_iter
-    Q = np.zeros((N * M, 5))
+    global power_UAV
+    Q = np.zeros((N * M, 15))
     # Centroid Location
-    # loc = move_endpoint.movement.get_centroid_location(N, M, UAV_location, UAV_to_UAV_threshold)
+    loc = move_endpoint.movement.get_centroid_location(N, M, UAV_location, UAV_to_UAV_threshold)
     # Center Location
     # loc = move_endpoint.movement.get_center_location(N, M)
     # Random Location
-    loc = move_endpoint.movement.get_random_location(N, M)
+    # loc = move_endpoint.movement.get_random_location(N, M)
     # Vicinity Location
-    loc = move_endpoint.movement.get_vicinity_location(
-        N, M, UAV_location, UAV_to_UAV_threshold)
+    # loc = move_endpoint.movement.get_vicinity_location(
+        # N, M, UAV_location, UAV_to_UAV_threshold)
     epsilon_val = epsilon
+    # low, medium, high power
+    action_power = [0, 5, 5]
     for iterations in range(max_iter):
-        x, y, action = move_endpoint.movement.get_random_move(loc, N, M)
+        x, y, action, power_factor = move_endpoint.movement.get_random_move(loc, N, M)
         loc = (x, y)
+        action += action_power[power_factor]
+        power_UAV += power_factor
         if random.uniform(0, 1) <= epsilon_val:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
             Q[index, action] = reward_endpoint.rewards.reward_function(
@@ -193,8 +198,9 @@ def simulation():
         loc = q_learn(UAV_node, placed)
         flag = True
         while flag:
+            user_covered = users_endpoint.users.get_ground_cell_connections(loc)
             for UAV, location in UAV_location.items():
-                if location == loc:
+                if location == loc or user_covered == 0:
                     loc = q_learn(UAV_node, placed)
                 else:
                     flag = False
