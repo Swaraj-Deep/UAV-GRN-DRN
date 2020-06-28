@@ -14,15 +14,14 @@ decay_factor_list = [0.90, 0.91, 0.92, 0.93,
 
 def execute_file():
     dir = os.getcwd()
-    file_loc = dir
     if platform == "linux" or platform == "linux2":
-        file_loc += '/runner.sh'
+        file_loc = os.path.join (dir, 'runner.sh')
         os.system(file_loc)
     elif platform == "darwin":
         # I don't have Mac
         pass
     elif platform == "win32":
-        file_loc += '/runner.bat'
+        file_loc = os.path.join (dir, 'runner.bat')
         os.system(file_loc)
 
 

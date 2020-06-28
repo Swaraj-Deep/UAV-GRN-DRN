@@ -34,16 +34,16 @@ def analyse_output_files():
             text_files.append(name + ext)
             total_files += 1
     for file in text_files:
-        with open(dir_path + "/" + file, 'r') as file_pointer:
+        with open(os.path.join(dir_path, file), 'r') as file_pointer:
             lines = file_pointer.readlines()
             curr_user_served = int(lines[-2].split(':')[1])
             sum_user_served += curr_user_served
             if curr_user_served < minm_user_served:
                 minm_user_served = curr_user_served
-                worst_file = dir_path + "/" + file
+                worst_file = os.path.join(dir_path, file)
             if curr_user_served > maxm_user_served:
                 maxm_user_served = curr_user_served
-                best_file = dir_path + "/" + file
+                best_file = os.path.join(dir_path, file)
     list_line_to_write = []
     list_line_to_write.append(
         f"Input Scenario\nLearning Rate: {learning_rate}\nExploration Rate: {epsilon}\nDecay Factor: {decay_factor}\n")
@@ -67,9 +67,11 @@ def analyse_output_files():
         f'Corresponding Graph file location is: {worst_graph}\n')
     list_line_to_write.append(
         f'Mean User Served: {sum_user_served / total_files}\n')
+    list_line_to_write.append (f'User Served in Best Case: {maxm_user_served} \n')
+    list_line_to_write.append (f'User Served in Worst Case: {minm_user_served} \n')
     list_line_to_write.append(
-        "############################################################################################\n")
-    with open(dir_path + "/" + "analysis.log", 'w') as file_pointer:
+        f"############################################################################################\n")
+    with open(os.path.join(dir_path, "analysis.log"), 'w') as file_pointer:
         file_pointer.writelines(list_line_to_write)
 
 
