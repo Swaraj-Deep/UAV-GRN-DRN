@@ -80,7 +80,11 @@ def init():
     global radius_UAV
     global UAV_to_UAV_threshold
     global power_UAV
-    with open('input_files/scenario_input.json', 'r') as file_pointer:
+    parent_dir = os.getcwd()
+    folder_name = 'input_files'
+    file_name = 'scenario_input.json'
+    file_path = os.path.join (parent_dir, folder_name, file_name)
+    with open(file_path, 'r') as file_pointer:
         file_data = json.load(file_pointer)
         N = file_data['N']
         M = file_data['M']
@@ -94,6 +98,7 @@ def init():
         UAV_to_UAV_threshold = file_data['UAV_to_UAV_threshold']
         power_UAV = file_data['power_UAV']
     users_endpoint.users.init(radius_UAV, N, M)
+    grn_endpoint.grn_info.init()
 
 
 def q_learn(UAV_node, placed):
@@ -186,7 +191,7 @@ def write_output(placed):
     Parameters: placed -> list of already placed UAVs
     Functionality: write the output to the respective files
     """
-    parent_dir = './output_files'
+    parent_dir = os.path.join(os.getcwd(), 'output_files')
     curr_dir = str(epsilon) + "_" + str(learning_rate) + "_" + str(decay_factor)
     dir_path = os.path.join (parent_dir, curr_dir)
     try:
@@ -198,9 +203,6 @@ def write_output(placed):
     os.chdir(dir_path)
     text_file_name = 'Output_text' + str(file_num // 2) + '.txt'
     graph_file_name = 'Output_graph' + str(file_num // 2) + '.png'
-    print (text_file_name)
-    print (graph_file_name)
-    print (os.getcwd())
     text_file_data = []
     for UAV_node, loc in UAV_location.items():
         text_file_data.append(

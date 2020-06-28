@@ -1,62 +1,63 @@
+import networkx as nx
+import pickle
+import os
+
+
+def get_motif_dict(grn_graph):
+    """
+    Function: get_motif_dict
+    Parameter: grn_graph -> Corresponding GRN graph
+    Returns: node motif centrality of the GRN graph
+    """
+    node_motif_centrality_dict = {}
+    for node in grn_graph.nodes:
+        node_motif_centrality_dict[node] = 0
+    if grn_graph.is_directed():
+        for u in grn_graph.nodes:
+            for v in grn_graph.nodes:
+                for w in grn_graph.nodes:
+                    if grn_graph.has_edge(u, v) and grn_graph.has_edge(v, w) and grn_graph.has_edge(u, w):
+                        node_motif_centrality_dict[u] += 1
+                        node_motif_centrality_dict[v] += 1
+                        node_motif_centrality_dict[w] += 1
+    else:
+        for u in grn_graph.nodes:
+            for v in grn_graph.nodes:
+                if v <= u:
+                    continue
+                for w in grn_graph.nodes:
+                    if w <= v:
+                        continue
+                    if grn_graph.has_edge(u, v) and grn_graph.has_edge(v, w) and grn_graph.has_edge(u, w):
+                        node_motif_centrality_dict[u] += 1
+                        node_motif_centrality_dict[v] += 1
+                        node_motif_centrality_dict[w] += 1
+    return node_motif_centrality_dict
+
+
 # Dictionary of GRN_edges i.e which of the edges are present in the GRN graph
 # The key in this dictionary is a tuple representing an edge
 # The value is True of all the keys as it contains only that edge which is present in the GRN graph
 
-GRN_edges = {
-    ('a', 'b'): True,
-    ('b', 'c'): True,
-    ('b', 'g'): True,
-    ('b', 'd'): True,
-    ('c', 'd'): True,
-    ('g', 'd'): True,
-    ('d', 'e'): True,
-    ('d', 'f'): True,
-    ('e', 'f'): True
-}
+GRN_edges = { }
 
 # Dictionary of the edge motif centrality of the GRN graph
 # The key in this dictionary is the edge in the GRN graph
 # The value is the edge motif centrality of that edge
 
-e_motif = {
-    ('a', 'b'): 0,
-    ('b', 'c'): 1,
-    ('b', 'g'): 1,
-    ('b', 'd'): 2,
-    ('c', 'd'): 1,
-    ('g', 'd'): 1,
-    ('d', 'e'): 1,
-    ('d', 'f'): 1,
-    ('e', 'f'): 1
-}
+e_motif = {}
 
 # Dictionary containing the node motif centrality of the GRN graph
 # The key in this dictionary is the node in the GRN graph
 # The value is the node motif centrality of that node
 
-n_motif = {
-    'd': 3,
-    'b': 2,
-    'c': 1,
-    'g': 1,
-    'e': 1,
-    'f': 1,
-    'a': 0
-}
+n_motif = {}
 
 # Dictionary of mapping of the UAVs to the sorted order of the GRN nodes (according to the node motif centrality in reverse order)
 # The key in this dictionary is the UAV node
 # The value is the mapped gene in the GRN graph
 
-mapping = {
-    1: 'd',
-    2: 'b',
-    3: 'c',
-    4: 'g',
-    5: 'e',
-    6: 'f',
-    7: 'a'
-}
+mapping = { }
 
 
 def get_emc(u, v):
@@ -103,3 +104,31 @@ def is_edge_grn(u, v):
     if edge in GRN_edges:
         return True
     return False
+
+
+def init():
+    """
+    Function: init
+    Parameter: none
+    Functionality: Initializes the variables
+    """
+    parent_path = os.getcwd()
+    file_name = 'grn_endpoint/Ecoli-1.gml'
+    file_path = os.path.join(parent_path, file_name)
+    grn_graph = nx.read_gml(file_path)
+    grn_graph = nx.convert_node_labels_to_integers(grn_graph, first_label=0)
+    global n_motif
+    global e_motif
+    global mapping
+    n_motif = get_motif_dict(grn_graph)
+    for node1 in grn_graph.nodes:
+        for node2 in grn_graph.nodes:
+            if [node1, node2] in grn_graph.edges:
+                e_motif[(node1, node2)] = min(n_motif[node1], n_motif[node2])
+    non_increasing_grn_nodes = [node[0]
+                                for node in sorted(n_motif.items(), key=lambda node: node[1], reverse=True)]
+    for node, grn_node in enumerate (non_increasing_grn_nodes):
+        mapping[node] = grn_node
+    for edge in grn_graph.edges:
+        GRN_edges[edge] = True
+
