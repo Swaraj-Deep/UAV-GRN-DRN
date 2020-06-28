@@ -151,12 +151,32 @@ def q_learn(UAV_node, placed):
     return (x, y)
 
 
+def done_simulation (ground_placed, placed):
+    ground_users = users_endpoint.users.get_number_ground_users()
+    done_user_connectivity = False
+    done_UAV_coverage = False
+    if len(ground_placed) // ground_users == 1:
+        done_user_connectivity = True
+    UAV_G = nx.Graph()
+    for node in placed:
+        UAV_G.add_node(node)
+    for node1 in placed:
+        for node2 in placed:
+            if move_endpoint.movement.get_dist_UAV(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold and node1 != node2:
+                UAV_G.add_edge(node1, node2)
+    if nx.number_connected_components (UAV_G) == 1:
+        done_UAV_coverage = True
+    return done_user_connectivity and done_UAV_coverage
+
+    
+
 def simulation():
     """
     Function: simulation\n
     Parameters: None\n
     Functionality: Simulates the network
     """
+    # Till Now What we have done
     placed = [1]
     unplaced = []
     max_pos, max_density = users_endpoint.users.get_max_pos_density()
@@ -168,6 +188,8 @@ def simulation():
     for UAV_node in range(2, number_UAV + 1):
         unplaced.append(UAV_node)
     for UAV_node in unplaced:
+        if done_simulation (ground_placed, placed):
+            break
         loc = q_learn(UAV_node, placed)
         flag = True
         while flag:
@@ -183,6 +205,38 @@ def simulation():
             if user not in ground_placed:
                 ground_placed.append(user)
     write_output(placed)
+
+    # Placing One by One and Checking Graph
+    # placed = [1]
+    # max_pos, max_density = users_endpoint.users.get_max_pos_density()
+    # UAV_location[1] = max_pos
+    # user_list = users_endpoint.users.get_users_cell_connections(max_pos)
+    # for user in user_list:
+    #     if user not in ground_placed:
+    #         ground_placed.append(user)
+    # UAV_node = 1
+    # while True:
+    #     UAV_node += 1
+    #     if done_simulation (ground_placed, placed):
+    #         break
+    #     loc = q_learn(UAV_node, placed)
+    #     flag = True
+    #     while flag:
+    #         for UAV, location in UAV_location.items():
+    #             if location == loc:
+    #                 loc = q_learn(UAV_node, placed)
+    #             else:
+    #                 flag = False
+    #             if done_simulation (ground_placed, placed):
+    #                 flag = False
+    #     UAV_location[UAV_node] = loc
+    #     placed.append(UAV_node)
+    #     user_list = users_endpoint.users.get_users_cell_connections(loc)
+    #     for user in user_list:
+    #         if user not in ground_placed:
+    #             ground_placed.append(user)
+    # write_output(placed)
+
 
 
 def write_output(placed):
@@ -211,14 +265,14 @@ def write_output(placed):
         f'Total Number of users served: {len(ground_placed)}\nList of users: {sorted(ground_placed)}')
     with open(text_file_name, 'w') as file_pointer:
         file_pointer.writelines(text_file_data)
-    G = nx.Graph()
+    UAV_G = nx.Graph()
     for node in placed:
-        G.add_node(node)
+        UAV_G.add_node(node)
     for node1 in placed:
         for node2 in placed:
             if move_endpoint.movement.get_dist_UAV(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold and node1 != node2:
-                G.add_edge(node1, node2)
-    nx.draw(G, with_labels=True)
+                UAV_G.add_edge(node1, node2)
+    nx.draw(UAV_G, with_labels=True)
     plt.savefig(graph_file_name)
 
 
