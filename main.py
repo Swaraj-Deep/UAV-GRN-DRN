@@ -197,15 +197,16 @@ def simulation():
         if done_simulation(ground_placed, placed):
             break
         loc = q_learn(UAV_node, placed)
-        flag = True
-        while flag:
-            user_covered = users_endpoint.users.get_ground_cell_connections(
-                loc)
-            for UAV, location in UAV_location.items():
-                if location == loc or user_covered == 0:
-                    loc = q_learn(UAV_node, placed)
-                else:
-                    flag = False
+        # Can Happen Infinite looping must look into alternatives for same location problem
+        # flag = True
+        # while flag:
+        #     user_covered = users_endpoint.users.get_ground_cell_connections(
+        #         loc)
+        #     for UAV, location in UAV_location.items():
+        #         if location == loc or user_covered == 0:
+        #             loc = q_learn(UAV_node, placed)
+        #         else:
+        #             flag = False
         UAV_location[UAV_node] = loc
         placed.append(UAV_node)
         user_list = users_endpoint.users.get_users_cell_connections(loc)
