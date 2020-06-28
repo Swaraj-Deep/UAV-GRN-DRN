@@ -20,7 +20,6 @@ def analyse_output_files():
     curr_dir = str(epsilon) + "_" + str(learning_rate) + \
         "_" + str(decay_factor)
     dir_path = os.path.join(parent_dir, curr_dir)
-    # os.chdir(dir_path)
     text_files = []
     minm_user_served = 999999999
     maxm_user_served = -99999999
