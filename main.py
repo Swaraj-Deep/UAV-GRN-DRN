@@ -116,12 +116,12 @@ def q_learn(UAV_node, placed):
     global power_UAV
     Q = np.zeros((N * M, 15))
     # Centroid Location
-    loc = move_endpoint.movement.get_centroid_location(
-        N, M, UAV_location, UAV_to_UAV_threshold)
+    # loc = move_endpoint.movement.get_centroid_location(
+    #     N, M, UAV_location, UAV_to_UAV_threshold)
     # Center Location
     # loc = move_endpoint.movement.get_center_location(N, M)
     # Random Location
-    # loc = move_endpoint.movement.get_random_location(N, M)
+    loc = move_endpoint.movement.get_random_location(N, M)
     # Vicinity Location
     # loc = move_endpoint.movement.get_vicinity_location(
     # N, M, UAV_location, UAV_to_UAV_threshold)
@@ -197,6 +197,10 @@ def simulation():
         if done_simulation(ground_placed, placed):
             break
         loc = q_learn(UAV_node, placed)
+        user_covered = users_endpoint.users.get_ground_cell_connections(loc)
+        for UAV, location in UAV_location.items():
+            if location == loc or user_covered == 0:
+                loc = q_learn(UAV_node, placed)
         # Can Happen Infinite looping must look into alternatives for same location problem
         # flag = True
         # while flag:
