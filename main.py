@@ -127,7 +127,7 @@ def q_learn(UAV_node, placed):
     # N, M, UAV_location, UAV_to_UAV_threshold)
     epsilon_val = epsilon
     # low, medium, high power
-    action_power = [0, 5, 5]
+    action_power = [0, 5, 10]
     for iterations in range(max_iter):
         x, y, action, power_factor = move_endpoint.movement.get_random_move(
             loc, N, M)
