@@ -56,13 +56,13 @@ def analyse_output_files():
         f'# The best scenario turns out to be with following parameters\n# Learning Rate: {file_read_dict["Learning Rate"]}\n# Exploration Rate: {file_read_dict["Exploration Rate"]}\n# Decay Factor: {file_read_dict["Decay Factor"]}\n')
     lines_to_write.append(
         f'# The best file in this scenario can cover upto {file_read_dict["Best User Served"]} ground users\n                       while \n# In the worst case only {file_read_dict["Worst User Served"]} ground user can be served.\n')
-    lines_to_write.append(f'# The best file of this scenario is: {best_file_loc}')
+    lines_to_write.append(f'# The best file of this scenario is: {best_file_loc}\n')
     file_read_dict = get_file_details(worst_file_loc)
     lines_to_write.append(
         f'# The worst scenario turns out to be with following parameters\n# Learning Rate: {file_read_dict["Learning Rate"]}\n# Exploration Rate: {file_read_dict["Exploration Rate"]}\n# Decay Factor: {file_read_dict["Decay Factor"]}\n')
     lines_to_write.append(
         f'# The best file in this scenario can cover upto {file_read_dict["Best User Served"]} ground users\n                       while \n# In the worst case only {file_read_dict["Worst User Served"]} ground user can be served.\n')
-    lines_to_write.append(f'# The worst file of this scenario is: {worst_file_loc}')
+    lines_to_write.append(f'# The worst file of this scenario is: {worst_file_loc}\n')
     lines_to_write.append(
         f'############################################################################################\n')
     dir_path = os.path.join(os.getcwd(), 'output_files')

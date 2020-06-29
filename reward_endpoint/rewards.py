@@ -55,6 +55,8 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
         user_den = ground_users
         user_conn /= user_den
         pos_reward = emc_reward + user_conn
-        reward += pos_reward
+        if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) <= t:
+            neg_reward += 100
+        reward += pos_reward / neg_reward
     reward *= rho_reward / power_UAV
     return reward

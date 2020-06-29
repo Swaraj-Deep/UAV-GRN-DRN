@@ -159,6 +159,11 @@ def q_learn(UAV_node, placed):
 
 
 def done_simulation(ground_placed, placed):
+    """
+    Function: done_simulation\n
+    Parameters: ground_placed -> list of users alredy placed, placed -> list of UAVs placed\n
+    Returns: True if simulation is done\n
+    """
     ground_users = users_endpoint.users.get_number_ground_users()
     done_user_connectivity = False
     done_UAV_coverage = False
@@ -199,7 +204,7 @@ def simulation():
         loc = q_learn(UAV_node, placed)
         user_covered = users_endpoint.users.get_ground_cell_connections(loc)
         for UAV, location in UAV_location.items():
-            if location == loc or user_covered == 0:
+            if location == loc:
                 loc = q_learn(UAV_node, placed)
         # Can Happen Infinite looping must look into alternatives for same location problem
         # flag = True
