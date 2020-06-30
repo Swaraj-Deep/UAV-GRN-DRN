@@ -114,6 +114,9 @@ def q_learn(UAV_node, placed):
     global decay_factor
     global max_iter
     global power_UAV
+    global UAV_location
+    global radius_UAV
+    global t
     Q = np.zeros((N * M, 15))
     # Centroid Location
     # loc = move_endpoint.movement.get_centroid_location(
@@ -179,13 +182,51 @@ def done_simulation(ground_placed, placed):
     if nx.number_connected_components(UAV_G) == 1:
         done_UAV_coverage = True
     return done_user_connectivity and done_UAV_coverage
+def valid_loc (loc):
+    """
+    Function: valid_loc\n
+    Parameter: loc -> location of the UAV being placed\n
+    Return: true if that location is not occupied\n
+    """
+    global UAV_location
+    for node, location in UAV_location.items():
+        if location == loc:
+            return False
+    return True
+
+
+def bruteforce (UAV_node, placed):
+    """
+    Function: bruteforce\n
+    Parameters: UAV_node -> UAV_node which is to be placed, placed -> list of already placed UAV_nodes\n
+    Functionality: bruteforce all the grid location\n
+    """
+    global N
+    global M
+    global radius_UAV
+    global UAV_location
+    global t
+    global power_UAV
+    max_reward = -999999
+    max_pos = (-1, -1)
+    for i in range (N):
+        for j in range (M):
+            loc = (i, j)
+            reward = reward_endpoint.rewards.reward_function(
+                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M)
+            if reward > max_reward and valid_loc (loc):
+                max_reward = reward
+                max_pos = loc
+    print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
+    return max_pos
+    
 
 
 def simulation():
     """
     Function: simulation\n
     Parameters: None\n
-    Functionality: Simulates the network
+    Functionality: Simulates the network\n
     """
     # Till Now What we have done
     placed = [1]
@@ -201,11 +242,7 @@ def simulation():
     for UAV_node in unplaced:
         if done_simulation(ground_placed, placed):
             break
-        loc = q_learn(UAV_node, placed)
-        user_covered = users_endpoint.users.get_ground_cell_connections(loc)
-        for UAV, location in UAV_location.items():
-            if location == loc:
-                loc = q_learn(UAV_node, placed)
+        loc = bruteforce(UAV_node, placed)
         # Can Happen Infinite looping must look into alternatives for same location problem
         # flag = True
         # while flag:

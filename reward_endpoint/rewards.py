@@ -15,10 +15,10 @@ def user_coverage_count_xi(user, placed, UAV_location, radius_UAV, N, M):
         if users_endpoint.users.is_user_connected(user, pos_j, radius_UAV, N, M):
             user_conn += 1
     if user_conn == 0:
-        user_conn = 1
+        user_conn = 4
     else:
         user_conn /= len(placed)
-        user_conn *= -1
+        user_conn *= -4
     return user_conn
 
 
@@ -55,6 +55,8 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
         user_den = ground_users
         user_conn /= user_den
         pos_reward = emc_reward + user_conn
-        reward += pos_reward
+        if move_endpoint.movement.get_dist_UAV (pos_i, pos_j) <= t:
+            neg_reward += 10
+        reward += pos_reward / neg_reward
     reward *= rho_reward / power_UAV
     return reward
