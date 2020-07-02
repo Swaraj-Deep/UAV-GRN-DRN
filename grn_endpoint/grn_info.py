@@ -127,7 +127,8 @@ def generate_subgraph(grn_graph, number_nodes, output_file_name):
     Functionality: Saves the file in the root directory
     """
     SG = grn_graph.__class__()
-    SG.add_edges_from((n, grn_graph.nodes[n]) for n in range(number_nodes))
+    node = [i for i in range (number_nodes)]
+    SG = grn_graph.subgraph(node)
     nx.write_gml(SG, output_file_name)
 
 
@@ -138,7 +139,7 @@ def init():
     Functionality: Initializes the variables
     """
     parent_path = os.getcwd()
-    file_name = 'grn_endpoint/400.gml'
+    file_name = 'grn_endpoint/.gml'
     file_path = os.path.join(parent_path, file_name)
     grn_graph = nx.read_gml(file_path)
     grn_graph = nx.convert_node_labels_to_integers(grn_graph, first_label=0)
@@ -158,6 +159,7 @@ def init():
         mapping[node] = grn_node
     for edge in grn_graph.edges:
         GRN_edges[edge] = True
+    print (PI)
 
 
 if __name__ == "__main__":
