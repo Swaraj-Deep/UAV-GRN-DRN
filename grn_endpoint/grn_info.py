@@ -35,11 +35,15 @@ def get_motif_dict(grn_graph):
     return node_motif_centrality_dict
 
 
+# Global Variable to find the highest edge motif centrality of the GRN
+
+PI = 0
+
 # Dictionary of GRN_edges i.e which of the edges are present in the GRN graph
 # The key in this dictionary is a tuple representing an edge
 # The value is True of all the keys as it contains only that edge which is present in the GRN graph
 
-GRN_edges = { }
+GRN_edges = {}
 
 # Dictionary of the edge motif centrality of the GRN graph
 # The key in this dictionary is the edge in the GRN graph
@@ -57,7 +61,7 @@ n_motif = {}
 # The key in this dictionary is the UAV node
 # The value is the mapped gene in the GRN graph
 
-mapping = { }
+mapping = {}
 
 
 def get_emc(u, v):
@@ -96,7 +100,7 @@ def m(UAV_node):
 
 def is_edge_grn(u, v):
     """
-    Function: is_edge_grn
+    Function: is_edge_grn\n
     Parameter: u -> start node of the edge, v -> end node of the edge\n
     Returns: returns True if the edge (u, v) exists in the GRN graph else False\n
     """
@@ -106,6 +110,15 @@ def is_edge_grn(u, v):
     return False
 
 
+def get_PI():
+    """
+    Function: get_PI\n
+    Parameter: None\n
+    Returns: returns the value of PI
+    """
+    return PI
+
+
 def init():
     """
     Function: init
@@ -113,22 +126,27 @@ def init():
     Functionality: Initializes the variables
     """
     parent_path = os.getcwd()
-    file_name = 'grn_endpoint/Ecoli-1.gml'
+    file_name = 'grn_endpoint/GBD.gml'
     file_path = os.path.join(parent_path, file_name)
     grn_graph = nx.read_gml(file_path)
     grn_graph = nx.convert_node_labels_to_integers(grn_graph, first_label=0)
     global n_motif
     global e_motif
     global mapping
+    global PI
     n_motif = get_motif_dict(grn_graph)
     for node1 in grn_graph.nodes:
         for node2 in grn_graph.nodes:
             if [node1, node2] in grn_graph.edges:
                 e_motif[(node1, node2)] = min(n_motif[node1], n_motif[node2])
+                PI = max(PI, e_motif[(node1, node2)])
     non_increasing_grn_nodes = [node[0]
                                 for node in sorted(n_motif.items(), key=lambda node: node[1], reverse=True)]
-    for node, grn_node in enumerate (non_increasing_grn_nodes):
+    for node, grn_node in enumerate(non_increasing_grn_nodes):
         mapping[node] = grn_node
     for edge in grn_graph.edges:
         GRN_edges[edge] = True
 
+
+if __name__ == "__main__":
+    init()

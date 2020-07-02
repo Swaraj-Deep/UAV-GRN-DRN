@@ -182,7 +182,9 @@ def done_simulation(ground_placed, placed):
     if nx.number_connected_components(UAV_G) == 1:
         done_UAV_coverage = True
     return done_user_connectivity and done_UAV_coverage
-def valid_loc (loc):
+
+
+def valid_loc(loc):
     """
     Function: valid_loc\n
     Parameter: loc -> location of the UAV being placed\n
@@ -195,7 +197,7 @@ def valid_loc (loc):
     return True
 
 
-def bruteforce (UAV_node, placed):
+def bruteforce(UAV_node, placed):
     """
     Function: bruteforce\n
     Parameters: UAV_node -> UAV_node which is to be placed, placed -> list of already placed UAV_nodes\n
@@ -209,17 +211,16 @@ def bruteforce (UAV_node, placed):
     global power_UAV
     max_reward = -999999
     max_pos = (-1, -1)
-    for i in range (N):
-        for j in range (M):
+    for i in range(N):
+        for j in range(M):
             loc = (i, j)
             reward = reward_endpoint.rewards.reward_function(
                 UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M)
-            if reward > max_reward and valid_loc (loc):
+            if reward > max_reward and valid_loc(loc):
                 max_reward = reward
                 max_pos = loc
     print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
     return max_pos
-    
 
 
 def simulation():
@@ -243,16 +244,6 @@ def simulation():
         if done_simulation(ground_placed, placed):
             break
         loc = bruteforce(UAV_node, placed)
-        # Can Happen Infinite looping must look into alternatives for same location problem
-        # flag = True
-        # while flag:
-        #     user_covered = users_endpoint.users.get_ground_cell_connections(
-        #         loc)
-        #     for UAV, location in UAV_location.items():
-        #         if location == loc or user_covered == 0:
-        #             loc = q_learn(UAV_node, placed)
-        #         else:
-        #             flag = False
         UAV_location[UAV_node] = loc
         placed.append(UAV_node)
         user_list = users_endpoint.users.get_users_cell_connections(loc)

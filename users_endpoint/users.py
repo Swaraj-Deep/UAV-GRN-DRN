@@ -176,7 +176,7 @@ def is_user_connected(user, pos, radius_UAV, N, M):
 
 
 if __name__ == "__main__":
-    init (2, 14, 14)
+    init(2, 14, 14)
     print(ground_user_pos)
-    x, y = map (int, input("enter x, y").split(" "))
+    x, y = map(int, input("enter x, y").split(" "))
     print(is_user_connected(2, (x, y), 2, 14, 14))
