@@ -139,7 +139,7 @@ def init():
     Functionality: Initializes the variables
     """
     parent_path = os.getcwd()
-    file_name = 'grn_endpoint/400.gml'
+    file_name = 'grn_endpoint/100.gml'
     file_path = os.path.join(parent_path, file_name)
     grn_graph = nx.read_gml(file_path)
     grn_graph = nx.convert_node_labels_to_integers(grn_graph, first_label=0)
@@ -161,5 +161,34 @@ def init():
         GRN_edges[edge] = True
 
 
+def init_3000():
+    """
+    Function: init_3000\n
+    Parameters: None\n
+    Functionality: Initialiazes the global variables\n
+    """
+    parent_dir = os.getcwd()
+    file_path = os.path.join(parent_dir, 'grn_endpoint', '4441_centrality.p')
+    global n_motif
+    global e_motif
+    global mapping
+    global PI
+    n_motif = pickle.load(open(file_path, "rb"))
+    parent_path = os.getcwd()
+    file_path = os.path.join(parent_path, 'grn_endpoint', '4441.gml')
+    grn_graph = nx.read_gml(file_path)
+    grn_graph = nx.convert_node_labels_to_integers(grn_graph, first_label=0)
+    for edge in grn_graph.edges:
+        node1, node2 = edge
+        e_motif[edge] = min(n_motif[node1], n_motif[node2])
+        PI = max(PI, e_motif[edge])
+    non_increasing_grn_nodes = [node[0]
+                                for node in sorted(n_motif.items(), key=lambda node: node[1], reverse=True)]
+    for node, grn_node in enumerate(non_increasing_grn_nodes):
+        mapping[node] = grn_node
+    for edge in grn_graph.edges:
+        GRN_edges[edge] = True
+
+
 if __name__ == "__main__":
-    init()
+    init_3000()
