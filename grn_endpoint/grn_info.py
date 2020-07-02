@@ -119,6 +119,18 @@ def get_PI():
     return PI
 
 
+def generate_subgraph(grn_graph, number_nodes, output_file_name):
+    """
+    Function: generate_subgraph\n
+    Parameter: grn_graph -> the source graph, number_nodes -> number of nodes to subgraph, output_file_name -> Name of the output file
+    Return: nothing
+    Functionality: Saves the file in the root directory
+    """
+    SG = grn_graph.__class__()
+    SG.add_edges_from((n, grn_graph.nodes[n]) for n in range(number_nodes))
+    nx.write_gml(SG, output_file_name)
+
+
 def init():
     """
     Function: init
@@ -126,7 +138,7 @@ def init():
     Functionality: Initializes the variables
     """
     parent_path = os.getcwd()
-    file_name = 'grn_endpoint/GBD.gml'
+    file_name = 'grn_endpoint/400.gml'
     file_path = os.path.join(parent_path, file_name)
     grn_graph = nx.read_gml(file_path)
     grn_graph = nx.convert_node_labels_to_integers(grn_graph, first_label=0)
