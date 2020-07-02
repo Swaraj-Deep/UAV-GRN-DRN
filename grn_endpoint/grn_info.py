@@ -139,7 +139,7 @@ def init():
     Functionality: Initializes the variables
     """
     parent_path = os.getcwd()
-    file_name = 'grn_endpoint/.gml'
+    file_name = 'grn_endpoint/4441.gml'
     file_path = os.path.join(parent_path, file_name)
     grn_graph = nx.read_gml(file_path)
     grn_graph = nx.convert_node_labels_to_integers(grn_graph, first_label=0)
