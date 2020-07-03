@@ -33,8 +33,8 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
     neg_reward = 1
     reward = 1
     pi = grn_endpoint.grn_info.get_PI()
-    # UAV_to_UAV_threshold +=  power_UAV // UAV_to_UAV_threshold
-    # radius_UAV += power_UAV // radius_UAV
+    UAV_to_UAV_threshold +=  power_UAV // UAV_to_UAV_threshold
+    radius_UAV += power_UAV // radius_UAV
     ground_users = users_endpoint.users.get_number_ground_users()
     # RHO function
     for j in placed:

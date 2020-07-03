@@ -1,4 +1,4 @@
-for i in $(seq 1 3); do
+for i in $(seq 1 10); do
   echo Starting to execute main.py
   warning=$(python3 main.py 2>&1)
   echo Executed main.py $i times.
