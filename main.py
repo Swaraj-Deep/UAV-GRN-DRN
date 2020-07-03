@@ -243,7 +243,7 @@ def simulation():
     for UAV_node in unplaced:
         if done_simulation(ground_placed, placed):
             break
-        loc = q_learn(UAV_node, placed)
+        loc = bruteforce(UAV_node, placed)
         UAV_location[UAV_node] = loc
         placed.append(UAV_node)
         user_list = users_endpoint.users.get_users_cell_connections(loc)
@@ -306,6 +306,7 @@ def write_output(placed):
     text_file_data = []
     text_file_data.append(
         f'Total Number of users served: {len(ground_placed)}\nList of users: {sorted(ground_placed)}\n')
+    text_file_data.append (f'Total number of UAV used: {len(UAV_location)}\n')
     for UAV_node, loc in UAV_location.items():
         text_file_data.append(
             f'UAV: {UAV_node} can serve users: {users_endpoint.users.get_users_cell_connections(loc)} when placed at {loc}\n')
