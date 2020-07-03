@@ -98,7 +98,7 @@ def init():
         UAV_to_UAV_threshold = file_data['UAV_to_UAV_threshold']
         power_UAV = file_data['power_UAV']
     users_endpoint.users.init(radius_UAV, N, M)
-    grn_endpoint.grn_info.init_3000()
+    grn_endpoint.grn_info.init()
 
 
 def q_learn(UAV_node, placed):

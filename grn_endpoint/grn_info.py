@@ -132,6 +132,16 @@ def generate_subgraph(grn_graph, number_nodes, output_file_name):
     nx.write_gml(SG, output_file_name)
 
 
+def write_binary(n_motif_centrality_dict, file_name):
+    """
+    Function: write_binary\n
+    Parameter: n_motif_centrality_dict -> dictionary of node motifs, file_name -> file name of the binary output\n
+    Returns: nothing\n
+    Functionality: Writes node motif centrality dict to the passed file_name\n
+    """
+    pickle.dump(n_motif_centrality_dict, open(file_name, "wb"))
+
+
 def init():
     """
     Function: init
@@ -139,15 +149,18 @@ def init():
     Functionality: Initializes the variables
     """
     parent_path = os.getcwd()
-    file_name = 'grn_endpoint/100.gml'
-    file_path = os.path.join(parent_path, file_name)
-    grn_graph = nx.read_gml(file_path)
+    file_prefix = '1000'
+    file_name = file_prefix + '.gml'
+    grn_file_path = os.path.join(parent_path, 'grn_endpoint', file_name)
+    grn_graph = nx.read_gml(grn_file_path)
     grn_graph = nx.convert_node_labels_to_integers(grn_graph, first_label=0)
     global n_motif
     global e_motif
     global mapping
     global PI
-    n_motif = get_motif_dict(grn_graph)
+    centrality_file = file_prefix + '_centrality.p'
+    centrality_file_path = os.path.join(parent_path, 'grn_endpoint', centrality_file)
+    n_motif = pickle.load(open(centrality_file_path, "rb"))
     for node1 in grn_graph.nodes:
         for node2 in grn_graph.nodes:
             if [node1, node2] in grn_graph.edges:
@@ -159,7 +172,7 @@ def init():
         mapping[node] = grn_node
     for edge in grn_graph.edges:
         GRN_edges[edge] = True
-
+    print (PI)
 
 def init_3000():
     """
@@ -191,4 +204,4 @@ def init_3000():
 
 
 if __name__ == "__main__":
-    init_3000()
+    init()
