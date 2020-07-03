@@ -243,7 +243,7 @@ def simulation():
     for UAV_node in unplaced:
         if done_simulation(ground_placed, placed):
             break
-        loc = bruteforce(UAV_node, placed)
+        loc = q_learn(UAV_node, placed)
         UAV_location[UAV_node] = loc
         placed.append(UAV_node)
         user_list = users_endpoint.users.get_users_cell_connections(loc)
