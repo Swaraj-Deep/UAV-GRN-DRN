@@ -304,20 +304,57 @@ def write_output(placed):
     text_file_name = 'Output_text' + str(file_num // 2) + '.txt'
     graph_file_name = 'Output_graph' + str(file_num // 2) + '.png'
     text_file_data = []
+    text_file_data.append(
+        f'Total Number of users served: {len(ground_placed)}\nList of users: {sorted(ground_placed)}\n')
     for UAV_node, loc in UAV_location.items():
         text_file_data.append(
             f'UAV: {UAV_node} can serve users: {users_endpoint.users.get_users_cell_connections(loc)} when placed at {loc}\n')
-    text_file_data.append(
-        f'Total Number of users served: {len(ground_placed)}\nList of users: {sorted(ground_placed)}')
-    with open(text_file_name, 'w') as file_pointer:
-        file_pointer.writelines(text_file_data)
     UAV_G = nx.Graph()
     for node in placed:
         UAV_G.add_node(node)
+    both_grn_UAV_edge_lst = []
+    grn_edge_lst = []
     for node1 in placed:
         for node2 in placed:
             if move_endpoint.movement.get_dist_UAV(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold and node1 != node2:
                 UAV_G.add_edge(node1, node2)
+                gene_1 = grn_endpoint.grn_info.m(node1)
+                gene_2 = grn_endpoint.grn_info.m(node2)
+                if grn_endpoint.grn_info.is_edge_grn(gene_1, gene_2):
+                    both_grn_UAV_edge_lst.append ((node1, node2))
+            gene_1 = grn_endpoint.grn_info.m(node1)
+            gene_2 = grn_endpoint.grn_info.m(node2)
+            if grn_endpoint.grn_info.is_edge_grn(gene_1, gene_2) and (node1, node2) not in both_grn_UAV_edge_lst:
+                grn_edge_lst.append ((node1, node2))
+    total_edge = len (UAV_G.edges)
+    if len(both_grn_UAV_edge_lst) > 0:
+        text_file_data.append (f'Following are the edges which is present in both UAV and GRN netwrok:\n')
+        for edge in both_grn_UAV_edge_lst:
+            text_file_data.append (f'{edge}, ')
+        text_file_data.append(f'\n')
+    else:
+        text_file_data.append (f'No edge is common in UAV and GRN network.\n')
+    if len (grn_edge_lst) > 0:
+        text_file_data.append (f'Following are the edges which is present in GRN but not in UAV network:\n')
+        for edge in grn_edge_lst:
+            text_file_data.append (f'{edge}, ')
+        text_file_data.append(f'\n')
+    else:
+        text_file_data.append (f'There is no edge which is in GRN but not in the UAV network\n')
+    text_file_data.append (f'Total Number of edges: {total_edge}\nPercentage of edge which is both in GRN and UAV: {(len(both_grn_UAV_edge_lst) / total_edge) * 100}\n')
+    node_motif = grn_endpoint.grn_info.get_motif_dict (UAV_G)
+    for node, motif in node_motif.items():
+        text_file_data.append(f'Motif of UAV {node} is {motif}\n')
+    e_motif = {}
+    PI = 0
+    for edge in UAV_G.edges:
+        node1, node2 = edge
+        e_motif[edge] = min(node_motif[node1], node_motif[node2])
+        text_file_data.append(f'Edge {edge} has edge motif centrality of {e_motif[edge]}\n')
+        PI = max(PI, e_motif[edge])
+    text_file_data.append(f'Maximum Edge motif centrality is {PI}\n')
+    with open(text_file_name, 'w') as file_pointer:
+        file_pointer.writelines(text_file_data)
     nx.draw(UAV_G, with_labels=True)
     plt.savefig(graph_file_name)
 
