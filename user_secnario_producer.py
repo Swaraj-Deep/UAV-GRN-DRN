@@ -23,7 +23,7 @@ def generate_user_input(N, M, number_users):
     }
     parent_dir = os.getcwd()
     file_name = str(N) + "_" + str(M) + "_" + str(number_users) + "_user.json"
-    file_path = os.path.join(parent_dir, 'input_files', file_name)
+    file_path = os.path.join(parent_dir, 'input_files', 'user_input_scenarios', file_name)
     with open(file_path, 'w') as file_pointer:
         json.dump(write_data, file_pointer)
 

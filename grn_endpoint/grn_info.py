@@ -172,7 +172,3 @@ def init():
         mapping[node] = grn_node
     for edge in grn_graph.edges:
         GRN_edges[edge] = True
-
-
-if __name__ == "__main__":
-    init()
