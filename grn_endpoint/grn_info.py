@@ -149,7 +149,7 @@ def init():
     Functionality: Initializes the variables
     """
     parent_path = os.getcwd()
-    file_prefix = '1000'
+    file_prefix = '400'
     file_name = file_prefix + '.gml'
     grn_file_path = os.path.join(parent_path, 'grn_endpoint', file_name)
     grn_graph = nx.read_gml(grn_file_path)
@@ -172,3 +172,7 @@ def init():
         mapping[node] = grn_node
     for edge in grn_graph.edges:
         GRN_edges[edge] = True
+
+
+if __name__ == "__main__":
+    init()
