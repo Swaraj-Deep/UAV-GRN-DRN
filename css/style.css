@@ -1,0 +1,51 @@
+body, .sticky-footer-wrapper {
+   min-height:100vh;
+}
+
+.flex-fill {
+   flex:1 1 auto;
+}
+
+path {
+   fill: #ccc;
+   stroke: #fff;
+   stroke-linejoin: round;
+}
+
+.map_container {
+   display: flex; 
+   justify-content: center;
+   display: inline-block;
+   position: relative;
+   vertical-align: top;
+   margin: 0 auto;
+}
+ 
+.India_svg {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
+
+path:hover {
+   stroke:black;
+ }
+
+.tooltip-data {
+   /* position: absolute;
+   margin: 2px;
+   padding-left: 5px;
+   background-color: black;
+   color: #313639;
+   pointer-events: none; */
+   position: absolute;     
+   text-align: center;     
+   width: 80px;          
+   height: 14px;         
+   padding: 2px;       
+   font: 12px sans-serif;    
+   background: #fff; 
+   border: 0px;        
+   pointer-events: none;
+}
