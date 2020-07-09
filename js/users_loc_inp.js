@@ -16,6 +16,11 @@ function showalert(message, alert_type) {
     window.setTimeout(function () { $("#alertdialog").alert('close'); }, 2000);
 }
 
+function init() {
+    x = [];
+    y = [];
+    col = [];
+}
 
 function setup() {
     var cnv = createCanvas(500, 500);
@@ -79,6 +84,9 @@ function validateNum(evt) {
     }
 }
 
+var i = 0, j = 1;
+var row_lst = [];
+
 function create_grid(event) {
     rows = document.getElementById('rows').value;
     // cols = document.getElementById('cols').value;
@@ -86,10 +94,13 @@ function create_grid(event) {
         showalert(`Please enter a valid number.`, `danger`);
         return;
     } else {
+        init();
         if (rows > 30) {
             showalert(`Very large value entered. Splitting into subgrids.`, `secondary`);
             large = true;
-            split_grid(rows);
+            i = 0, j = 1;
+            row_lst = [];
+            set_row_list(rows);
             return false;
         }
         cols = rows;
@@ -98,24 +109,50 @@ function create_grid(event) {
     document.getElementById('submit_btn').hidden = false;
 }
 
-function split_grid(rows) {
+function load_subgrid() {
+    if (!large) {
+        showalert(`No subgrid to load.`, `danger`);
+    } else {
+        num_rows = rows;
+        if (row_lst[j + 1] == num_rows && row_lst[i + 1] == num_rows) {
+            cols = Math.abs (row_lst[j + 1] - row_lst[j]);
+            rows = Math.abs (row_lst[i + 1] - row_lst[i]);
+        } else if (row_lst[j + 1] == num_rows) {
+            cols = Math.abs (row_lst[j + 1] - row_lst[j]);
+            rows = 30;
+        } else if (row_lst[i + 1] == num_rows) {
+            cols = 30;
+            rows = Math.abs (row_lst[i + 1] - row_lst[i]);
+        } else {
+            rows = 30;
+            cols = 30;
+        }
+        console.log (rows, cols);
+    }
+}
+
+function save_config() {
+    if (large) {
+        if (i == row_lst.length - 1) {
+            return;
+        }
+        if (j == row_lst.length - 1) {
+            j = 1;
+            i++;
+        } else {
+            j++;
+        }
+    }
+}
+
+function set_row_list(rows) {
     var row = 0;
-    var row_lst = [];
     while (row <= rows) {
-        row_lst.push (row);
+        row_lst.push(row);
         row += 30;
     }
     if (row != rows) {
         row = rows;
-        row_lst.push (row);
-    }
-    for (var i = 0; i < row_lst.length; ++i) {
-        rows = row_lst[i];
-        cols = row_lst[1];
-        setup();
-        // console.log(row_lst[i], row_lst[1]);
-        for (var j = 1; j < row_lst.length - 1; ++j) {
-            console.log (-(row_lst[j] - row_lst[j + 1]));
-        }
+        row_lst.push(row);
     }
 }

@@ -79,11 +79,16 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-sm" id="load_button">
+                <button class="btn btn-outline-primary" id="load_grid_btn" onclick="load_subgrid();">
+                    Load this grid
+                </button>
+            </div>
             <div class="col-sm" id="grid">
 
             </div>
             <div class="col-sm" id="button">
-                <button class="btn btn-outline-primary" id="submit_btn" hidden='true'>
+                <button class="btn btn-outline-primary" id="submit_btn" hidden='true' onclick="save_config();">
                     Save this configuration
                 </button>
             </div>
