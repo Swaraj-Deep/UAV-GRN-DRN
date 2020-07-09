@@ -5,6 +5,26 @@ var x = [];
 var y = [];
 var w = 15;
 var col = [];
+var number_users = 0;
+var users = new Set();
+var saved_file = false;
+
+function download_json(data) {
+    for (const pos of data.keys()) {
+        console.log(pos)
+    }
+    var user_lst = [];
+    storageObj = {
+        "Number of Ground users": number_users,
+        "Position of Ground users": user_lst
+    };
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storageObj));
+    var dlAnchorElem = document.getElementById('downloadAnchorElem');
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", "scene.json");
+    dlAnchorElem.click();
+    showalert(`Written this file to location: input_files/user_input_scenarios`, `success`);
+}
 
 function showalert(message, alert_type) {
     $("#alert-wrapper").html(`<div class="alert alert-${alert_type} alert-dismissible fade show" role="alert" id="alertdialog">
@@ -56,14 +76,11 @@ function draw() {
 }
 
 function mousePressed() {
-    for (var j = 0; j < rows; j++) {
-        for (var i = 0; i < cols; i++) {
-            var dis = dist(mouseX, mouseY, x[i], y[j]);
+    for (var b = 0; b < rows; b++) {
+        for (var a = 0; a < cols; a++) {
+            var dis = dist(mouseX, mouseY, x[a], y[b]);
             if (dis < w / 2) {
-                col[j][i] = !col[j][i];
-                if (col[j][i] == false) {
-                    if ()
-                }
+                col[b][a] = !col[b][a];
             }
         }
     }
@@ -91,7 +108,11 @@ var row_lst = [];
 function create_grid(event) {
     rows = document.getElementById('rows').value;
     // cols = document.getElementById('cols').value;
-    if (!rows) {
+    number_users = document.getElementById('users').value;
+    document.getElementById('u_placed').value = `No Users Placed`;
+    users = new Set();
+    saved_file = false;
+    if (!rows || !number_users) {
         showalert(`Please enter a valid number.`, `danger`);
         return;
     } else if (rows > 30) {
@@ -122,6 +143,11 @@ function load_subgrid() {
         cols = 30;
         if (i == row_lst.length - 1) {
             showalert(`Loaded all subgrids.`, `danger`);
+            if (!saved_file) {
+                // download_json(users);
+                console.log (users);
+                saved_file = true;
+            }
             return;
         }
         if (j == 1) {
@@ -152,6 +178,12 @@ function save_config() {
     if (large) {
         if (i > row_lst.length - 2) {
             showalert(`You have filled all the subgrids.`, `danger`);
+            if (!saved_file) {
+                download_json(users);
+                saved_file = true;
+                console.log (users);
+                init();
+            }
             return;
         }
         if (j == row_lst.length - 1) {
@@ -161,6 +193,35 @@ function save_config() {
             j++;
         }
     }
+    for (var b = 0; b < rows; b++) {
+        for (var a = 0; a < cols; ++a) {
+            if (col[b][a] == false) {
+                if (i == 0 && j != 1) {
+                    console.log(b, a + row_lst[j - 1]);
+                    // console.log({ 'x': `${b}`, 'y': `${a + row_lst[j - 1]}` });
+                    // users.add({ 'x': b, 'y': a + row_lst[j - 1] })
+                } else if (j == 1) {
+                    console.log(b + row_lst[i], a);
+                    // console.log({ 'x': `${b + row_lst[i]}`, 'y': `${a}` });
+                    // users.add({ 'x': b + row_lst[i], 'y': a });
+                } else {
+                    console.log (b + row_lst[i], a + row_lst[j - 1]);
+                    // console.log({ 'x': `${b + row_lst[i]}`, 'y': `${a + row_lst[j - 1]}`});
+                    // users.add({ 'x': b + row_lst[i], 'y': a + row_lst[j - 1] });
+                }
+            }
+        }
+    }
+    document.getElementById('u_placed').value = `Number of users placed: ${users.size}`;
+    if (!large) {
+        if (!saved_file) {
+            download_json(users);
+            init();
+            return;
+        }
+    }
+    init();
+    showalert(`Saved this Configuration.`, `success`);
 }
 
 function set_row_list(rows) {

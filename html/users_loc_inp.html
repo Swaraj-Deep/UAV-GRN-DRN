@@ -1,50 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="../js/p5.min.js"></script>
-    <script src="../js/users_loc_inp.js"></script>
-    <link rel="stylesheet" href="../css/bootstrap.min.css">
-    <link rel="stylesheet" href="../css/style.css">
-    <title>Set User Loactions</title>
-</head>
-
-<body>
-    <div class="container">
-        <div class="container mt-3" id="alert-wrapper">
-
-        </div>
-        <div class="container mt-2 pt-2">
-            <div class="input-group form-group">
-                <div class="input-group-append">
-                    <input type="text" class="form-control" id="rows" required placeholder="Enter N of N X N grid"
-                        maxlength="3" onkeypress="validateNum(event);">
-                </div>
-                <button class="btn btn-outline-primary" onclick="create_grid(event);">
-                    Create the grid
-                </button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm" id="grid">
-
-            </div>
-            <div class="col-sm" id="button">
-                <button class="btn btn-outline-primary" id="submit_btn" hidden='true'>
-                    Save this configuration
-                </button>
-            </div>
-        </div>
-    </div>
-    <script src="../js/jquery.min.js"></script>
-    <script src="../js/popper.min.js"></script>
-    <script src="../js/bootstrap.min.js"></script>
-</body>
-
-</html> -->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -63,14 +16,17 @@
         <div class="container mt-3" id="alert-wrapper">
 
         </div>
-        <div class="row mt-2 pt-2">
-            <div class="col-sm">
+        <div class="row my-2 pt-2">
+            <a id="download_json" style="display:none"></a>
+            <div class="col-sm mx-1">
                 <div class="input-group form-group">
                     <div class="input-group-append">
                         <input type="text" class="form-control" id="rows" required placeholder="Enter N of N X N grid"
                             maxlength="3" onkeypress="validateNum(event);">
                         <!-- <input type="text" class="form-control" id="cols" required placeholder="Enter M of N X M grid"
                             maxlength="3" onkeypress="validateNum(event);"> -->
+                        <input type="text" class="form-control" id="users" required placeholder="Enter number of users"
+                            maxlength="3" onkeypress="validateNum(event);">
                     </div>
                     <button class="btn btn-outline-primary" onclick="create_grid(event);">
                         Create the grid
@@ -78,7 +34,11 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row py-2 mx-1">
+            <input type="text" class="form-control" id="u_placed" required placeholder="No Users Placed"
+                maxlength="3" onkeypress="validateNum(event);" readonly>
+        </div>
+        <div class="row pt-2">
             <div class="col-sm" id="load_button">
                 <button class="btn btn-outline-primary" id="load_grid_btn" onclick="load_subgrid();">
                     Load this grid
@@ -87,7 +47,7 @@
             <div class="col-sm" id="grid">
 
             </div>
-            <div class="col-sm" id="button">
+            <div class="col-sm pb-3" id="button">
                 <button class="btn btn-outline-primary" id="submit_btn" hidden='true' onclick="save_config();">
                     Save this configuration
                 </button>
