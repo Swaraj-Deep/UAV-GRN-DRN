@@ -18,7 +18,7 @@ function download_json(data) {
         "Number of Ground users": number_users,
         "Position of Ground users": user_lst
     };
-    var file_name = `${rows}_${rows}_${number_users}.json`;
+    var file_name = `${number_rows}_${number_rows}_${number_users}.json`;
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storageObj));
     var download_element = document.getElementById('download_json');
     download_element.setAttribute("href", dataStr);
@@ -186,7 +186,7 @@ function load_subgrid() {
                     return;
                 }
                 download_json(users);
-                saved_file = true;
+                // saved_file = true;
             }
             return;
         }
@@ -224,7 +224,7 @@ function save_config() {
                     return;
                 }
                 download_json(users);
-                saved_file = true;
+                // saved_file = true;
                 init();
             }
             return;
