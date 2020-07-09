@@ -10,20 +10,21 @@ var users = new Set();
 var saved_file = false;
 
 function download_json(data) {
-    for (const pos of data.keys()) {
-        console.log(pos)
-    }
     var user_lst = [];
+    for (const pos of data.keys()) {
+        user_lst.push(`${pos.x} ${pos.y}`);
+    }
     storageObj = {
         "Number of Ground users": number_users,
         "Position of Ground users": user_lst
     };
+    var file_name = `${rows}_${rows}_${number_users}.json`;
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storageObj));
-    var dlAnchorElem = document.getElementById('downloadAnchorElem');
-    dlAnchorElem.setAttribute("href", dataStr);
-    dlAnchorElem.setAttribute("download", "scene.json");
-    dlAnchorElem.click();
-    showalert(`Written this file to location: input_files/user_input_scenarios`, `success`);
+    var download_element = document.getElementById('download_json');
+    download_element.setAttribute("href", dataStr);
+    download_element.setAttribute("download", file_name);
+    download_element.click();
+    showalert(`Download this file to location: input_files/user_input_scenarios`, `success`);
 }
 
 function showalert(message, alert_type) {
@@ -34,6 +35,7 @@ function showalert(message, alert_type) {
         </button>
         </div>`);
     window.setTimeout(function () { $("#alertdialog").alert('close'); }, 2000);
+    document.getElementById("alertdialog").scrollIntoView();   
 }
 
 function init() {
@@ -81,6 +83,41 @@ function mousePressed() {
             var dis = dist(mouseX, mouseY, x[a], y[b]);
             if (dis < w / 2) {
                 col[b][a] = !col[b][a];
+                if (col[b][a] == false) {
+                    if (!large) {
+                        users.add({ 'x': b, 'y': a });
+                        document.getElementById('u_placed').value = `Number of users placed: ${users.size}`;
+                        if (users.size > number_users) {
+                            showalert(`Placed more users. Delete some of them.`, `danger`);
+                        }
+                        return;
+                    }
+                    if (i == 0 && j != 1) {
+                        users.add({ 'x': b, 'y': a + row_lst[j - 1] });
+                    } else if (j == 1) {
+                        users.add({ 'x': b + row_lst[i], 'y': a });
+                    } else {
+                        users.add({ 'x': b + row_lst[i], 'y': a + row_lst[j - 1] });
+                    }
+                    if (users.size > number_users) {
+                        showalert(`Placed more users. Delete some of them.`, `danger`);
+                    }
+                    document.getElementById('u_placed').value = `Number of users placed: ${users.size}`;
+                } else {
+                    if (!large) {
+                        users.forEach(obj => obj.x === b && obj.y === a ? users.delete(obj) : obj);
+                        document.getElementById('u_placed').value = `Number of users placed: ${users.size}`;
+                        return;
+                    }
+                    if (i == 0 && j != 1) {
+                        users.forEach(obj => obj.x === b && obj.y === a + row_lst[j - 1] ? users.delete(obj) : obj);
+                    } else if (j == 1) {
+                        users.forEach(obj => obj.x === b + row_lst[i] && obj.y === a ? users.delete(obj) : obj);
+                    } else {
+                        users.forEach(obj => obj.x === b + row_lst[i] && obj.y === a + row_lst[j - 1] ? users.delete(obj) : obj);
+                    }
+                    document.getElementById('u_placed').value = `Number of users placed: ${users.size}`;
+                }
             }
         }
     }
@@ -144,8 +181,11 @@ function load_subgrid() {
         if (i == row_lst.length - 1) {
             showalert(`Loaded all subgrids.`, `danger`);
             if (!saved_file) {
-                // download_json(users);
-                console.log (users);
+                if (users.size > number_users) {
+                    showalert(`Placed more users. Delete some of them.`, `danger`);
+                    return;
+                }
+                download_json(users);
                 saved_file = true;
             }
             return;
@@ -179,9 +219,12 @@ function save_config() {
         if (i > row_lst.length - 2) {
             showalert(`You have filled all the subgrids.`, `danger`);
             if (!saved_file) {
+                if (users.size > number_users) {
+                    showalert(`Placed more users. Delete some of them.`, `danger`);
+                    return;
+                }
                 download_json(users);
                 saved_file = true;
-                console.log (users);
                 init();
             }
             return;
@@ -193,32 +236,20 @@ function save_config() {
             j++;
         }
     }
-    for (var b = 0; b < rows; b++) {
-        for (var a = 0; a < cols; ++a) {
-            if (col[b][a] == false) {
-                if (i == 0 && j != 1) {
-                    console.log(b, a + row_lst[j - 1]);
-                    // console.log({ 'x': `${b}`, 'y': `${a + row_lst[j - 1]}` });
-                    // users.add({ 'x': b, 'y': a + row_lst[j - 1] })
-                } else if (j == 1) {
-                    console.log(b + row_lst[i], a);
-                    // console.log({ 'x': `${b + row_lst[i]}`, 'y': `${a}` });
-                    // users.add({ 'x': b + row_lst[i], 'y': a });
-                } else {
-                    console.log (b + row_lst[i], a + row_lst[j - 1]);
-                    // console.log({ 'x': `${b + row_lst[i]}`, 'y': `${a + row_lst[j - 1]}`});
-                    // users.add({ 'x': b + row_lst[i], 'y': a + row_lst[j - 1] });
-                }
-            }
-        }
-    }
-    document.getElementById('u_placed').value = `Number of users placed: ${users.size}`;
     if (!large) {
         if (!saved_file) {
+            if (users.size > number_users) {
+                showalert(`Placed more users. Delete some of them.`, `danger`);
+                return;
+            }
             download_json(users);
             init();
             return;
         }
+    }
+    if (users.size > number_users) {
+        showalert(`Placed more users. Delete some of them.`, `danger`);
+        return;
     }
     init();
     showalert(`Saved this Configuration.`, `success`);

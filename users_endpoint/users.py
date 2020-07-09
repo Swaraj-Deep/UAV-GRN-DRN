@@ -44,7 +44,7 @@ def init(radius_UAV, N, M):
     global ground_user_pos
     with open('input_files/user_input.json', 'r') as file_pointer:
         file_data = json.load(file_pointer)
-        number_ground_users = file_data['Number of Ground users']
+        number_ground_users = int(file_data['Number of Ground users'])
         pos_data = file_data['Position of Ground users']
         for index, pos in enumerate(pos_data):
             x, y = map(int, pos.split(' '))
