@@ -18,16 +18,20 @@ function showalert(message, alert_type) {
 
 
 function setup() {
-    var cnv = createCanvas(800, 800);
+    var cnv = createCanvas(500, 500);
     cnv.parent('grid');
     for (var i = 0; i < rows; i++) {
-        x[i] = w + i * w;
         y[i] = w + i * w;
     }
-    for (var i = 0; i < rows * cols; i++) {
-        col[i] = true;
+    for (var i = 0; i < cols; ++i) {
+        x[i] = w + i * w;
     }
-
+    for (var i = 0; i < rows; ++i) {
+        col[i] = new Array(cols);
+        for (var j = 0; j < cols; ++j) {
+            col[i][j] = true;
+        }
+    }
 }
 
 function draw() {
@@ -36,7 +40,7 @@ function draw() {
     stroke(0);
     for (var j = 0; j < y.length; j++) {
         for (var i = 0; i < cols; i++) {
-            if (col[j * rows + i]) {
+            if (col[j][i]) {
                 fill("white");
             } else {
                 fill("red");
@@ -51,9 +55,9 @@ function mousePressed() {
         for (var i = 0; i < cols; i++) {
             var dis = dist(mouseX, mouseY, x[i], y[j]);
             if (dis < w / 2) {
-                col[j * rows + i] = !col[j * rows + i];
-                if (col[j * rows + i] == false) {
-                    console.log(i, j);
+                col[j][i] = !col[j][i];
+                if (col[j][i] == false) {
+                    console.log(j, i);
                 }
             }
         }
@@ -76,19 +80,42 @@ function validateNum(evt) {
 }
 
 function create_grid(event) {
-    var text_inp = document.getElementById('rows').value;
-    if (!text_inp) {
+    rows = document.getElementById('rows').value;
+    // cols = document.getElementById('cols').value;
+    if (!rows) {
         showalert(`Please enter a valid number.`, `danger`);
         return;
     } else {
-        rows = text_inp;
-        cols = rows;
         if (rows > 30) {
             showalert(`Very large value entered. Splitting into subgrids.`, `secondary`);
             large = true;
-            rows = 30
+            split_grid(rows);
+            return false;
         }
+        cols = rows;
     }
     setup();
     document.getElementById('submit_btn').hidden = false;
+}
+
+function split_grid(rows) {
+    var row = 0;
+    var row_lst = [];
+    while (row <= rows) {
+        row_lst.push (row);
+        row += 30;
+    }
+    if (row != rows) {
+        row = rows;
+        row_lst.push (row);
+    }
+    for (var i = 0; i < row_lst.length; ++i) {
+        rows = row_lst[i];
+        cols = row_lst[1];
+        setup();
+        // console.log(row_lst[i], row_lst[1]);
+        for (var j = 1; j < row_lst.length - 1; ++j) {
+            console.log (-(row_lst[j] - row_lst[j + 1]));
+        }
+    }
 }
