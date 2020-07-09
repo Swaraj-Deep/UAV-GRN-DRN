@@ -62,7 +62,7 @@ function mousePressed() {
             if (dis < w / 2) {
                 col[j][i] = !col[j][i];
                 if (col[j][i] == false) {
-                    console.log(j, i);
+                    if ()
                 }
             }
         }
@@ -85,6 +85,7 @@ function validateNum(evt) {
 }
 
 var i = 0, j = 1;
+var number_rows = 0;
 var row_lst = [];
 
 function create_grid(event) {
@@ -93,47 +94,64 @@ function create_grid(event) {
     if (!rows) {
         showalert(`Please enter a valid number.`, `danger`);
         return;
-    } else {
+    } else if (rows > 30) {
+        showalert(`Very large value entered. Splitting into subgrids.`, `secondary`);
         init();
-        if (rows > 30) {
-            showalert(`Very large value entered. Splitting into subgrids.`, `secondary`);
-            large = true;
-            i = 0, j = 1;
-            row_lst = [];
-            set_row_list(rows);
-            return false;
-        }
+        large = true;
+        i = 0, j = 1;
+        row_lst = [];
+        number_rows = rows;
+        set_row_list(rows);
+        return false;
+    } else {
+        large = false;
+        init();
         cols = rows;
+        setup();
+        document.getElementById('submit_btn').hidden = false;
     }
-    setup();
-    document.getElementById('submit_btn').hidden = false;
 }
+
 
 function load_subgrid() {
     if (!large) {
         showalert(`No subgrid to load.`, `danger`);
+        return;
     } else {
-        num_rows = rows;
-        if (row_lst[j + 1] == num_rows && row_lst[i + 1] == num_rows) {
-            cols = Math.abs (row_lst[j + 1] - row_lst[j]);
-            rows = Math.abs (row_lst[i + 1] - row_lst[i]);
-        } else if (row_lst[j + 1] == num_rows) {
-            cols = Math.abs (row_lst[j + 1] - row_lst[j]);
-            rows = 30;
-        } else if (row_lst[i + 1] == num_rows) {
-            cols = 30;
-            rows = Math.abs (row_lst[i + 1] - row_lst[i]);
-        } else {
-            rows = 30;
-            cols = 30;
+        rows = 30;
+        cols = 30;
+        if (i == row_lst.length - 1) {
+            showalert(`Loaded all subgrids.`, `danger`);
+            return;
         }
-        console.log (rows, cols);
+        if (j == 1) {
+            if (i == row_lst.length - 2) {
+                if (row_lst[i + 1] - row_lst[i] < 30) {
+                    rows = Math.abs(row_lst[i + 1] - row_lst[i]);
+                }
+            }
+        } else {
+            if (i == row_lst.length - 2) {
+                if (row_lst[i + 1] - row_lst[i] < 30) {
+                    rows = Math.abs(row_lst[i + 1] - row_lst[i]);
+                }
+            }
+            if (j == row_lst.length - 1) {
+                if (row_lst[j - 1] - row_lst[j] < 0) {
+                    cols = Math.abs(row_lst[j - 1] - row_lst[j]);
+                }
+            }
+        }
+        init();
+        setup();
+        document.getElementById('submit_btn').hidden = false;
     }
 }
 
 function save_config() {
     if (large) {
-        if (i == row_lst.length - 1) {
+        if (i > row_lst.length - 2) {
+            showalert(`You have filled all the subgrids.`, `danger`);
             return;
         }
         if (j == row_lst.length - 1) {
@@ -147,12 +165,18 @@ function save_config() {
 
 function set_row_list(rows) {
     var row = 0;
-    while (row <= rows) {
-        row_lst.push(row);
-        row += 30;
-    }
-    if (row != rows) {
-        row = rows;
-        row_lst.push(row);
+    if (rows % 30 == 0) {
+        while (row <= rows) {
+            row_lst.push(row);
+            row += 30;
+        }
+    } else {
+        while (row <= rows) {
+            row_lst.push(row);
+            row += 30;
+        }
+        if (row != rows) {
+            row_lst.push(rows);
+        }
     }
 }
