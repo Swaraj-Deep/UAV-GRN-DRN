@@ -14,11 +14,12 @@ function download_json(data) {
     for (const pos of data.keys()) {
         user_lst.push(`${pos.x} ${pos.y}`);
     }
+    user_lst.sort();
     storageObj = {
         "Number of Ground users": number_users,
         "Position of Ground users": user_lst
     };
-    var file_name = `${number_rows}_${number_rows}_${number_users}.json`;
+    var file_name = `${number_rows}_${number_rows}_${number_users}_user.json`;
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storageObj));
     var download_element = document.getElementById('download_json');
     download_element.setAttribute("href", dataStr);
@@ -154,6 +155,7 @@ function create_grid(event) {
         return;
     } else if (rows > 30) {
         showalert(`Very large value entered. Splitting into subgrids.`, `secondary`);
+        document.getElementById('load_grid_btn').hidden = false;
         init();
         large = true;
         i = 0, j = 1;
@@ -164,9 +166,11 @@ function create_grid(event) {
     } else {
         large = false;
         init();
+        number_rows = rows;
         cols = rows;
         setup();
         document.getElementById('submit_btn').hidden = false;
+        document.getElementById('load_grid_btn').hidden = true;
     }
 }
 
