@@ -71,7 +71,7 @@ python3 user_scenario_producer.py
 
 You can also generate user location of various size grids and varying number of users. To do this run the [html file](./html/users_loc_inp.html) which is located in html folder in the root directory in any browser. If you enter value greater than 30 then we will divide the whole grid into subgrids to size 30. The division will be row wise i.e. if you enter grid size as 100 then this will divide the grid into 16 subgrids according to the image shown below
 
-![Sample grid division](./Screenshot from 2020-07-10 23-48-16.png)
+![Sample grid division](./sample_grid_division.png)
 
 ## Clear all the output files
 
