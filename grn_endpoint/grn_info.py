@@ -169,6 +169,47 @@ def init():
     non_increasing_grn_nodes = [node[0]
                                 for node in sorted(n_motif.items(), key=lambda node: node[1], reverse=True)]
     for node, grn_node in enumerate(non_increasing_grn_nodes):
-        mapping[node] = grn_node
+        mapping[node + 1] = grn_node
     for edge in grn_graph.edges:
         GRN_edges[edge] = True
+
+
+def mapping_function(non_increasing_grn_nodes, grn_graph):
+    """
+    Function: mapping_function\n
+    Parameter: non_increasing_grn_nodes -> list of genes arranged in non increasing order of their node motif centrality, grn_graph -> The GRN graph\n
+    Functionality: Fills the dictionary mapping\n
+    """
+    global mapping
+    a = mapping
+    mapping = {}
+    mapped_genes = set()
+    mapped_genes.add(non_increasing_grn_nodes[0])
+    mapping[1] = non_increasing_grn_nodes[0]
+    UAVs = len(non_increasing_grn_nodes)
+    non_increasing_grn_nodes.remove(non_increasing_grn_nodes[0])
+    UAV_node = 2
+    while (UAV_node <= UAVs):
+        flag = False
+        for gene in non_increasing_grn_nodes:
+            for mapped_gene in mapped_genes:
+                if (gene, mapped_gene) in grn_graph.edges:
+                    mapping[UAV_node] = gene
+                    mapped_genes.add(gene)
+                    non_increasing_grn_nodes.remove(gene)
+                    flag = True
+                    break
+                elif (mapped_gene, gene) in grn_graph.edges:
+                    mapping[UAV_node] = gene
+                    mapped_genes.add(gene)
+                    non_increasing_grn_nodes.remove(gene)
+                    flag = True
+                    break
+            if flag:
+                break
+        UAV_node += 1
+
+
+if __name__ == "__main__":
+    init()
+    pass
