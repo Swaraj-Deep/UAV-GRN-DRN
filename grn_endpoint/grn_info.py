@@ -168,10 +168,20 @@ def init():
         PI = max(PI, e_motif[edge])
     non_increasing_grn_nodes = [node[0]
                                 for node in sorted(n_motif.items(), key=lambda node: node[1], reverse=True)]
-    for node, grn_node in enumerate(non_increasing_grn_nodes):
-        mapping[node + 1] = grn_node
+    mapping_function(non_increasing_grn_nodes, grn_graph)
     for edge in grn_graph.edges:
         GRN_edges[edge] = True
+
+
+def old_mapping_function(non_increasing_grn_nodes):
+    """
+    Function: old_mapping_function\n
+    Parameter: non_increasing_grn_nodes -> list of genes arranged in non increasing order of their node motif centrality\n
+    Functionality: Fills the dictionary mapping\n
+    """
+    global mapping
+    for node, grn_node in enumerate(non_increasing_grn_nodes):
+        mapping[node + 1] = grn_node
 
 
 def mapping_function(non_increasing_grn_nodes, grn_graph):

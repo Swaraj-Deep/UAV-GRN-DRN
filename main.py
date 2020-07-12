@@ -322,11 +322,15 @@ def write_output(placed):
                 gene_1 = grn_endpoint.grn_info.m(node1)
                 gene_2 = grn_endpoint.grn_info.m(node2)
                 if grn_endpoint.grn_info.is_edge_grn(gene_1, gene_2):
-                    both_grn_UAV_edge_lst.append ((node1, node2))
+                    if (node1, node2) not in both_grn_UAV_edge_lst:
+                        if (node2, node1) not in both_grn_UAV_edge_lst:
+                            both_grn_UAV_edge_lst.append ((node1, node2))
             gene_1 = grn_endpoint.grn_info.m(node1)
             gene_2 = grn_endpoint.grn_info.m(node2)
-            if grn_endpoint.grn_info.is_edge_grn(gene_1, gene_2) and (node1, node2) not in both_grn_UAV_edge_lst and gene_1 != gene_2:
-                grn_edge_lst.append ((node1, node2))
+            if grn_endpoint.grn_info.is_edge_grn(gene_1, gene_2) and (node1, node2) not in both_grn_UAV_edge_lst and gene_1 != gene_2 and (node2, node1) not in both_grn_UAV_edge_lst:
+                if (node1, node2) not in grn_edge_lst:
+                        if (node2, node1) not in grn_edge_lst:
+                            grn_edge_lst.append ((node1, node2))
     total_edge = len (UAV_G.edges)
     if total_edge == 0:
         total_edge = 1
