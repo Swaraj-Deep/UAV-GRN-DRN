@@ -191,7 +191,7 @@ def init():
     Functionality: Initializes the variables
     """
     parent_path = os.getcwd()
-    file_prefix = 'Ecoli'
+    file_prefix = '400'
     file_name = file_prefix + '.gml'
     grn_file_path = os.path.join(parent_path, 'grn_endpoint', file_name)
     grn_graph = nx.read_gml(grn_file_path)
@@ -210,7 +210,6 @@ def init():
         PI = max(PI, e_motif[edge])
     non_increasing_grn_nodes = [node[0]
                                 for node in sorted(n_motif.items(), key=lambda node: node[1], reverse=True)]
-    # subgraph_on_motif_centrality(non_increasing_grn_nodes, grn_graph, 400, '400.gml')
     mapping_function(non_increasing_grn_nodes, grn_graph)
     for edge in grn_graph.edges:
         GRN_edges[edge] = True
