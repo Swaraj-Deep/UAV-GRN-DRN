@@ -243,7 +243,7 @@ def simulation():
     for UAV_node in unplaced:
         if done_simulation(ground_placed, placed):
             break
-        loc = bruteforce(UAV_node, placed)
+        loc = q_learn(UAV_node, placed)
         UAV_location[UAV_node] = loc
         placed.append(UAV_node)
         user_list = users_endpoint.users.get_users_cell_connections(loc)
@@ -340,14 +340,14 @@ def write_output(placed):
             text_file_data.append (f'{edge}, ')
         text_file_data.append(f'\n')
     else:
-        text_file_data.append (f'No edge is common in UAV and GRN network.\n')
+        text_file_data.append (f'No edge is common in UAV and GRN graph.\n')
     if len (grn_edge_lst) > 0:
         text_file_data.append (f'Following are the edges which is present in GRN but not in UAV network:\n')
         for edge in grn_edge_lst:
             text_file_data.append (f'{edge}, ')
         text_file_data.append(f'\n')
     else:
-        text_file_data.append (f'There is no edge which is in GRN but not in the UAV network\n')
+        text_file_data.append (f'There is no edge which is in GRN but not in the UAV graph\n')
     text_file_data.append (f'Total Number of edges: {total_edge}\nPercentage of edge which is both in GRN and UAV: {(len(both_grn_UAV_edge_lst) / total_edge) * 100}\n')
     node_motif = grn_endpoint.grn_info.get_motif_dict (UAV_G)
     for node, motif in node_motif.items():
