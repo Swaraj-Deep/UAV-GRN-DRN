@@ -132,6 +132,48 @@ def generate_subgraph(grn_graph, number_nodes, output_file_name):
     nx.write_gml(SG, output_file_name)
 
 
+def subgraph_on_motif_centrality(non_increasing_grn_nodes, grn_graph, number_genes, file_name):
+    """
+    Function: subgraph_on_motif_centrality\n
+    Parameter: non_increasing_grn_nodes -> list of genes arranged in non increasing order of their node motif centrality, grn_graph -> The GRN graph, number_genes -> number of genes to generate subgraph from, file_name -> file name of the output subgraph\n
+    Functionality: generates subgraph based on the node motif centrality\n
+    """
+    mapped_genes = set()
+    mapped_genes.add(non_increasing_grn_nodes[0])
+    non_increasing_grn_nodes.remove(non_increasing_grn_nodes[0])
+    while (len(mapped_genes) < number_genes):
+        flag = False
+        for gene in non_increasing_grn_nodes:
+            for mapped_gene in mapped_genes:
+                if (gene, mapped_gene) in grn_graph.edges:
+                    mapped_genes.add(gene)
+                    non_increasing_grn_nodes.remove(gene)
+                    flag = True
+                    break
+                elif (mapped_gene, gene) in grn_graph.edges:
+                    mapped_genes.add(gene)
+                    non_increasing_grn_nodes.remove(gene)
+                    flag = True
+                    break
+            if flag:
+                break
+    node_list = list(mapped_genes)
+    edge_list = []
+    for node1 in node_list:
+        for node2 in node_list:
+            if node1 != node2:
+                if (node1, node2) in grn_graph.edges:
+                    edge_list.append((node1, node2))
+                elif (node2, node1) in grn_graph.edges:
+                    edge_list.append((node2, node1))
+    SG = grn_graph.__class__()
+    SG.add_nodes_from(node_list)
+    SG.add_edges_from(edge_list)
+    nx.write_gml(SG, file_name)
+    
+
+
+
 def write_binary(n_motif_centrality_dict, file_name):
     """
     Function: write_binary\n
@@ -149,7 +191,7 @@ def init():
     Functionality: Initializes the variables
     """
     parent_path = os.getcwd()
-    file_prefix = '400'
+    file_prefix = 'Ecoli'
     file_name = file_prefix + '.gml'
     grn_file_path = os.path.join(parent_path, 'grn_endpoint', file_name)
     grn_graph = nx.read_gml(grn_file_path)
@@ -168,6 +210,7 @@ def init():
         PI = max(PI, e_motif[edge])
     non_increasing_grn_nodes = [node[0]
                                 for node in sorted(n_motif.items(), key=lambda node: node[1], reverse=True)]
+    # subgraph_on_motif_centrality(non_increasing_grn_nodes, grn_graph, 400, '400.gml')
     mapping_function(non_increasing_grn_nodes, grn_graph)
     for edge in grn_graph.edges:
         GRN_edges[edge] = True
@@ -191,7 +234,6 @@ def mapping_function(non_increasing_grn_nodes, grn_graph):
     Functionality: Fills the dictionary mapping\n
     """
     global mapping
-    a = mapping
     mapping = {}
     mapped_genes = set()
     mapped_genes.add(non_increasing_grn_nodes[0])
