@@ -80,6 +80,11 @@ def init():
     global radius_UAV
     global UAV_to_UAV_threshold
     global power_UAV
+    dir_path = os.path.join(os.getcwd(), 'output_files')
+    try:
+        os.mkdir(dir_path)
+    except OSError as error:
+        pass
     parent_dir = os.getcwd()
     folder_name = 'input_files'
     file_name = 'scenario_input.json'
