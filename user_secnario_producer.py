@@ -15,7 +15,7 @@ def generate_user_input(N, M, number_users):
     while len(user_pos) < number_users:
         a = random.randint(0, N - 1)
         b = random.randint(0, M - 1)
-        if (a, b) not in user_pos:
+        if str(a) + " " + str(b) not in user_pos:
             user_pos.append(str(a) + " " + str(b))
     write_data = {
         "Number of Ground users": number_users,
