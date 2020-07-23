@@ -32,7 +32,6 @@ def generate_user_input(N, M, number_users):
         file_data = json.load(file_pointer)
     file_data["N"] = N
     file_data["M"] = M
-    print (file_data)
     with open(file_path, 'w') as file_pointer:
         json.dump(file_data, file_pointer)
 
