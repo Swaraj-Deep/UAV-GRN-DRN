@@ -175,17 +175,37 @@ def write_file ():
     """
     global N
     user_pos = generate_random_points()
-    write_data = {
-        "Number of Ground users": len(user_pos),
-        "Position of Ground users": user_pos
-    }
-    print(write_data)
-    parent_dir = os.getcwd()
-    file_name = str(N) + "_" + str(N) + "_" + str(len(user_pos)) + "_user.json"
-    file_path = os.path.join(parent_dir, 'input_files',
-                             'user_input_scenarios', file_name)
-    with open(file_path, 'w') as file_pointer:
-        json.dump(write_data, file_pointer)
+    user_loc = []
+    for i in range (N):
+        loc_row = []
+        for j in range (N):
+            loc_row.append (0)
+        user_loc.append (loc_row)
+    for cell in user_pos:
+        x, y = map (int, cell.split(' '))
+        user_loc[x][y] = 1
+    for i in range (N):
+        for j in range (N):
+            if user_loc[i][j] == 1:
+                print (f"\033[1;31m{user_loc[i][j]}", end=' ')
+            else:
+                print (f"\033[1;37m{user_loc[i][j]}", end=' ')
+        print('\033[0;37m')
+    option = input ("Do you want to save this configuration (y / n) : ")
+    if option.lower () == 'y':
+        write_data = {
+            "Number of Ground users": len(user_pos),
+            "Position of Ground users": user_pos
+        }
+        print(write_data)
+        parent_dir = os.getcwd()
+        file_name = str(N) + "_" + str(N) + "_" + str(len(user_pos)) + "_user.json"
+        file_path = os.path.join(parent_dir, 'input_files',
+                                 'user_input_scenarios', file_name)
+        with open(file_path, 'w') as file_pointer:
+            json.dump(write_data, file_pointer)
+    else:
+        write_file()
 
 
 if __name__ == "__main__":
