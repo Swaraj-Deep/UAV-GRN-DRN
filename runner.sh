@@ -1,4 +1,4 @@
-for i in $(seq 1 10); do
+for i in $(seq 1 50); do
   echo Generating user location
   python3 user_secnario_producer.py
   echo Generated user location
