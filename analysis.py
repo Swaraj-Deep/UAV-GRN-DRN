@@ -104,7 +104,7 @@ def analyse_output_files():
     best_graph_sim_per = os.path.join(dir_path, best_graph_sim_per)
     worst_file_sim_per = os.path.join(dir_path, worst_file_sim_per)
     worst_graph_sim_per = os.path.join(dir_path, worst_graph_sim_per)
-    
+
     df_UAV = pd.DataFrame (lst_UAV)
     df_user = pd.DataFrame (lst_user)
     df_similarity = pd.DataFrame (lst_similarity)
@@ -158,6 +158,8 @@ def analyse_output_files():
     if worst_file_sim_per != worst_file:
         lines_to_write.append (f'# Worst File Location according to edge similarity: {worst_file_sim_per}\n')
         lines_to_write.append (f'# Corresponding Graph Location: {worst_graph_sim_per}\n')
+    lines_to_write.append(
+        f'############################################################################################\n')
     with open(os.path.join(dir_path, "analysis.log"), 'w') as file_pointer:
         file_pointer.writelines(lines_to_write)
 
