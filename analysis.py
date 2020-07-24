@@ -1,6 +1,7 @@
 import os
 import json
 import os.path
+import pandas as pd
 
 
 def find_percentage(lines, num_ahead):
@@ -52,92 +53,113 @@ def analyse_output_files():
     worst_file = ''
     best_file_sim_per = ''
     best_file = ''
-    sum_user_served = 0
-    sum_sim_per = 0
+    best_graph = ''
+    best_graph_sim_per = ''
+    worst_graph = ''
+    worst_graph_sim_per = ''
     total_files = 0
     for file in os.listdir(dir_path):
         name, ext = os.path.splitext(file)
         if ext == '.txt':
             text_files.append(name + ext)
             total_files += 1
+    lst_UAV = []
+    lst_user = []
+    lst_similarity = []
     for file in text_files:
         with open(os.path.join(dir_path, file), 'r') as file_pointer:
             lines = file_pointer.readlines()
             curr_user_served = int(lines[0].split(':')[1])
             curr_UAV_used = int(lines[2].split(':')[1])
-            sum_user_served += curr_user_served
             similarity_percentage = float(
                 find_percentage(lines, curr_UAV_used))
-            sum_sim_per += similarity_percentage
+            lst_UAV.append(curr_UAV_used)
+            lst_similarity.append(similarity_percentage)
+            lst_user.append(curr_user_served)
             if curr_UAV_used < minm_UAV_used:
                 if curr_user_served >= maxm_user_served:
                     maxm_user_served = curr_user_served
                     minm_UAV_used = curr_UAV_used
                     best_file = file
+                    best_graph = file.split ('_')[0] + '_graph' + file.split ('_')[1][4:-4] + '.png'
             if curr_UAV_used > minm_UAV_used:
                 if curr_user_served < minm_user_served:
                     minm_user_served = curr_user_served
                     worst_file = file
-
+                    worst_graph = file.split ('_')[0] + '_graph' + file.split ('_')[1][4:-4] + '.png'
             if similarity_percentage > maxm_sim:
                 maxm_sim = similarity_percentage
                 best_file_sim_per = file
+                best_graph_sim_per = file.split ('_')[0] + '_graph' + file.split ('_')[1][4:-4] + '.png'
             if similarity_percentage < minm_sim:
                 minm_sim = similarity_percentage
                 worst_file_sim_per = file
+                worst_graph_sim_per = file.split ('_')[0] + '_graph' + file.split ('_')[1][4:-4] + '.png'
+
     best_file = os.path.join(dir_path, best_file)
+    best_graph = os.path.join(dir_path, best_graph)
     worst_file = os.path.join(dir_path, worst_file)
+    worst_graph = os.path.join(dir_path, worst_graph)
     best_file_sim_per = os.path.join(dir_path, best_file_sim_per)
+    best_graph_sim_per = os.path.join(dir_path, best_graph_sim_per)
     worst_file_sim_per = os.path.join(dir_path, worst_file_sim_per)
-    list_line_to_write = []
-    list_line_to_write.append(
-        f"Input Scenario\nLearning Rate: {learning_rate}\nExploration Rate: {epsilon}\nDecay Factor: {decay_factor}\n")
-    list_line_to_write.append(
+    worst_graph_sim_per = os.path.join(dir_path, worst_graph_sim_per)
+    
+    df_UAV = pd.DataFrame (lst_UAV)
+    df_user = pd.DataFrame (lst_user)
+    df_similarity = pd.DataFrame (lst_similarity)
+
+    desc_UAV = df_UAV.describe ()
+    desc_user = df_user.describe ()
+    desc_similarity = df_similarity.describe ()
+
+    mean_UAV = desc_UAV[0]['mean']
+    std_UAV = desc_UAV[0]['std']
+    min_UAV = desc_UAV[0]['min']
+    median_UAV = desc_UAV[0]['50%']
+    max_UAV = desc_UAV[0]['max']
+    mode_UAV = df_UAV.mode ()
+    mode_UAV = mode_UAV[0][len (mode_UAV) - 1]
+
+    mean_user = desc_user[0]['mean']
+    std_user = desc_user[0]['std']
+    min_user = desc_user[0]['min']
+    median_user = desc_user[0]['50%']
+    max_user = desc_user[0]['max']
+    mode_user = df_user.mode ()
+    mode_user = mode_user[0][len (mode_user) -1]
+
+    mean_similarity = desc_similarity[0]['mean']
+    std_similarity = desc_similarity[0]['std']
+    min_similarity = desc_similarity[0]['min']
+    median_similarity = desc_similarity[0]['50%']
+    max_similarity = desc_similarity[0]['max']
+    mode_similarity = df_similarity.mode ()
+    mode_similarity = mode_similarity[0][len (mode_similarity) - 1]
+
+    lines_to_write = []
+    lines_to_write.append (f'Input Scenario\nEpsilon: {epsilon}\nLearning Rate: {learning_rate}\nDecay Factor: {decay_factor}\n')
+    lines_to_write.append(
         f'############################################################################################\n')
-    list_line_to_write.append(
+    lines_to_write.append(
         f'################################### Analysis Report ########################################\n')
-    list_line_to_write.append(
+    lines_to_write.append(
         f'############################################################################################\n')
-    best_graph = dir_path + '/Output_graph' + \
-        best_file[26:len(best_file) - 4:] + '.png'
-    list_line_to_write.append(
-        f'Location of Best Output file is: {best_file}\n')
-    list_line_to_write.append(
-        f'Corresponding Graph file location is: {best_graph}\n')
-    list_line_to_write.append(
-        f'Location of Best Output file on the basis of edge similarity is: {best_file_sim_per}\n')
-    best_graph_sim_per = dir_path + '/Output_graph' + \
-        best_file_sim_per[26:len(best_file_sim_per) - 4:] + '.png'
-    list_line_to_write.append(
-        f'Corresponding Graph file location is: {best_graph_sim_per}\n')
-    worst_graph = dir_path + '/Output_graph' + \
-        worst_file[26:len(worst_file) - 4:] + '.png'
-    list_line_to_write.append(
-        f'Location of Worst Output file is: {worst_file}\n')
-    list_line_to_write.append(
-        f'Corresponding Graph file location is: {worst_graph}\n')
-    list_line_to_write.append(
-        f'Location of Worst Output file on the basis of edge similarity is: {worst_file_sim_per}\n')
-    worst_graph_sim_per = dir_path + '/Output_graph' + \
-        worst_file_sim_per[26:len(worst_file_sim_per) - 4:] + '.png'
-    list_line_to_write.append(
-        f'Corresponding Graph file location is: {worst_graph_sim_per}\n')
-    list_line_to_write.append(
-        f'Mean Edge Similarity: {sum_sim_per / total_files}\n')
-    list_line_to_write.append(
-        f'Edge Similarity in Best Case: {maxm_sim} \n')
-    list_line_to_write.append(
-        f'Edge Similarity in Worst Case: {minm_sim} \n')
-    list_line_to_write.append(
-        f'Mean User Served: {sum_user_served / total_files}\n')
-    list_line_to_write.append(
-        f'User Served in Best Case: {maxm_user_served} \n')
-    list_line_to_write.append(
-        f'User Served in Worst Case: {minm_user_served} \n')
-    list_line_to_write.append(
-        f"############################################################################################\n")
+    lines_to_write.append (f'# Mean of UAVs: {mean_UAV}\n# Median of UAVs: {median_UAV}\n# Mode of UAVs: {mode_UAV}\n# Standard Deviation of UAVs: {std_UAV}\n# Minimum UAV used: {min_UAV}\n# Maximum UAV used: {max_UAV}\n')
+    lines_to_write.append (f'# Mean of edge similarity: {mean_similarity}\n# Median of edge similarity: {median_similarity}\n# Mode of edge similarity: {mode_similarity}\n# Standard Deviation of edge similarity: {std_similarity}\n# Minimum edge similarity: {min_similarity}\n# Maximum edge similarity: {max_similarity}\n')
+    lines_to_write.append (f'# Mean user served: {mean_user}\n# Median user served: {median_user}\n# Mode of user served: {mode_user}\n# Standard Deviation of user served: {std_user}\n# Minimum user served: {min_user}\n# Maximum user served: {max_user}\n')
+    lines_to_write.append (f'# Best File Location: {best_file}\n')
+    lines_to_write.append (f'# Corresponding Graph Location: {best_graph}\n')
+    if best_file_sim_per != best_file:
+        lines_to_write.append (f'# Best File Location according to edge similarity: {best_file_sim_per}\n')
+        lines_to_write.append (f'# Corresponding Graph Location: {best_graph_sim_per}\n')
+    lines_to_write.append (f'# Worst File Location: {worst_file}\n')
+    lines_to_write.append (f'# Corresponding Graph Location: {worst_graph}\n')
+    if worst_file_sim_per != worst_file:
+        lines_to_write.append (f'# Worst File Location according to edge similarity: {worst_file_sim_per}\n')
+        lines_to_write.append (f'# Corresponding Graph Location: {worst_graph_sim_per}\n')
     with open(os.path.join(dir_path, "analysis.log"), 'w') as file_pointer:
-        file_pointer.writelines(list_line_to_write)
+        file_pointer.writelines(lines_to_write)
 
 
 if __name__ == "__main__":
