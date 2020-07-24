@@ -6,11 +6,11 @@ This is a repository for creating a UAV network based on the GRN graph using pyt
 
 You need python and following packages to run this code
 
-[python3.x](https://www.python.org/downloads/)
-[networkx](https://networkx.github.io/)
-[matplotlib](https://matplotlib.org/)
-[numpy](https://numpy.org/)
-[pandas](https://pandas.pydata.org/)
+[python3.x](https://www.python.org/downloads/)  
+[networkx](https://networkx.github.io/)  
+[matplotlib](https://matplotlib.org/)  
+[numpy](https://numpy.org/)  
+[pandas](https://pandas.pydata.org/)  
 
 ## Installation
 
