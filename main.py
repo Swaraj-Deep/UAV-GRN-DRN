@@ -123,6 +123,7 @@ def q_learn(UAV_node, placed):
     global UAV_location
     global radius_UAV
     global t
+    start = time.time()
     Q = np.zeros((N * M, 15))
     # Centroid Location
     # loc = move_endpoint.movement.get_centroid_location(
@@ -163,7 +164,9 @@ def q_learn(UAV_node, placed):
             max_reward = expected_max
             max_pos = index
     x, y = move_endpoint.movement.map_1d_to_2d(max_pos, N, M)
+    end = time.time()
     print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
+    print (f'Time taken to place Node 6 is: {end - start} seconds')
     return (x, y)
 
 
@@ -217,7 +220,7 @@ def bruteforce(UAV_node, placed):
     global power_UAV
     max_reward = -999999
     max_pos = (-1, -1)
-    start = time.time ()
+    start = time.time()
     for i in range(N):
         for j in range(M):
             loc = (i, j)
@@ -226,9 +229,9 @@ def bruteforce(UAV_node, placed):
             if reward > max_reward and valid_loc(loc):
                 max_reward = reward
                 max_pos = loc
-    end = time.time ()
+    end = time.time()
     print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
-    print (f'Time taken to place Node {UAV_node} is: {end - start}')
+    print(f'Time taken to place Node {UAV_node} is: {end - start} seconds')
     return max_pos
 
 
@@ -315,7 +318,7 @@ def write_output(placed):
     text_file_data = []
     text_file_data.append(
         f'Total Number of users served: {len(ground_placed)}\nList of users: {sorted(ground_placed)}\n')
-    text_file_data.append (f'Total number of UAV used: {len(UAV_location)}\n')
+    text_file_data.append(f'Total number of UAV used: {len(UAV_location)}\n')
     for UAV_node, loc in UAV_location.items():
         text_file_data.append(
             f'UAV: {UAV_node} can serve users: {users_endpoint.users.get_users_cell_connections(loc)} when placed at {loc}\n')
@@ -333,32 +336,36 @@ def write_output(placed):
                 if grn_endpoint.grn_info.is_edge_grn(gene_1, gene_2):
                     if (node1, node2) not in both_grn_UAV_edge_lst:
                         if (node2, node1) not in both_grn_UAV_edge_lst:
-                            both_grn_UAV_edge_lst.append ((node1, node2))
+                            both_grn_UAV_edge_lst.append((node1, node2))
             gene_1 = grn_endpoint.grn_info.m(node1)
             gene_2 = grn_endpoint.grn_info.m(node2)
             if grn_endpoint.grn_info.is_edge_grn(gene_1, gene_2) and (node1, node2) not in both_grn_UAV_edge_lst and gene_1 != gene_2 and (node2, node1) not in both_grn_UAV_edge_lst:
                 if (node1, node2) not in grn_edge_lst:
-                        if (node2, node1) not in grn_edge_lst:
-                            grn_edge_lst.append ((node1, node2))
-    total_edge = len (UAV_G.edges)
+                    if (node2, node1) not in grn_edge_lst:
+                        grn_edge_lst.append((node1, node2))
+    total_edge = len(UAV_G.edges)
     if total_edge == 0:
         total_edge = 1
     if len(both_grn_UAV_edge_lst) > 0:
-        text_file_data.append (f'Following are the edges which is present in both UAV and GRN netwrok:\n')
+        text_file_data.append(
+            f'Following are the edges which is present in both UAV and GRN netwrok:\n')
         for edge in both_grn_UAV_edge_lst:
-            text_file_data.append (f'{edge}, ')
+            text_file_data.append(f'{edge}, ')
         text_file_data.append(f'\n')
     else:
-        text_file_data.append (f'No edge is common in UAV and GRN graph.\n')
-    if len (grn_edge_lst) > 0:
-        text_file_data.append (f'Following are the edges which is present in GRN but not in UAV network:\n')
+        text_file_data.append(f'No edge is common in UAV and GRN graph.\n')
+    if len(grn_edge_lst) > 0:
+        text_file_data.append(
+            f'Following are the edges which is present in GRN but not in UAV network:\n')
         for edge in grn_edge_lst:
-            text_file_data.append (f'{edge}, ')
+            text_file_data.append(f'{edge}, ')
         text_file_data.append(f'\n')
     else:
-        text_file_data.append (f'There is no edge which is in GRN but not in the UAV graph\n')
-    text_file_data.append (f'Total Number of edges: {total_edge}\nPercentage of edge which is both in GRN and UAV: {(len(both_grn_UAV_edge_lst) / total_edge) * 100}\n')
-    node_motif = grn_endpoint.grn_info.get_motif_dict (UAV_G)
+        text_file_data.append(
+            f'There is no edge which is in GRN but not in the UAV graph\n')
+    text_file_data.append(
+        f'Total Number of edges (in UAV Topology): {total_edge}\nPercentage of edge which is both in GRN and UAV: {(len(both_grn_UAV_edge_lst) / total_edge) * 100}\n')
+    node_motif = grn_endpoint.grn_info.get_motif_dict(UAV_G)
     for node, motif in node_motif.items():
         text_file_data.append(f'Motif of UAV {node} is {motif}\n')
     e_motif = {}
@@ -366,19 +373,37 @@ def write_output(placed):
     for edge in UAV_G.edges:
         node1, node2 = edge
         e_motif[edge] = min(node_motif[node1], node_motif[node2])
-        text_file_data.append(f'Edge {edge} has edge motif centrality of {e_motif[edge]}\n')
+        text_file_data.append(
+            f'Edge {edge} has edge motif centrality of {e_motif[edge]}\n')
         PI = max(PI, e_motif[edge])
     text_file_data.append(f'Maximum Edge motif centrality is {PI}\n')
     with open(text_file_name, 'w') as file_pointer:
         file_pointer.writelines(text_file_data)
-    nx.draw(UAV_G, with_labels=True)
+    for node in placed:
+        UAV_G.add_node(f'G{node}')
+    for node, loc in UAV_location.items():
+        UAV_G.add_edge(node, f'G{node}')
+    edge_color = []
+    for  edge in UAV_G.edges:
+        node1, node2 = map(str, edge)
+        if 'G' in node1 or 'G' in node2:
+            edge_color.append ('brown')
+        else:
+            edge_color.append ('b')
+    node_color = []
+    for node in UAV_G.nodes:
+        if 'G' in str(node):
+            node_color.append('brown')
+        else:
+            node_color.append('b')
+    nx.draw(UAV_G, edge_color=edge_color, node_color=node_color, font_color='white', node_size=500, with_labels=True, alpha=0.8, font_size=14)
     plt.savefig(graph_file_name)
 
 
 if __name__ == "__main__":
-    print (f'Initializing the timer')
-    start = time.time ()
+    print(f'Initializing the timer')
+    start = time.time()
     init()
-    end = time.time ()
-    print (f'Time Taken to load all initialize the environment: {end - start}')
+    end = time.time()
+    print(f'Time Taken to initialize the environment: {end - start} seconds')
     simulation()
