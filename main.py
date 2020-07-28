@@ -2,6 +2,7 @@ import json
 import random
 import numpy as np
 import os
+import time
 import os.path
 import networkx as nx
 import users_endpoint.users
@@ -216,6 +217,7 @@ def bruteforce(UAV_node, placed):
     global power_UAV
     max_reward = -999999
     max_pos = (-1, -1)
+    start = time.time ()
     for i in range(N):
         for j in range(M):
             loc = (i, j)
@@ -224,7 +226,9 @@ def bruteforce(UAV_node, placed):
             if reward > max_reward and valid_loc(loc):
                 max_reward = reward
                 max_pos = loc
+    end = time.time ()
     print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
+    print (f'Time taken to place Node {UAV_node} is: {end - start}')
     return max_pos
 
 
@@ -372,5 +376,9 @@ def write_output(placed):
 
 
 if __name__ == "__main__":
+    print (f'Initializing the timer')
+    start = time.time ()
     init()
+    end = time.time ()
+    print (f'Time Taken to load all initialize the environment: {end - start}')
     simulation()
