@@ -130,6 +130,16 @@ def get_ground_cell_connections(loc):
     return 0
 
 
+def get_ground_user_pos_dict():
+    """
+    Function: get_ground_user_pos_dict\n
+    Parameters: None\n
+    Returns: ground_user_pos\n
+    """
+    global ground_user_pos
+    return ground_user_pos
+
+
 def get_users_cell_connections(loc):
     """
     Function: get_user_cell_connections\n

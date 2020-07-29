@@ -166,7 +166,7 @@ def q_learn(UAV_node, placed):
     x, y = move_endpoint.movement.map_1d_to_2d(max_pos, N, M)
     end = time.time()
     print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
-    print (f'Time taken to place Node 6 is: {end - start} seconds')
+    print(f'Time taken to place Node 6 is: {end - start} seconds')
     return (x, y)
 
 
@@ -314,7 +314,7 @@ def write_output(placed):
         dir_path)])
     os.chdir(dir_path)
     text_file_name = 'Output_text' + str(file_num // 2) + '.txt'
-    graph_file_name = 'Output_graph' + str(file_num // 2) + '.png'
+    graph_file_name = 'Output_graph' + str(file_num // 2) + '.json'
     text_file_data = []
     text_file_data.append(
         f'Total Number of users served: {len(ground_placed)}\nList of users: {sorted(ground_placed)}\n')
@@ -379,25 +379,23 @@ def write_output(placed):
     text_file_data.append(f'Maximum Edge motif centrality is {PI}\n')
     with open(text_file_name, 'w') as file_pointer:
         file_pointer.writelines(text_file_data)
-    for node in placed:
-        UAV_G.add_node(f'G{node}')
-    for node, loc in UAV_location.items():
-        UAV_G.add_edge(node, f'G{node}')
-    edge_color = []
-    for  edge in UAV_G.edges:
-        node1, node2 = map(str, edge)
-        if 'G' in node1 or 'G' in node2:
-            edge_color.append ('brown')
-        else:
-            edge_color.append ('b')
-    node_color = []
-    for node in UAV_G.nodes:
-        if 'G' in str(node):
-            node_color.append('brown')
-        else:
-            node_color.append('b')
-    nx.draw(UAV_G, edge_color=edge_color, node_color=node_color, font_color='white', node_size=1000, with_labels=True, alpha=0.8, font_size=12)
-    plt.savefig(graph_file_name)
+    graph_data = {}
+    global radius_UAV
+    graph_data["radius_UAV"] = radius_UAV
+    user_served = {}
+    for UAV, location in UAV_location.items():
+        graph_data[f"{UAV}"] = location
+        user_served[f"{UAV}"] = users_endpoint.users.get_users_cell_connections(
+            location)
+    ground_user_pos = users_endpoint.users.get_ground_user_pos_dict()
+    ground_user = {}
+    for loc, user in ground_user_pos.items():
+        ground_user[user] = loc
+    graph_data["user_loc"] = ground_user
+    graph_data["edge_UAV"] = list(UAV_G.edges())
+    graph_data["UAV_serves"] = user_served
+    with open(graph_file_name, 'w') as file_pointer:
+        json.dump(graph_data, file_pointer)
 
 
 if __name__ == "__main__":
