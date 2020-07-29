@@ -396,7 +396,7 @@ def write_output(placed):
             node_color.append('brown')
         else:
             node_color.append('b')
-    nx.draw(UAV_G, edge_color=edge_color, node_color=node_color, font_color='white', node_size=500, with_labels=True, alpha=0.8, font_size=14)
+    nx.draw(UAV_G, edge_color=edge_color, node_color=node_color, font_color='white', node_size=1000, with_labels=True, alpha=0.8, font_size=12)
     plt.savefig(graph_file_name)
 
 
