@@ -384,7 +384,6 @@ def write_output(placed):
     graph_data["radius_UAV"] = radius_UAV
     user_served = {}
     for UAV, location in UAV_location.items():
-        graph_data[f"{UAV}"] = location
         user_served[f"{UAV}"] = users_endpoint.users.get_users_cell_connections(
             location)
     ground_user_pos = users_endpoint.users.get_ground_user_pos_dict()
@@ -394,6 +393,11 @@ def write_output(placed):
     graph_data["user_loc"] = ground_user
     graph_data["edge_UAV"] = list(UAV_G.edges())
     graph_data["UAV_serves"] = user_served
+    global N
+    global M
+    graph_data['N'] = N
+    graph_data['M'] = M
+    graph_data['UAV_location'] = UAV_location
     with open(graph_file_name, 'w') as file_pointer:
         json.dump(graph_data, file_pointer)
 

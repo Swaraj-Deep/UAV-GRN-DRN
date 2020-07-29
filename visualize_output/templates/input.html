@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block script %}
+
+
+{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <div id="alert-wrapper" class="px-2 py-2">
+
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="form-group my-3" id="form">
+        <div class="input-group">
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="file_input">
+                <label for="file_input" id="file_input_label" class="custom-file-label">
+                    Select File
+                </label>
+            </div>
+            <div class="input-group-append">
+                <button class="btn btn-outline-primary" id="upload_btn">
+                    Upload File
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div id="grid">
+        
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block jquery %}
+<script src="../static/js/input.js"></script>
+{% endblock %}
