@@ -11,48 +11,48 @@
     <div id="alert-wrapper" class="px-2 py-2">
 
     </div>
-</div>
-<div class="container-fluid">
-    <div class="form-group my-3" id="form">
-        <div class="input-group">
-            <div class="custom-file">
-                <input type="file" class="custom-file-input" id="file_input">
-                <label for="file_input" id="file_input_label" class="custom-file-label">
-                    Select File
-                </label>
-            </div>
-            <div class="input-group-append">
-                <button class="btn btn-outline-primary" id="upload_btn">
-                    Upload File
-                </button>
+    <div class="container-fluid">
+        <div class="form-group my-3" id="form">
+            <div class="input-group">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="file_input">
+                    <label for="file_input" id="file_input_label" class="custom-file-label">
+                        Select File
+                    </label>
+                </div>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-primary" id="upload_btn">
+                        Upload File
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<div class="container-fluid" id='grid_container'>
-    <div id="grid" overflow: scroll;>
+    <div class="container-fluid text-center py-4 my-4" id='grid_container'>
+        <div id="grid" overflow: scroll;>
 
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm">
+            <table class="table table-hover table-dark rounded table-responsive-sm" id='tableDesc'
+                style="display: none; width: 50%;">
+                <thead>
+                    <tr>
+                        <th scope="col">UAV</th>
+                        <th scope="col">Users Served</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-
-<div class="row">
-    <div class="col-sm">
-        <table class="table table-hover table-dark rounded table-responsive-sm" id='tableDesc' style="display: none;">
-            <thead>
-                <tr>
-                    <th scope="col">UAV</th>
-                    <th scope="col">Users Served</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
 
 {% endblock %}
 
