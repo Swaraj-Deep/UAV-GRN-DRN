@@ -81,20 +81,20 @@ def analyse_output_files():
                     maxm_user_served = curr_user_served
                     minm_UAV_used = curr_UAV_used
                     best_file = file
-                    best_graph = file.split ('_')[0] + '_graph' + file.split ('_')[1][4:-4] + '.png'
+                    best_graph = file.split ('_')[0] + '_graph' + file.split ('_')[1][4:-4] + '.json'
             if curr_UAV_used > minm_UAV_used:
                 if curr_user_served < minm_user_served:
                     minm_user_served = curr_user_served
                     worst_file = file
-                    worst_graph = file.split ('_')[0] + '_graph' + file.split ('_')[1][4:-4] + '.png'
+                    worst_graph = file.split ('_')[0] + '_graph' + file.split ('_')[1][4:-4] + '.json'
             if similarity_percentage > maxm_sim:
                 maxm_sim = similarity_percentage
                 best_file_sim_per = file
-                best_graph_sim_per = file.split ('_')[0] + '_graph' + file.split ('_')[1][4:-4] + '.png'
+                best_graph_sim_per = file.split ('_')[0] + '_graph' + file.split ('_')[1][4:-4] + '.json'
             if similarity_percentage < minm_sim:
                 minm_sim = similarity_percentage
                 worst_file_sim_per = file
-                worst_graph_sim_per = file.split ('_')[0] + '_graph' + file.split ('_')[1][4:-4] + '.png'
+                worst_graph_sim_per = file.split ('_')[0] + '_graph' + file.split ('_')[1][4:-4] + '.json'
 
     best_file = os.path.join(dir_path, best_file)
     best_graph = os.path.join(dir_path, best_graph)
