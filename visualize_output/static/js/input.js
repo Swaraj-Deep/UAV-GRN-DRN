@@ -61,9 +61,23 @@ $('#upload_btn').on({
                     edges = data['Data']['edge_UAV'];
                     UAV_location = data['Data']['UAV_location'];
                     user_location = data['Data']['user_loc'];
+                    document.getElementById('user_served').innerHTML = `Total Number of user served: ${data['Data']['gusers'].length} <br>Total Number of UAV used: ${Object.keys (UAV_location)['length']}`
                     var canvasid = document.getElementById('canvas1');
                     if (canvasid) {
                         document.getElementById('grid').removeChild(canvasid);
+                        var table = document.getElementById('tableDesc');
+                        table.innerHTML = "";
+                        table.innerHTML = `<thead>
+                                               <tr>
+                                                   <th scope="col">UAV</th>
+                                                   <th scope="col">Users Served</th>
+                                               </tr>
+                                           </thead>
+                                           <tbody>
+                                               <tr>
+                           
+                                               </tr>
+                                           </tbody>`;
                     }
                     startSketch();
                     console.log (data);
@@ -169,7 +183,6 @@ function init() {
 }
 
 function createTable(data) {
-    console.log(data);
     var user_served = data['Data']['UAV_serves'];
     var tableRef = document.getElementById('tableDesc').getElementsByTagName('tbody')[0];
     for (var i in user_served) {
