@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, session, make_response, jsonify, send_from_directory, abort
-from werkzeug.utils import secure_filename
 import os
 import json
 import os.path
@@ -11,17 +10,14 @@ app.config['FILE_UPLOADS'] = os.getcwd() + '/visualize_output/static/uploads'
 
 @app.route('/')
 def dash_board() -> 'html':
-    return render_template('input.html')
+    return render_template('input.html', the_title='Visualize Here')
 
 
 @app.route('/__verify_upload__', methods=['POST'])
 def verify_upload() -> 'json':
     uploaded_file = request.files['file']
-    file_name = secure_filename(uploaded_file.filename)
     try:
         file_data = json.load(uploaded_file)
-        # print(file)
-        uploaded_file.save(os.path.join(app.config['FILE_UPLOADS'], file_name))
         response = {
             'Data': file_data,
             'Message': 'Success'

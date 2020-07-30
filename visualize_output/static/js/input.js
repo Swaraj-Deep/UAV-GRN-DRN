@@ -1,10 +1,12 @@
 var rows;
 var cols;
 var UAV_location;
-var x = [];
-var y = [];
-var w = 15;
+var radius_UAV;
+var w = 20;
 var col = [];
+var edges = [];
+var start_drawing = false;
+var user_location = [];
 
 
 function showalert(message, alert_type) {
@@ -53,11 +55,20 @@ $('#upload_btn').on({
                 showalert(`Could not save the file. Please try after some time.`, `danger`);
             } else if (response.status === 200) {
                 response.json().then(function (data) {
-                    rows = data['Data']['N']
-                    cols = data['Data']['M']
-                    UAV_location = data['Data']['UAV_location']
-                    init();
-                    setup();
+                    rows = data['Data']['N'];
+                    cols = data['Data']['M'];
+                    radius_UAV = data['Data']['radius_UAV'];
+                    edges = data['Data']['edge_UAV'];
+                    UAV_location = data['Data']['UAV_location'];
+                    user_location = data['Data']['user_loc'];
+                    var canvasid = document.getElementById('canvas1');
+                    if (canvasid) {
+                        document.getElementById('grid').removeChild(canvasid);
+                    }
+                    startSketch();
+                    console.log (data);
+                    document.getElementById('tableDesc').style.display = 'block';
+                    createTable(data);
                 });
             } else if (response.status === 500) {
                 showalert(`Opps! It's our fault.`, `danger`);
@@ -68,63 +79,110 @@ $('#upload_btn').on({
 
 // Drawing Function
 
-function setup() {
-    var cnv = createCanvas(500, 500);
-    cnv.parent('grid');
-    for (var i = 0; i < rows; ++i) {
-        col[i] = new Array(cols);
-        for (var j = 0; j < cols; ++j) {
-            col[i][j] = 1;
-        }
-    }
-    for (var i = 0; i < rows; i++) {
-        y[i] = w + i * w;
-    }
-    for (var i = 0; i < cols; ++i) {
-        x[i] = w + i * w;
-    }    
-}
-
-function draw() {
-    background(255);
-    rectMode(CENTER);
-    stroke(0);
-    for (i in UAV_location) {
-        x = UAV_location[i][0]
-        y = UAV_location[i][1]
-        cols[x][y] = 2;
-    }
-    for (var j = 0; j < y.length; j++) {
-        for (var i = 0; i < cols; i++) {
-            if (col[j][i] == 1) {
-                fill("white");
-            } else if (col[i][j] == 2) {
-                fill("red");
+function startSketch() {
+    var sketch = function (p) {
+        init();
+        p.setup = function () {
+            var cnv = p.createCanvas(500, 500);
+            cnv.id('canvas1');
+            p.background(255);
+            cnv.parent('grid');
+            for (var i = 0; i < rows; ++i) {
+                col[i] = new Array(cols);
+                for (var j = 0; j < cols; ++j) {
+                    col[i][j] = { 'group': 1, 'UAV': null, 'user': null };
+                }
             }
-            rect(x[i], y[j], w, w);
-        }
-    }
+            for (var i in UAV_location) {
+                var x = UAV_location[i][0];
+                var y = UAV_location[i][1];
+                col[x][y] = { 'group': 2, 'UAV': i, 'user': null };
+            }
+            for (var i in user_location) {
+                var x = user_location[i][0];
+                var y = user_location[i][1];
+                var gp = col[x][y]['group'];
+                if (gp == 2) {
+                    col[x][y]['group'] = 3;
+                } else {
+                    col[x][y] = { 'group': 4, 'UAV': null, 'user': i };
+                }
+            }
+        };
+        p.draw = function () {
+            p.rectMode(p.CENTER);
+            p.stroke(0);
+            for (var i in col) {
+                for (var j in col[i]) {
+                    if (col[i][j]['group'] == 1) {
+                        p.fill("white");
+                        p.rect(w + j * w, w + i * w, w, w);
+                    } else if (col[i][j]['group'] == 2) {
+                        p.fill('red');
+                        p.textAlign(p.CENTER, p.CENTER);
+                        p.rect(w + j * w, w + i * w, w, w);
+                        p.fill('black');
+                        p.text(`${col[i][j]['UAV']}`, w + j * w, w + i * w);
+                    } else if (col[i][j]['group'] == 3) {
+                        p.fill('blue');
+                        p.textAlign(p.CENTER, p.CENTER);
+                        p.rect(w + j * w, w + i * w, w, w);
+                        p.fill('white');
+                        p.text(`${col[i][j]['UAV']}`, w + j * w, w + i * w);
+                    } else if (col[i][j]['group'] == 4) {
+                        p.fill('black');
+                        p.textAlign(p.CENTER, p.CENTER);
+                        p.rect(w + j * w, w + i * w, w, w);
+                        p.fill('white');
+                        p.text(`${col[i][j]['user']}`, w + j * w, w + i * w);
+                    }
+                }
+            }
+            for (var i in UAV_location) {
+                var x = UAV_location[i][0];
+                var y = UAV_location[i][1];
+                p.fill(0, 0, 0, 13);
+                p.circle(w + y * w, w + x * w, radius_UAV * w * 2.1);
+            }
+            for (var i in edges) {
+                var x = edges[i][0];
+                var y = edges[i][1];
+                var locx = UAV_location[x];
+                var x1 = locx[0];
+                var y1 = locx[1];
+                var locy = UAV_location[y];
+                var x2 = locy[0];
+                var y2 = locy[1];
+                p.strokeWeight(3);
+                p.stroke(0, 0, 255, 100)
+                p.line(w + y1 * w, w + x1 * w, w + y2 * w, w + x2 * w);
+            }
+            p.noLoop();
+        };
+    };
+    var myp5 = new p5(sketch);
+    myp5 = null;
 }
-
-// function mousePressed() {
-//     for (var b = 0; b < rows; b++) {
-//         for (var a = 0; a < cols; a++) {
-//             var dis = dist(mouseX, mouseY, x[a], y[b]);
-//             if (dis < w / 2) {
-//                 col[b][a] = !col[b][a];
-//                 if (col[b][a] == false) {
-//                     console.log('hi');
-//                 }
-//             }
-//         }
-//     }
-// }
 
 function init() {
-    x = [];
-    y = [];
     col = [];
 }
 
-
-
+function createTable(data) {
+    console.log(data);
+    var user_served = data['Data']['UAV_serves'];
+    var tableRef = document.getElementById('tableDesc').getElementsByTagName('tbody')[0];
+    for (var i in user_served) {
+        var newRow = tableRef.insertRow();
+        var users = ``;
+        for (var j in user_served[i]) {
+            users += `${user_served[i][j]}, `;
+        }
+        var UAV = newRow.insertCell(0);
+        var user = newRow.insertCell(1);
+        var text = document.createTextNode(`${i}`);
+        UAV.appendChild (text);
+        text = document.createTextNode(`${users}`);
+        user.appendChild(text);
+    }
+}

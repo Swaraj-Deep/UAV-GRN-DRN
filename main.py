@@ -393,6 +393,7 @@ def write_output(placed):
     graph_data["user_loc"] = ground_user
     graph_data["edge_UAV"] = list(UAV_G.edges())
     graph_data["UAV_serves"] = user_served
+    graph_data["gusers"] = sorted(ground_placed)
     global N
     global M
     graph_data['N'] = N
