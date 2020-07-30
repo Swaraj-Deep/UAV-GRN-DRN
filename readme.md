@@ -11,8 +11,15 @@ You need python and following packages to run this code
 [matplotlib](https://matplotlib.org/)  
 [numpy](https://numpy.org/)  
 [pandas](https://pandas.pydata.org/)  
+[flask](https://flask.palletsprojects.com/en/1.1.x/)
 
 ## Installation
+
+First you need to install python3.x to run this project. To install issue the following command.
+
+```bash
+sudo apt-get install python3.6
+```
 
 Install the python packages by issuing the follwing commands in your terminal
 
@@ -21,6 +28,7 @@ pip install networkx
 pip install matplotlib
 pip install numpy
 pip install pandas
+pip install flask
 ```
 
 ## Cloning the repository
@@ -75,15 +83,11 @@ If you want to generate uniform location for the user then use the following com
 python3 user_scenario_cluster.py
 ```
 
-You can also generate user location of various size grids and varying number of users. To do this run the [html file](./html/users_loc_inp.html) which is located in html folder in the root directory in any browser. If you enter value greater than 30 then we will divide the whole grid into subgrids to size 30. The division will be row wise i.e. if you enter grid size as 100 then this will divide the grid into 16 subgrids according to the image shown below
-
-![Sample grid division](./sample_grid_division.png)
-
 ## Sample Output Graph
 
 ![Sample output graph](./sample_output_graph.png)
 
-In the graph shown above the nodes in brown color are the group of users which are covered by the UAV which is connected with it which is shown in blue color in the graph. The edges in red color are connections from UAV to Ground User Group and edges in blue color are connections from one UAV to other.
+In the above image the red cell are UAVs. The circles are their connection range. The blues cells are UAVs where ground user is placed just below it i.e. the UAV is on the top of the ground user. The black cells are the positions of ground users. The light blue lines denotes the edge between two UAVs.
 
 ## Clear all the output files
 
