@@ -42,4 +42,3 @@ def change_scenario_input():
 
 if __name__ == "__main__":
     change_scenario_input()
-    os.system('python3 analysis_best_from_output.py')

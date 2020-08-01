@@ -257,7 +257,7 @@ def simulation():
     for UAV_node in unplaced:
         if done_simulation(ground_placed, placed):
             break
-        loc = q_learn(UAV_node, placed)
+        loc = bruteforce(UAV_node, placed)
         UAV_location[UAV_node] = loc
         placed.append(UAV_node)
         user_list = users_endpoint.users.get_users_cell_connections(loc)
@@ -317,6 +317,12 @@ def write_output(placed):
     os.chdir(dir_path)
     text_file_name = 'Output_text' + str(file_num // 2) + '.txt'
     graph_file_name = 'Output_graph' + str(file_num // 2) + '.json'
+    image_path = os.path.join (dir_path, 'images')
+    try:
+        os.mkdir(image_path)
+    except OSError as error:
+        pass
+    png_file_name = 'Output_graph' + str(file_num // 2) + '.png'
     text_file_data = []
     text_file_data.append(
         f'Total Number of users served: {len(ground_placed)}\nList of users: {sorted(ground_placed)}\n')
@@ -381,6 +387,8 @@ def write_output(placed):
     text_file_data.append(f'Maximum Edge motif centrality is {PI}\n')
     with open(text_file_name, 'w') as file_pointer:
         file_pointer.writelines(text_file_data)
+    nx.draw(UAV_G, with_labels=True)
+    plt.savefig (os.path.join (image_path, png_file_name))
     graph_data = {}
     global radius_UAV
     graph_data["radius_UAV"] = radius_UAV

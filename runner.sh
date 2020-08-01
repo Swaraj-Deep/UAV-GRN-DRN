@@ -1,4 +1,11 @@
-for i in $(seq 1 50); do
+#!/bin/bash
+read -p "Do you want to delete previous output files (y/n): " input
+if [ ${input,,} = y ]; then
+  echo "Removing previous output files"
+  bash fresh_analysis.sh
+  echo "Removed"
+fi
+for i in $(seq 1 5); do
   echo Generating user location
   python3 user_secnario_producer.py
   echo Generated user location

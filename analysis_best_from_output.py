@@ -12,14 +12,14 @@ def get_file_details(file_name):
     ret_dict = {}
     with open(file_name) as file_pointer:
         lines = file_pointer.readlines()
-        ret_dict["Learning Rate"] = float(lines[1].split(":")[1])
-        ret_dict["Exploration Rate"] = float(lines[2].split(":")[1])
+        ret_dict["Learning Rate"] = float(lines[2].split(":")[1])
+        ret_dict["Exploration Rate"] = float(lines[1].split(":")[1])
         ret_dict["Decay Factor"] = float(lines[3].split(":")[1])
-        ret_dict["Best User Served"] = float(lines[-3].split(":")[1])
-        ret_dict["Worst User Served"] = float(lines[-2].split(":")[1])
-        ret_dict["Best Similarity Percentage"] = float(lines[-6].split(":")[1])
+        ret_dict["Best User Served"] = float(lines[24].split(":")[1])
+        ret_dict["Worst User Served"] = float(lines[23].split(":")[1])
+        ret_dict["Best Similarity Percentage"] = float(lines[18].split(":")[1])
         ret_dict["Worst Similarity Percentage"] = float(
-            lines[-5].split(":")[1])
+            lines[17].split(":")[1])
     return ret_dict
 
 

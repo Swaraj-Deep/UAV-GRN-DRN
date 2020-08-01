@@ -1,1 +1,1 @@
-{"N": 30, "M": 30, "t": 0.31, "epsilon": 0.71, "learning_rate": 0.82, "decay_factor": 0.91, "max_iter": 100, "number_UAV": 100, "radius_UAV": 3, "UAV_to_UAV_threshold": 6, "power_UAV": 5}
+{"N": 14, "M": 14, "t": 0.31, "epsilon": 0.99, "learning_rate": 0.99, "decay_factor": 0.99, "max_iter": 100, "number_UAV": 100, "radius_UAV": 3, "UAV_to_UAV_threshold": 6, "power_UAV": 5}
