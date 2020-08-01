@@ -147,11 +147,11 @@ def q_learn(UAV_node, placed):
         if random.uniform(0, 1) <= epsilon_val:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
             Q[index, action] = reward_endpoint.rewards.reward_function(
-                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M)
+                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M, ground_placed)
         else:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
             reward = reward_endpoint.rewards.reward_function(
-                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M)
+                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M, ground_placed)
             Q[index, action] = Q[index, action] + learning_rate * \
                 (reward + decay_factor *
                  np.max(Q[index, :]) - Q[index, action])
@@ -218,6 +218,7 @@ def bruteforce(UAV_node, placed):
     global UAV_location
     global t
     global power_UAV
+    global ground_placed
     max_reward = -999999
     max_pos = (-1, -1)
     start = time.time()
@@ -225,7 +226,7 @@ def bruteforce(UAV_node, placed):
         for j in range(M):
             loc = (i, j)
             reward = reward_endpoint.rewards.reward_function(
-                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M)
+                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M, ground_placed)
             if reward > max_reward and valid_loc(loc):
                 max_reward = reward
                 max_pos = loc
@@ -242,6 +243,7 @@ def simulation():
     Functionality: Simulates the network\n
     """
     # Till Now What we have done
+    global ground_placed
     placed = [1]
     unplaced = []
     max_pos, max_density = users_endpoint.users.get_max_pos_density()
@@ -255,7 +257,7 @@ def simulation():
     for UAV_node in unplaced:
         if done_simulation(ground_placed, placed):
             break
-        loc = bruteforce(UAV_node, placed)
+        loc = q_learn(UAV_node, placed)
         UAV_location[UAV_node] = loc
         placed.append(UAV_node)
         user_list = users_endpoint.users.get_users_cell_connections(loc)
