@@ -13,6 +13,14 @@ import matplotlib.pyplot as plt
 
 # Global variables declaration
 
+# Start time of program
+
+start_time = 0
+
+# End time of program
+
+end_time = 0
+
 # Threshold for UAVs i.e each UAV must be placed at least this distance away
 
 t = 0
@@ -70,6 +78,8 @@ def init():
     Function: init
     Functionality: Sets all the global variables
     """
+    global start_time
+    start_time = time.time()
     global N
     global M
     global t
@@ -123,7 +133,6 @@ def q_learn(UAV_node, placed):
     global UAV_location
     global radius_UAV
     global t
-    start = time.time()
     Q = np.zeros((N * M, 15))
     # Centroid Location
     # loc = move_endpoint.movement.get_centroid_location(
@@ -164,9 +173,7 @@ def q_learn(UAV_node, placed):
             max_reward = expected_max
             max_pos = index
     x, y = move_endpoint.movement.map_1d_to_2d(max_pos, N, M)
-    end = time.time()
     print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
-    print(f'Time taken to place Node 6 is: {end - start} seconds')
     return (x, y)
 
 
@@ -221,7 +228,6 @@ def bruteforce(UAV_node, placed):
     global ground_placed
     max_reward = -999999
     max_pos = (-1, -1)
-    start = time.time()
     for i in range(N):
         for j in range(M):
             loc = (i, j)
@@ -230,9 +236,7 @@ def bruteforce(UAV_node, placed):
             if reward > max_reward and valid_loc(loc):
                 max_reward = reward
                 max_pos = loc
-    end = time.time()
     print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
-    print(f'Time taken to place Node {UAV_node} is: {end - start} seconds')
     return max_pos
 
 
@@ -317,7 +321,7 @@ def write_output(placed):
     os.chdir(dir_path)
     text_file_name = 'Output_text' + str(file_num // 2) + '.txt'
     graph_file_name = 'Output_graph' + str(file_num // 2) + '.json'
-    image_path = os.path.join (dir_path, 'images')
+    image_path = os.path.join(dir_path, 'images')
     try:
         os.mkdir(image_path)
     except OSError as error:
@@ -333,46 +337,59 @@ def write_output(placed):
     UAV_G = nx.Graph()
     for node in placed:
         UAV_G.add_node(node)
-    both_grn_UAV_edge_lst = []
-    grn_edge_lst = []
     for node1 in placed:
         for node2 in placed:
             if move_endpoint.movement.get_dist_UAV(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold and node1 != node2:
                 UAV_G.add_edge(node1, node2)
-                gene_1 = grn_endpoint.grn_info.m(node1)
-                gene_2 = grn_endpoint.grn_info.m(node2)
-                if grn_endpoint.grn_info.is_edge_grn(gene_1, gene_2):
-                    if (node1, node2) not in both_grn_UAV_edge_lst:
-                        if (node2, node1) not in both_grn_UAV_edge_lst:
-                            both_grn_UAV_edge_lst.append((node1, node2))
-            gene_1 = grn_endpoint.grn_info.m(node1)
-            gene_2 = grn_endpoint.grn_info.m(node2)
-            if grn_endpoint.grn_info.is_edge_grn(gene_1, gene_2) and (node1, node2) not in both_grn_UAV_edge_lst and gene_1 != gene_2 and (node2, node1) not in both_grn_UAV_edge_lst:
-                if (node1, node2) not in grn_edge_lst:
-                    if (node2, node1) not in grn_edge_lst:
-                        grn_edge_lst.append((node1, node2))
     total_edge = len(UAV_G.edges)
+    grn_node_lst = [grn_endpoint.grn_info.m(node) for node in UAV_G.nodes]
+    reverse_mapping = {}
+    for node in UAV_G.nodes:
+        if grn_endpoint.grn_info.m(node) not in reverse_mapping:
+            reverse_mapping[grn_endpoint.grn_info.m(node)] = node
+    uncommon_lst = []
+    common_lst = []
+    grn_graph = grn_endpoint.grn_info.get_grn_graph()
+    grn_SG = grn_graph.subgraph(grn_node_lst)
+    grn_edge_lst = []
+    for edge in grn_SG.edges:
+        u, v = edge
+        if (u, v) not in grn_edge_lst and (v, u) not in grn_edge_lst:
+            grn_edge_lst.append ((u, v))
+    for edge in grn_edge_lst:
+        u, v = edge
+        if (reverse_mapping[u], reverse_mapping[v]) in UAV_G.edges or (reverse_mapping[v], reverse_mapping[u]) in UAV_G.edges:
+            if (reverse_mapping[u], reverse_mapping[v]) not in common_lst and (reverse_mapping[v], reverse_mapping[u]) not in common_lst:
+                common_lst.append((reverse_mapping[u], reverse_mapping[v]))
+        else:
+            if (reverse_mapping[u], reverse_mapping[v]) not in uncommon_lst and (reverse_mapping[v], reverse_mapping[u]) not in uncommon_lst:
+                uncommon_lst.append((reverse_mapping[u], reverse_mapping[v]))
+    total_edge_grn_SG = len (grn_edge_lst)
+    if total_edge_grn_SG == 0:
+        total_edge_grn_SG = 1
     if total_edge == 0:
         total_edge = 1
-    if len(both_grn_UAV_edge_lst) > 0:
+    if len(common_lst) > 0:
         text_file_data.append(
             f'Following are the edges which is present in both UAV and GRN netwrok:\n')
-        for edge in both_grn_UAV_edge_lst:
+        for edge in common_lst:
             text_file_data.append(f'{edge}, ')
         text_file_data.append(f'\n')
     else:
         text_file_data.append(f'No edge is common in UAV and GRN graph.\n')
-    if len(grn_edge_lst) > 0:
+    if len(uncommon_lst) > 0:
         text_file_data.append(
             f'Following are the edges which is present in GRN but not in UAV network:\n')
-        for edge in grn_edge_lst:
+        for edge in uncommon_lst:
             text_file_data.append(f'{edge}, ')
         text_file_data.append(f'\n')
     else:
         text_file_data.append(
             f'There is no edge which is in GRN but not in the UAV graph\n')
     text_file_data.append(
-        f'Total Number of edges (in UAV Topology): {total_edge}\nPercentage of edge which is both in GRN and UAV: {(len(both_grn_UAV_edge_lst) / total_edge) * 100}\n')
+        f'Total Number of edges (in UAV Topology): {total_edge}\nPercentage of edge which is both in GRN and UAV: {(len(common_lst) / total_edge_grn_SG) * 100}\n')
+    text_file_data.append(f'Following are the edges (in GRN Subgraph): {[(reverse_mapping[u], reverse_mapping[v]) for (u, v) in grn_edge_lst]}\n')
+    text_file_data.append(f'Total Number of edges (in GRN Subgraph): {total_edge_grn_SG}\n')
     node_motif = grn_endpoint.grn_info.get_motif_dict(UAV_G)
     for node, motif in node_motif.items():
         text_file_data.append(f'Motif of UAV {node} is {motif}\n')
@@ -385,10 +402,8 @@ def write_output(placed):
             f'Edge {edge} has edge motif centrality of {e_motif[edge]}\n')
         PI = max(PI, e_motif[edge])
     text_file_data.append(f'Maximum Edge motif centrality is {PI}\n')
-    with open(text_file_name, 'w') as file_pointer:
-        file_pointer.writelines(text_file_data)
     nx.draw(UAV_G, with_labels=True)
-    plt.savefig (os.path.join (image_path, png_file_name))
+    plt.savefig(os.path.join(image_path, png_file_name))
     graph_data = {}
     global radius_UAV
     graph_data["radius_UAV"] = radius_UAV
@@ -406,17 +421,19 @@ def write_output(placed):
     graph_data["gusers"] = sorted(ground_placed)
     global N
     global M
+    global end_time
     graph_data['N'] = N
     graph_data['M'] = M
     graph_data['UAV_location'] = UAV_location
     with open(graph_file_name, 'w') as file_pointer:
         json.dump(graph_data, file_pointer)
+    end_time = time.time()
+    text_file_data.append (f'Total time to run the simulation: {end_time - start_time} seconds')
+    with open(text_file_name, 'w') as file_pointer:
+        file_pointer.writelines(text_file_data)
 
 
 if __name__ == "__main__":
-    print(f'Initializing the timer')
-    start = time.time()
+    print(f'Initialiazing the environment')
     init()
-    end = time.time()
-    print(f'Time Taken to initialize the environment: {end - start} seconds')
     simulation()

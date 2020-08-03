@@ -2,6 +2,18 @@ import networkx as nx
 import pickle
 import os
 
+# Variable to hold the GRN graph
+
+grn_graph = 0
+
+def get_grn_graph ():
+    """
+    Function: get_grn_graph\n
+    Parameters: None\n
+    Returns: The grn_graph which we are working on\n
+    """
+    return grn_graph
+
 
 def get_motif_dict(grn_graph):
     """
@@ -190,6 +202,7 @@ def init():
     Parameter: none
     Functionality: Initializes the variables
     """
+    global grn_graph
     parent_path = os.getcwd()
     file_prefix = '400'
     file_name = file_prefix + '.gml'
