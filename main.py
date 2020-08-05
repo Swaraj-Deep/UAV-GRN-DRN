@@ -12,6 +12,14 @@ import reward_endpoint.rewards
 import matplotlib.pyplot as plt
 
 # Global variables declaration
+# User coverage threshold
+
+coverage_threshold = 0
+
+# GRN Edge Similarity threshold
+
+similarity_threshold = 0
+
 
 # Start time of program
 
@@ -79,6 +87,8 @@ def init():
     Functionality: Sets all the global variables
     """
     global start_time
+    global similarity_threshold
+    global coverage_threshold
     start_time = time.time()
     global N
     global M
@@ -113,6 +123,8 @@ def init():
         radius_UAV = file_data['radius_UAV']
         UAV_to_UAV_threshold = file_data['UAV_to_UAV_threshold']
         power_UAV = file_data['power_UAV']
+        coverage_threshold = file_data['coverage_threshold']
+        similarity_threshold = file_data['similarity_threshold']
     users_endpoint.users.init(radius_UAV, N, M)
     grn_endpoint.grn_info.init()
 
@@ -173,7 +185,6 @@ def q_learn(UAV_node, placed):
             max_reward = expected_max
             max_pos = index
     x, y = move_endpoint.movement.map_1d_to_2d(max_pos, N, M)
-    print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
     return (x, y)
 
 
@@ -186,18 +197,20 @@ def done_simulation(ground_placed, placed):
     ground_users = users_endpoint.users.get_number_ground_users()
     done_user_connectivity = False
     done_UAV_coverage = False
-    if len(ground_placed) // ground_users == 1:
+    done_edge_similarity = False
+    if len(ground_placed) / ground_users >= coverage_threshold:
         done_user_connectivity = True
-    UAV_G = nx.Graph()
-    for node in placed:
-        UAV_G.add_node(node)
-    for node1 in placed:
-        for node2 in placed:
-            if move_endpoint.movement.get_dist_UAV(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold and node1 != node2:
-                UAV_G.add_edge(node1, node2)
+    UAV_G = get_UAV_graph(placed)
+    common_lst, _, grn_edge_lst, _ = similarity_criteria(
+        UAV_G)
+    total_edge_grn_SG = len(grn_edge_lst)
+    if total_edge_grn_SG == 0:
+        total_edge_grn_SG = 1
+    if len(common_lst) / total_edge_grn_SG >= similarity_threshold:
+        done_edge_similarity = True
     if nx.number_connected_components(UAV_G) == 1:
         done_UAV_coverage = True
-    return done_user_connectivity and done_UAV_coverage
+    return done_user_connectivity and done_UAV_coverage and done_edge_similarity
 
 
 def valid_loc(loc):
@@ -236,7 +249,6 @@ def bruteforce(UAV_node, placed):
             if reward > max_reward and valid_loc(loc):
                 max_reward = reward
                 max_pos = loc
-    print(f"Node: {UAV_node}\nMaximum reward value: {max_reward}")
     return max_pos
 
 
@@ -246,12 +258,12 @@ def simulation():
     Parameters: None\n
     Functionality: Simulates the network\n
     """
-    # Till Now What we have done
     global ground_placed
     placed = [1]
     unplaced = []
     max_pos, max_density = users_endpoint.users.get_max_pos_density()
     UAV_location[1] = max_pos
+    print(f'Placed UAV {1}')
     user_list = users_endpoint.users.get_users_cell_connections(max_pos)
     for user in user_list:
         if user not in ground_placed:
@@ -259,47 +271,64 @@ def simulation():
     for UAV_node in range(2, number_UAV + 1):
         unplaced.append(UAV_node)
     for UAV_node in unplaced:
-        if done_simulation(ground_placed, placed):
-            break
         loc = bruteforce(UAV_node, placed)
         UAV_location[UAV_node] = loc
         placed.append(UAV_node)
+        print(f'Placed UAV {UAV_node}')
+        if done_simulation(ground_placed, placed):
+            break
         user_list = users_endpoint.users.get_users_cell_connections(loc)
         for user in user_list:
             if user not in ground_placed:
                 ground_placed.append(user)
     write_output(placed)
 
-    # Placing One by One and Checking Graph
-    # placed = [1]
-    # max_pos, max_density = users_endpoint.users.get_max_pos_density()
-    # UAV_location[1] = max_pos
-    # user_list = users_endpoint.users.get_users_cell_connections(max_pos)
-    # for user in user_list:
-    #     if user not in ground_placed:
-    #         ground_placed.append(user)
-    # UAV_node = 1
-    # while True:
-    #     UAV_node += 1
-    #     if done_simulation (ground_placed, placed):
-    #         break
-    #     loc = q_learn(UAV_node, placed)
-    #     flag = True
-    #     while flag:
-    #         for UAV, location in UAV_location.items():
-    #             if location == loc:
-    #                 loc = q_learn(UAV_node, placed)
-    #             else:
-    #                 flag = False
-    #             if done_simulation (ground_placed, placed):
-    #                 flag = False
-    #     UAV_location[UAV_node] = loc
-    #     placed.append(UAV_node)
-    #     user_list = users_endpoint.users.get_users_cell_connections(loc)
-    #     for user in user_list:
-    #         if user not in ground_placed:
-    #             ground_placed.append(user)
-    # write_output(placed)
+
+def get_UAV_graph(placed):
+    """
+    Function: get_UAV_graph\n
+    Parameters: placed -> list of already placed ground users\n:
+    Returns: UAV graph at a particular point of time\n
+    """
+    UAV_G = nx.Graph()
+    for node in placed:
+        UAV_G.add_node(node)
+    for node1 in placed:
+        for node2 in placed:
+            if move_endpoint.movement.get_dist_UAV(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold and node1 != node2:
+                UAV_G.add_edge(node1, node2)
+    return UAV_G
+
+
+def similarity_criteria(UAV_G):
+    """
+    Function:similarity_criteria\n
+    Parameter: UAV_G -> Current UAV graph\n
+    Returns: A tuple of common edges, uncommon edges and edges which are in grn graph. Dictionary of reverse mapping is also returned\n
+    """
+    grn_node_lst = [grn_endpoint.grn_info.m(node) for node in UAV_G.nodes]
+    reverse_mapping = {}
+    for node in UAV_G.nodes:
+        if grn_endpoint.grn_info.m(node) not in reverse_mapping:
+            reverse_mapping[grn_endpoint.grn_info.m(node)] = node
+    uncommon_lst = []
+    common_lst = []
+    grn_graph = grn_endpoint.grn_info.get_grn_graph()
+    grn_SG = grn_graph.subgraph(grn_node_lst)
+    grn_edge_lst = []
+    for edge in grn_SG.edges:
+        u, v = edge
+        if (u, v) not in grn_edge_lst and (v, u) not in grn_edge_lst:
+            grn_edge_lst.append((u, v))
+    for edge in grn_edge_lst:
+        u, v = edge
+        if (reverse_mapping[u], reverse_mapping[v]) in UAV_G.edges or (reverse_mapping[v], reverse_mapping[u]) in UAV_G.edges:
+            if (reverse_mapping[u], reverse_mapping[v]) not in common_lst and (reverse_mapping[v], reverse_mapping[u]) not in common_lst:
+                common_lst.append((reverse_mapping[u], reverse_mapping[v]))
+        else:
+            if (reverse_mapping[u], reverse_mapping[v]) not in uncommon_lst and (reverse_mapping[v], reverse_mapping[u]) not in uncommon_lst:
+                uncommon_lst.append((reverse_mapping[u], reverse_mapping[v]))
+    return (common_lst, uncommon_lst, grn_edge_lst, reverse_mapping)
 
 
 def write_output(placed):
@@ -334,37 +363,11 @@ def write_output(placed):
     for UAV_node, loc in UAV_location.items():
         text_file_data.append(
             f'UAV: {UAV_node} can serve users: {users_endpoint.users.get_users_cell_connections(loc)} when placed at {loc}\n')
-    UAV_G = nx.Graph()
-    for node in placed:
-        UAV_G.add_node(node)
-    for node1 in placed:
-        for node2 in placed:
-            if move_endpoint.movement.get_dist_UAV(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold and node1 != node2:
-                UAV_G.add_edge(node1, node2)
+    UAV_G = get_UAV_graph(placed)
     total_edge = len(UAV_G.edges)
-    grn_node_lst = [grn_endpoint.grn_info.m(node) for node in UAV_G.nodes]
-    reverse_mapping = {}
-    for node in UAV_G.nodes:
-        if grn_endpoint.grn_info.m(node) not in reverse_mapping:
-            reverse_mapping[grn_endpoint.grn_info.m(node)] = node
-    uncommon_lst = []
-    common_lst = []
-    grn_graph = grn_endpoint.grn_info.get_grn_graph()
-    grn_SG = grn_graph.subgraph(grn_node_lst)
-    grn_edge_lst = []
-    for edge in grn_SG.edges:
-        u, v = edge
-        if (u, v) not in grn_edge_lst and (v, u) not in grn_edge_lst:
-            grn_edge_lst.append ((u, v))
-    for edge in grn_edge_lst:
-        u, v = edge
-        if (reverse_mapping[u], reverse_mapping[v]) in UAV_G.edges or (reverse_mapping[v], reverse_mapping[u]) in UAV_G.edges:
-            if (reverse_mapping[u], reverse_mapping[v]) not in common_lst and (reverse_mapping[v], reverse_mapping[u]) not in common_lst:
-                common_lst.append((reverse_mapping[u], reverse_mapping[v]))
-        else:
-            if (reverse_mapping[u], reverse_mapping[v]) not in uncommon_lst and (reverse_mapping[v], reverse_mapping[u]) not in uncommon_lst:
-                uncommon_lst.append((reverse_mapping[u], reverse_mapping[v]))
-    total_edge_grn_SG = len (grn_edge_lst)
+    common_lst, uncommon_lst, grn_edge_lst, reverse_mapping = similarity_criteria(
+        UAV_G)
+    total_edge_grn_SG = len(grn_edge_lst)
     if total_edge_grn_SG == 0:
         total_edge_grn_SG = 1
     if total_edge == 0:
@@ -388,8 +391,10 @@ def write_output(placed):
             f'There is no edge which is in GRN but not in the UAV graph\n')
     text_file_data.append(
         f'Total Number of edges (in UAV Topology): {total_edge}\nPercentage of edge which is both in GRN and UAV: {(len(common_lst) / total_edge_grn_SG) * 100}\n')
-    text_file_data.append(f'Following are the edges (in GRN Subgraph): {[(reverse_mapping[u], reverse_mapping[v]) for (u, v) in grn_edge_lst]}\n')
-    text_file_data.append(f'Total Number of edges (in GRN Subgraph): {total_edge_grn_SG}\n')
+    text_file_data.append(
+        f'Following are the edges (in GRN Subgraph): {[(reverse_mapping[u], reverse_mapping[v]) for (u, v) in grn_edge_lst]}\n')
+    text_file_data.append(
+        f'Total Number of edges (in GRN Subgraph): {total_edge_grn_SG}\n')
     node_motif = grn_endpoint.grn_info.get_motif_dict(UAV_G)
     for node, motif in node_motif.items():
         text_file_data.append(f'Motif of UAV {node} is {motif}\n')
@@ -428,7 +433,8 @@ def write_output(placed):
     with open(graph_file_name, 'w') as file_pointer:
         json.dump(graph_data, file_pointer)
     end_time = time.time()
-    text_file_data.append (f'Total time to run the simulation: {end_time - start_time} seconds')
+    text_file_data.append(
+        f'Total time to run the simulation: {end_time - start_time} seconds')
     with open(text_file_name, 'w') as file_pointer:
         file_pointer.writelines(text_file_data)
 
