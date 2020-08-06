@@ -6,7 +6,8 @@ import os
 
 grn_graph = 0
 
-def get_grn_graph ():
+
+def get_grn_graph():
     """
     Function: get_grn_graph\n
     Parameters: None\n
@@ -182,8 +183,6 @@ def subgraph_on_motif_centrality(non_increasing_grn_nodes, grn_graph, number_gen
     SG.add_nodes_from(node_list)
     SG.add_edges_from(edge_list)
     nx.write_gml(SG, file_name)
-    
-
 
 
 def write_binary(n_motif_centrality_dict, file_name):
