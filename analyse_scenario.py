@@ -13,7 +13,27 @@ users = [20, 60, 80, 100, 180]
 
 # Maximum range of UAV to UAV communication threshold
 
-UAV_to_UAV_threshold = 30
+UAV_to_UAV_threshold = 8
+
+# Minimum range of UAV to UAV communication threshold
+
+Min_UAV_to_UAV_threshold = 6
+
+
+def update_log_file(N, curr_UAV_used, curr_user_served, similarity_percentage, threshold):
+    """
+    """
+    parent_dir = os.getcwd()
+    final_log_file = 'scenario_analysis.log'
+    lines_to_write = []
+    lines_to_write.append(
+        f'############################################################################################\n')
+    lines_to_write.append(
+        f"# Scenario: {N} X {N}\n# Number of UAV Used: {curr_UAV_used}\n# Number of users covered: {curr_user_served}\n# Edge Similarity: {similarity_percentage}\n# UAV communication threshold: {threshold}\n")
+    lines_to_write.append(
+        f'############################################################################################\n')
+    with open(os.path.join(parent_dir, final_log_file), 'a') as file_pointer:
+            file_pointer.writelines(lines_to_write)
 
 
 def find_percentage(lines, num_ahead):
@@ -62,7 +82,20 @@ def check_if_complete():
     curr_UAV_used = int(lines[2].split(':')[1])
     similarity_percentage = float(
         find_percentage(lines, curr_UAV_used))
+    parent_dir = os.getcwd()
+    folder_name = 'input_files'
+    file_name = 'scenario_input.json'
+    file_path = os.path.join(parent_dir, folder_name, file_name)
+    with open(file_path, 'r') as file_pointer:
+        scenario_data = json.load(file_pointer)
+    expected_similarity = scenario_data['similarity_threshold'] * 100
     print(similarity_percentage)
+    if similarity_percentage >= expected_similarity:
+        N = scenario_data['N']
+        threshold = scenario_data['UAV_to_UAV_threshold']
+        update_log_file(N, curr_UAV_used, curr_user_served, similarity_percentage, threshold)
+        return True
+    return False
 
 
 def update_scenario_input():
@@ -71,9 +104,11 @@ def update_scenario_input():
     Parameters: None\n
     Functionality: Update the scenario_input.json file\n
     """
+    global Min_UAV_to_UAV_threshold
+    global UAV_to_UAV_threshold
     parent_dir = os.getcwd()
     folder_name = 'input_files'
-    for thresold in range(6, UAV_to_UAV_threshold + 1):
+    for thresold in range(Min_UAV_to_UAV_threshold, UAV_to_UAV_threshold + 1):
         file_name = 'scenario_input.json'
         file_path = os.path.join(parent_dir, folder_name, file_name)
         with open(file_path, 'r') as file_pointer:
@@ -82,8 +117,10 @@ def update_scenario_input():
         with open(file_path, 'w') as file_pointer:
             json.dump(scenario_data, file_pointer)
         os.system('python3 main.py')
-        check_if_complete()
-        os.system('./fresh_analysis.sh')
+        if check_if_complete():
+            break
+        else:
+            os.system('bash fresh_analysis.sh')
 
 
 def runner_function():
@@ -92,7 +129,20 @@ def runner_function():
     Parameters: None\n
     Functionality: Automates the analysis\n
     """
+    global size
+    global users
     parent_dir = os.getcwd()
+    os.system('bash fresh_analysis.sh')
+    final_log_file = 'scenario_analysis.log'
+    lines_to_write = []
+    lines_to_write.append(
+        f'############################################################################################\n')
+    lines_to_write.append(
+        f'################################ Final Analysis Report #####################################\n')
+    lines_to_write.append(
+        f'############################################################################################\n')
+    with open(os.path.join(parent_dir, final_log_file), 'w') as file_pointer:
+        file_pointer.writelines(lines_to_write)
     folder_name = 'input_files'
     file_name = 'user_location.json'
     file_path = os.path.join(parent_dir, folder_name, file_name)
