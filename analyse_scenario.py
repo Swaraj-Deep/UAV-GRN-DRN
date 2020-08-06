@@ -13,11 +13,11 @@ users = [20, 60, 80, 100, 180]
 
 # Maximum range of UAV to UAV communication threshold
 
-UAV_to_UAV_threshold = 8
+UAV_to_UAV_threshold = 20
 
 # Minimum range of UAV to UAV communication threshold
 
-Min_UAV_to_UAV_threshold = 6
+Min_UAV_to_UAV_threshold = 10
 
 
 def update_log_file(N, curr_UAV_used, curr_user_served, similarity_percentage, threshold):
@@ -33,7 +33,7 @@ def update_log_file(N, curr_UAV_used, curr_user_served, similarity_percentage, t
     lines_to_write.append(
         f'############################################################################################\n')
     with open(os.path.join(parent_dir, final_log_file), 'a') as file_pointer:
-            file_pointer.writelines(lines_to_write)
+        file_pointer.writelines(lines_to_write)
 
 
 def find_percentage(lines, num_ahead):
@@ -89,11 +89,11 @@ def check_if_complete():
     with open(file_path, 'r') as file_pointer:
         scenario_data = json.load(file_pointer)
     expected_similarity = scenario_data['similarity_threshold'] * 100
-    print(similarity_percentage)
     if similarity_percentage >= expected_similarity:
         N = scenario_data['N']
         threshold = scenario_data['UAV_to_UAV_threshold']
-        update_log_file(N, curr_UAV_used, curr_user_served, similarity_percentage, threshold)
+        update_log_file(N, curr_UAV_used, curr_user_served,
+                        similarity_percentage, threshold)
         return True
     return False
 
@@ -118,6 +118,7 @@ def update_scenario_input():
             json.dump(scenario_data, file_pointer)
         os.system('python3 main.py')
         if check_if_complete():
+            os.system('bash fresh_analysis.sh')
             break
         else:
             os.system('bash fresh_analysis.sh')
@@ -157,4 +158,6 @@ def runner_function():
         update_scenario_input()
 
 
-runner_function()
+if __name__ == "__main__":
+    print("Relax!! We have taken the charge:)")
+    runner_function()
