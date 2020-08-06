@@ -13,25 +13,24 @@ users = [20, 60, 80, 100, 180]
 
 # Maximum range of UAV to UAV communication threshold
 
-UAV_to_UAV_threshold = 20
+UAV_to_UAV_threshold = 30
 
 # Minimum range of UAV to UAV communication threshold
 
-Min_UAV_to_UAV_threshold = 10
+Min_UAV_to_UAV_threshold = 6
 
 
 def update_log_file(N, curr_UAV_used, curr_user_served, similarity_percentage, threshold):
     """
+    Function: update_log_file\n
+    Parameters: N -> size of the grid, curr_UAV_used -> current UAV used, curr_user_served -> current user served, similarity percentage -> edge similarity percentage, therhold -> threshold of the UAV to UAV communication\n
+    Functionality: Appends new data to the log file\n
     """
     parent_dir = os.getcwd()
     final_log_file = 'scenario_analysis.log'
     lines_to_write = []
     lines_to_write.append(
-        f'############################################################################################\n')
-    lines_to_write.append(
-        f"# Scenario: {N} X {N}\n# Number of UAV Used: {curr_UAV_used}\n# Number of users covered: {curr_user_served}\n# Edge Similarity: {similarity_percentage}\n# UAV communication threshold: {threshold}\n")
-    lines_to_write.append(
-        f'############################################################################################\n')
+        f'{N} X {N}\t\t\t{curr_UAV_used}\t\t\t\t{curr_user_served}\t\t\t\t\t{round(similarity_percentage, 2)}\t\t\t\t{threshold}\n')
     with open(os.path.join(parent_dir, final_log_file), 'a') as file_pointer:
         file_pointer.writelines(lines_to_write)
 
@@ -137,11 +136,13 @@ def runner_function():
     final_log_file = 'scenario_analysis.log'
     lines_to_write = []
     lines_to_write.append(
-        f'############################################################################################\n')
+        f'###############################################################################################\n')
     lines_to_write.append(
-        f'################################ Final Analysis Report #####################################\n')
+        f'################################## Final Analysis Report ######################################\n')
     lines_to_write.append(
-        f'############################################################################################\n')
+        f'###############################################################################################\n')
+    lines_to_write.append(
+        f'Scenario\t\tUAV used\t\tUser covered\t\tEdge similarity\t\tCommunication Threshold\n')
     with open(os.path.join(parent_dir, final_log_file), 'w') as file_pointer:
         file_pointer.writelines(lines_to_write)
     folder_name = 'input_files'
@@ -156,6 +157,15 @@ def runner_function():
             json.dump(file_data, file_pointer)
         os.system('python3 user_secnario_producer.py')
         update_scenario_input()
+    lines_to_write = []
+    lines_to_write.append(
+        f'###############################################################################################\n')
+    lines_to_write.append(
+        f'###################################### END OF REPORT ##########################################\n')
+    lines_to_write.append(
+        f'###############################################################################################\n')
+    with open(os.path.join(parent_dir, final_log_file), 'a') as file_pointer:
+        file_pointer.writelines(lines_to_write)
 
 
 if __name__ == "__main__":

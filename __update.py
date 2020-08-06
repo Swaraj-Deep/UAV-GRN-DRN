@@ -2,7 +2,8 @@ import os
 import os.path
 import sys
 
-def update_main_file (type):
+
+def update_main_file(type):
     """
     Function: update_main_file\n
     Parameters: type -> whether bruteforce or q_learn\n
@@ -19,10 +20,10 @@ def update_main_file (type):
             line_to_change[1] = 'bruteforce(UAV_node, placed)\n'
         else:
             line_to_change[1] = 'q_learn(UAV_node, placed)\n'
-    file_data[263] = '= '.join (line_to_change)
+    file_data[263] = '= '.join(line_to_change)
     with (open(file_path, 'w')) as file_pointer:
         file_pointer.writelines(file_data)
-    
+
 
 def call_update():
     """
@@ -31,5 +32,6 @@ def call_update():
     Functionality: To call the update function
     """
     update_main_file(sys.argv[1])
+
 
 call_update()
