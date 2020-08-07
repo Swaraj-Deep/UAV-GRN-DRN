@@ -15,12 +15,12 @@ def update_main_file(type):
     file_data = []
     with open(file_path, 'r') as file_pointer:
         file_data = file_pointer.readlines()
-        line_to_change = file_data[263].split('=')
+        line_to_change = file_data[273].split('=')
         if type == 'bruteforce':
             line_to_change[1] = 'bruteforce(UAV_node, placed)\n'
         else:
             line_to_change[1] = 'q_learn(UAV_node, placed)\n'
-    file_data[263] = '= '.join(line_to_change)
+    file_data[273] = '= '.join(line_to_change)
     with (open(file_path, 'w')) as file_pointer:
         file_pointer.writelines(file_data)
 
