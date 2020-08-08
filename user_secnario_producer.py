@@ -39,7 +39,7 @@ def generate_user_input(N, M, number_users):
 if __name__ == "__main__":
     parent_dir = os.getcwd()
     file_name = 'user_location.json'
-    file_path = os.path.join (parent_dir, 'input_files', file_name)
+    file_path = os.path.join(parent_dir, 'input_files', file_name)
     with open(file_path, 'r') as file_pointer:
         file_data = json.load(file_pointer)
         N = file_data['N']

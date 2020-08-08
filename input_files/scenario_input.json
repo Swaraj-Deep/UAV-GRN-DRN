@@ -1,1 +1,15 @@
-{"N": 10, "M": 10, "t": 0.31, "epsilon": 0.99, "learning_rate": 0.99, "decay_factor": 0.99, "max_iter": 100, "number_UAV": 20, "radius_UAV": 3, "UAV_to_UAV_threshold": 6.0, "power_UAV": 5, "coverage_threshold": 0.85, "similarity_threshold": 0.7}
+{
+    "N": 10,
+    "M": 10,
+    "t": 0.31,
+    "epsilon": 0.99,
+    "learning_rate": 0.99,
+    "decay_factor": 0.99,
+    "max_iter": 100,
+    "number_UAV": 20,
+    "radius_UAV": 3,
+    "UAV_to_UAV_threshold": 6.0,
+    "power_UAV": 5,
+    "coverage_threshold": 0.85,
+    "similarity_threshold": 0.7
+}

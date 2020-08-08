@@ -84,7 +84,8 @@ def get_standard_deviation():
     """
     global ground_user_pos
     locations = [loc for loc, user in ground_user_pos.items()]
-    distances = [move_endpoint.movement.get_dist_UAV(loc1, loc2) for loc1 in locations for loc2 in locations if loc1 != loc2]
+    distances = [move_endpoint.movement.get_dist_UAV(
+        loc1, loc2) for loc1 in locations for loc2 in locations if loc1 != loc2]
     distances_df = pd.DataFrame(distances)
     return distances_df.describe()[0]['std']
 

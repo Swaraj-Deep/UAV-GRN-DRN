@@ -162,7 +162,8 @@ def analyse_output_files():
         f'# Mean of edge similarity: {mean_similarity}\n# Median of edge similarity: {median_similarity}\n# Mode of edge similarity: {mode_similarity}\n# Standard Deviation of edge similarity: {std_similarity}\n# Minimum edge similarity: {min_similarity}\n# Maximum edge similarity: {max_similarity}\n# Seventy Five percentile of edge similarity: {seventy_five_similarity}\n')
     lines_to_write.append(
         f'# Mean user served: {mean_user}\n# Median user served: {median_user}\n# Mode of user served: {mode_user}\n# Standard Deviation of user served: {std_user}\n# Minimum user served: {min_user}\n# Maximum user served: {max_user}\n# Seventy Five percentile of users: {seventy_five_user}\n')
-    lines_to_write.append(f'# Seventy Five percentile of standard deviation of distance between users: {df_sd_distances_user.describe()[0]["75%"]}\n')
+    lines_to_write.append(
+        f'# Seventy Five percentile of standard deviation of distance between users: {df_sd_distances_user.describe()[0]["75%"]}\n')
     lines_to_write.append(f'# Best File Location: {best_file}\n')
     lines_to_write.append(f'# Corresponding Graph Location: {best_graph}\n')
     if best_file_sim_per != best_file:
