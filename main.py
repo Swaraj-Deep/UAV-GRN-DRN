@@ -432,6 +432,8 @@ def write_output(placed):
     graph_data['UAV_location'] = UAV_location
     with open(graph_file_name, 'w') as file_pointer:
         json.dump(graph_data, file_pointer)
+    text_file_data.append(
+        f'Standard Deviation of distances between users: {users_endpoint.users.get_standard_deviation()}\n')
     end_time = time.time()
     text_file_data.append(
         f'Total time to run the simulation: {end_time - start_time} seconds')

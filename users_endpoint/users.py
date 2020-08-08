@@ -1,4 +1,6 @@
 import json
+import move_endpoint.movement
+import pandas as pd
 
 # Global Variables declarations
 
@@ -72,6 +74,19 @@ def get_ground_users_pos(loc):
     if loc in ground_user_pos:
         return ground_user_pos[loc]
     return 0
+
+
+def get_standard_deviation():
+    """
+    Function: get_standard_deviation\n
+    Parameters: None\n
+    Returns: Standard Deviation of the distance between user locations\n
+    """
+    global ground_user_pos
+    locations = [loc for loc, user in ground_user_pos.items()]
+    distances = [move_endpoint.movement.get_dist_UAV(loc1, loc2) for loc1 in locations for loc2 in locations if loc1 != loc2]
+    distances_df = pd.DataFrame(distances)
+    return distances_df.describe()[0]['std']
 
 
 def set_cell_helper(i, j, radius_UAV, N, M):
@@ -187,6 +202,6 @@ def is_user_connected(user, pos, radius_UAV, N, M):
 
 if __name__ == "__main__":
     init(2, 14, 14)
-    print(ground_user_pos)
-    x, y = map(int, input("enter x, y").split(" "))
-    print(is_user_connected(2, (x, y), 2, 14, 14))
+    get_standard_deviation()
+    # x, y = map(int, input("enter x, y").split(" "))
+    # print(is_user_connected(2, (x, y), 2, 14, 14))
