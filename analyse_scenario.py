@@ -5,11 +5,11 @@ import time
 
 # List to hold different scenario size
 
-size = [10]
+size = [5, 10, 15, 20, 25, 30]
 
 # List to hold number of users in each scenario
 
-users = [20]
+users = [5, 20, 45, 80, 125, 180]
 
 # Range of UAV to UAV communication
 
