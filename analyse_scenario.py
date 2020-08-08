@@ -19,42 +19,26 @@ UAV_to_UAV_threshold = [
 
 # Maximum number of iteration
 
-max_iter = 10
+max_iter = 5
 
 
-def update_log_file(N, curr_UAV_used, curr_user_served, similarity_percentage, threshold):
+def update_log_file(N, curr_UAV_used, curr_user_served, similarity_percentage, threshold, sd_user_dist):
     """
     Function: update_log_file\n
-    Parameters: N -> size of the grid, curr_UAV_used -> current UAV used, curr_user_served -> current user served, similarity percentage -> edge similarity percentage, therhold -> threshold of the UAV to UAV communication\n
+    Parameters: N -> size of the grid, curr_UAV_used -> current UAV used, curr_user_served -> current user served, similarity percentage -> edge similarity percentage, therhold -> threshold of the UAV to UAV communication, sd_user_dist -> standard deviation of user distances\n
     Functionality: Appends new data to the log file\n
     """
     parent_dir = os.getcwd()
     final_log_file = 'scenario_analysis.log'
     lines_to_write = []
     lines_to_write.append(
-        f'{N} X {N}\t\t\t{curr_UAV_used}\t\t\t\t{curr_user_served}\t\t\t\t\t{round(similarity_percentage, 2)}\t\t\t\t{threshold}\n')
+        f'###############################################################################################\n')
+    lines_to_write.append(
+        f'Secnario: {N} X {N}\nUAV used: {curr_UAV_used}\nUser covered: {curr_user_served}\nEdge Similarity percentage: {round(similarity_percentage, 2)}\nUAV to UAV communication threshold: {threshold}\nStandard deviation of user distances: {sd_user_dist}\n')
+    lines_to_write.append(
+        f'###############################################################################################\n')
     with open(os.path.join(parent_dir, final_log_file), 'a') as file_pointer:
         file_pointer.writelines(lines_to_write)
-
-
-def find_percentage(lines, num_ahead):
-    """
-    Function: find_percentage\n
-    Parameter: lines -> lines of current output file opened, num_ahead -> number of lines ahead where we get the percentage of edge similarity\n
-    Returns: edge similarity percentage in that file
-    """
-    percentage = 0.0
-    if 'Following' in lines[3 + num_ahead]:
-        if 'Following' in lines[3 + num_ahead + 2]:
-            percentage = lines[3 + num_ahead + 5].split(':')[1]
-        elif 'graph' in lines[3 + num_ahead + 2]:
-            percentage = lines[3 + num_ahead + 4].split(':')[1]
-    elif 'graph' in lines[3 + num_ahead]:
-        if 'Following' in lines[3 + num_ahead + 1]:
-            percentage = lines[3 + num_ahead + 4].split(':')[1]
-        elif 'graph' in lines[3 + num_ahead + 1]:
-            percentage = lines[3 + num_ahead + 3].split(':')[1]
-    return percentage
 
 
 def check_if_complete():
@@ -75,14 +59,14 @@ def check_if_complete():
     curr_dir = str(epsilon) + "_" + str(learning_rate) + \
         "_" + str(decay_factor)
     dir_path = os.path.join(parent_dir, curr_dir)
-    file_name = 'Output_text0.txt'
+    file_name = 'analysis.log'
     file_path = os.path.join(dir_path, file_name)
     with open(file_path, 'r') as file_pointer:
         lines = file_pointer.readlines()
-    curr_user_served = int(lines[0].split(':')[1])
-    curr_UAV_used = int(lines[2].split(':')[1])
-    similarity_percentage = float(
-        find_percentage(lines, curr_UAV_used))
+    similarity_percentage = float(lines[20].split(' ')[-1])
+    curr_user_served = int(float(lines[27].split(':')[-1]))
+    curr_UAV_used = int(float(lines[13].split(':')[-1]))
+    sd_user_dist = float(lines[28].split(':')[-1])
     parent_dir = os.getcwd()
     folder_name = 'input_files'
     file_name = 'scenario_input.json'
@@ -94,7 +78,7 @@ def check_if_complete():
         N = scenario_data['N']
         threshold = scenario_data['UAV_to_UAV_threshold']
         update_log_file(N, curr_UAV_used, curr_user_served,
-                        similarity_percentage, threshold)
+                        similarity_percentage, threshold, sd_user_dist)
         return True
     return False
 
@@ -108,7 +92,7 @@ def update_scenario_input():
     global UAV_to_UAV_threshold
     parent_dir = os.getcwd()
     folder_name = 'input_files'
-    for thresold in [6.00]:
+    for thresold in UAV_to_UAV_threshold:
         file_name = 'scenario_input.json'
         file_path = os.path.join(parent_dir, folder_name, file_name)
         with open(file_path, 'r') as file_pointer:
@@ -120,11 +104,11 @@ def update_scenario_input():
             os.system('python3 user_secnario_producer.py')
             os.system('python3 main.py')
         os.system('python3 analysis.py')
-        # if check_if_complete():
-        #     os.system('bash fresh_analysis.sh')
-        #     break
-        # else:
-        #     os.system('bash fresh_analysis.sh')
+        if check_if_complete():
+            os.system('bash fresh_analysis.sh')
+            break
+        else:
+            os.system('bash fresh_analysis.sh')
 
 
 def runner_function():
@@ -145,8 +129,6 @@ def runner_function():
         f'################################## Final Analysis Report ######################################\n')
     lines_to_write.append(
         f'###############################################################################################\n')
-    lines_to_write.append(
-        f'Scenario\t\tUAV used\t\tUser covered\t\tEdge similarity\t\tCommunication Threshold\n')
     with open(os.path.join(parent_dir, final_log_file), 'w') as file_pointer:
         file_pointer.writelines(lines_to_write)
     folder_name = 'input_files'

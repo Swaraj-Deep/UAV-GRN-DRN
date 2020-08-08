@@ -66,11 +66,13 @@ def analyse_output_files():
     lst_UAV = []
     lst_user = []
     lst_similarity = []
+    lst_sd_distances_user = []
     for file in text_files:
         with open(os.path.join(dir_path, file), 'r') as file_pointer:
             lines = file_pointer.readlines()
             curr_user_served = int(lines[0].split(':')[1])
             curr_UAV_used = int(lines[2].split(':')[1])
+            lst_sd_distances_user.append(float(lines[-2].split(':')[1]))
             similarity_percentage = float(
                 find_percentage(lines, curr_UAV_used))
             lst_UAV.append(curr_UAV_used)
@@ -112,6 +114,7 @@ def analyse_output_files():
     df_UAV = pd.DataFrame(lst_UAV)
     df_user = pd.DataFrame(lst_user)
     df_similarity = pd.DataFrame(lst_similarity)
+    df_sd_distances_user = pd.DataFrame(lst_sd_distances_user)
 
     desc_UAV = df_UAV.describe()
     desc_user = df_user.describe()
@@ -159,6 +162,7 @@ def analyse_output_files():
         f'# Mean of edge similarity: {mean_similarity}\n# Median of edge similarity: {median_similarity}\n# Mode of edge similarity: {mode_similarity}\n# Standard Deviation of edge similarity: {std_similarity}\n# Minimum edge similarity: {min_similarity}\n# Maximum edge similarity: {max_similarity}\n# Seventy Five percentile of edge similarity: {seventy_five_similarity}\n')
     lines_to_write.append(
         f'# Mean user served: {mean_user}\n# Median user served: {median_user}\n# Mode of user served: {mode_user}\n# Standard Deviation of user served: {std_user}\n# Minimum user served: {min_user}\n# Maximum user served: {max_user}\n# Seventy Five percentile of users: {seventy_five_user}\n')
+    lines_to_write.append(f'# Seventy Five percentile of standard deviation of distance between users: {df_sd_distances_user.describe()[0]["75%"]}\n')
     lines_to_write.append(f'# Best File Location: {best_file}\n')
     lines_to_write.append(f'# Corresponding Graph Location: {best_graph}\n')
     if best_file_sim_per != best_file:
