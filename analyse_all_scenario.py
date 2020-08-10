@@ -184,4 +184,4 @@ def runner_function():
 if __name__ == "__main__":
     print("Relax!! We have taken the charge:)")
     runner_function()
-    # os.system("python3 plot_graph.py")
+    os.system("python3 plot_graph.py")
