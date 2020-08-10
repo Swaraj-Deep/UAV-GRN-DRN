@@ -20,7 +20,7 @@ UAV_to_UAV_threshold = [str(i)+'.'+str(j)+''+str(k) for i in range(min_communica
 
 # Maximum number of iteration
 
-max_iter = 5
+max_iter = 1
 
 
 def update_log_file(threshold, sd_user_dist):
@@ -30,11 +30,12 @@ def update_log_file(threshold, sd_user_dist):
     Functionality: Appends new data to the log file\n
     """
     parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
     final_log_file = 'scenario_analysis.log'
     lines_to_write = []
     lines_to_write.append(
         f'{threshold} {sd_user_dist}\n')
-    with open(os.path.join(parent_dir, final_log_file), 'a') as file_pointer:
+    with open(os.path.join(parent_dir, dir_name, final_log_file), 'a') as file_pointer:
         file_pointer.writelines(lines_to_write)
 
 
@@ -164,7 +165,7 @@ def runner_function():
         f'################################## Final Analysis Report ######################################\n')
     lines_to_write.append(
         f'###############################################################################################\n')
-    with open(os.path.join(parent_dir, final_log_file), 'w') as file_pointer:
+    with open(os.path.join(parent_dir, 'analysis_output_files', final_log_file), 'w') as file_pointer:
         file_pointer.writelines(lines_to_write)
     folder_name = 'input_files'
     file_name = 'user_location.json'
@@ -186,10 +187,11 @@ def runner_function():
         f'###################################### END OF REPORT ##########################################\n')
     lines_to_write.append(
         f'###############################################################################################\n')
-    with open(os.path.join(parent_dir, final_log_file), 'a') as file_pointer:
+    with open(os.path.join(parent_dir, 'analysis_output_files', final_log_file), 'a') as file_pointer:
         file_pointer.writelines(lines_to_write)
 
 
 if __name__ == "__main__":
     print("Relax!! We have taken the charge:)")
     runner_function()
+    os.system("python3 plot_graph.py")
