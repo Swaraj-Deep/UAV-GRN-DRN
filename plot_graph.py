@@ -158,5 +158,4 @@ def read_data():
 
 
 if __name__ == "__main__":
-    # scatter_plot()
     decide_to_plot()
