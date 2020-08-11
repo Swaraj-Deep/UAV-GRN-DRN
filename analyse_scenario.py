@@ -20,7 +20,7 @@ UAV_to_UAV_threshold = [str(i)+'.'+str(j)+''+str(k) for i in range(min_communica
 
 # Maximum number of iteration
 
-max_iter = 1
+max_iter = 10
 
 
 def update_log_file(threshold, sd_user_dist):

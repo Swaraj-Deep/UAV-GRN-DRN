@@ -62,14 +62,14 @@ def decide_to_plot():
     with open(file_path, 'r') as file_pointer:
         lines = file_pointer.readlines()
     if len(lines[3:][0].split(' ')) > 2:
-        bar_plot()
+        plot()
     else:
         scatter_plot()
 
 
-def bar_plot():
+def plot():
     """
-    Function: bar_plot\n
+    Function: plot\n
     Parameters: None\n
     Functionality: Read the data from the scenario_analysis.log file
     """
