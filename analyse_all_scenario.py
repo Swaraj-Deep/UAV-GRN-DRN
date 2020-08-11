@@ -20,7 +20,7 @@ UAV_to_UAV_threshold = [str(i)+'.'+str(j)+''+str(k) for i in range(min_communica
 
 # Maximum number of iteration
 
-max_iter = 10
+max_iter = 1
 
 
 def update_log_file(threshold, sd_user_dist, curr_user_served, curr_UAV_used, similarity_percentage, N):

@@ -1,6 +1,7 @@
 import os
 import os.path
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def get_points():
@@ -72,6 +73,8 @@ def bar_plot():
     Parameters: None\n
     Functionality: Read the data from the scenario_analysis.log file
     """
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
     graph_data = read_data()
     area = [item['Area'] for item in graph_data]
     UAV = [item['UAV'] for item in graph_data]
@@ -79,6 +82,48 @@ def bar_plot():
     similarity = [item['similarity'] for item in graph_data]
     std = [item['std'] for item in graph_data]
     comm_th = [item['comm_th'] for item in graph_data]
+    plt.scatter(std, comm_th)
+    plt.plot(std, comm_th, label="std vs communication threshold")
+    plt.title(
+        'Standard Deviation of User Distances vs UAV communication range', fontweight="bold")
+    plt.xlabel('Standard Deviation of User Distances', fontweight='bold')
+    plt.ylabel('UAV Communication range', fontweight='bold')
+    plt.legend()
+    file_name = 'stdVScomm_th.png'
+    file_path = os.path.join(parent_dir, dir_name, file_name)
+    plt.savefig(file_path)
+    plt.clf()
+    plt.scatter(similarity, std)
+    plt.plot(similarity, std, label="similarity vs std")
+    plt.title(
+        'Edge Similarity vs Standard Deviation of User Distances', fontweight="bold")
+    plt.xlabel('Edge Similarity', fontweight='bold')
+    plt.ylabel('Standard Deviation of User Distances', fontweight='bold')
+    plt.legend()
+    file_name = 'simiVSstd.png'
+    file_path = os.path.join(parent_dir, dir_name, file_name)
+    plt.savefig(file_path)
+    plt.clf()
+    plt.scatter(similarity, comm_th)
+    plt.plot(similarity, comm_th, label="similarity vs communication threshold")
+    plt.title('UAV Edge Similarity vs UAV communication range',
+              fontweight="bold")
+    plt.xlabel('UAV Edge Similarity', fontweight='bold')
+    plt.ylabel('UAV Communication range', fontweight='bold')
+    plt.legend()
+    file_name = 'simiVScomm_th.png'
+    file_path = os.path.join(parent_dir, dir_name, file_name)
+    plt.savefig(file_path)
+    plt.clf()
+    plt.scatter(area, std)
+    plt.plot(area, std, label="area vs std")
+    plt.title('Area vs Standard Deviation of user distances', fontweight="bold")
+    plt.xlabel('Area', fontweight='bold')
+    plt.ylabel('Standard Deviation of user distances', fontweight='bold')
+    plt.legend()
+    file_name = 'areaVSstd.png'
+    file_path = os.path.join(parent_dir, dir_name, file_name)
+    plt.savefig(file_path)
 
 
 def read_data():
