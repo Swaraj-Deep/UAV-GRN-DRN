@@ -174,6 +174,7 @@ def runner_function():
         with open(file_path, 'r') as file_pointer:
             file_data = json.load(file_pointer)
         file_data['N'] = size[i]
+        file_data['M'] = size[i]
         file_data['Number of User'] = users[i]
         with open(file_path, 'w') as file_pointer:
             json.dump(file_data, file_pointer)
