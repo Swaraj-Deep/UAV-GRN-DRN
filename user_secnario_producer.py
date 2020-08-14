@@ -43,5 +43,6 @@ if __name__ == "__main__":
     with open(file_path, 'r') as file_pointer:
         file_data = json.load(file_pointer)
         N = file_data['N']
+        M = file_data['M']
         number_users = file_data['Number of User']
-    generate_user_input(N, N, number_users)
+    generate_user_input(N, M, number_users)
