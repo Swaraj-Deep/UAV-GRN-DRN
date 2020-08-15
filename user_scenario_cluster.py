@@ -8,25 +8,36 @@ import math
 
 N, M = (0, 0)
 
-# UAV communication threshold
-
-UAV_to_UAV_comm = 0
-
-# Ground user Communication threshold
-
-rad = 0
-
 # Number of users
 
 number_users = 0
 
+# Ground user UAV communication threshold
 
-def update_files(N, M, number_users, UAV_to_UAV_comm, rad):
+radius_UAV = 0
+
+# User locations
+
+user_loc_lst = []
+
+def generate_clusters():
+    """
+    Function: generate_clusters\n
+    Parameters: None\n
+    Functionality: Generate clusters for users location\n
+    """
+    
+
+
+
+
+def update_files():
     """
     Function: update_files\n
-    Parameters: (N, M) -> Size of the grid, number_users -> number of users in the grid, UAV_to_UAV_com -> UAV To UAV communication threshold, rad -> Radius of UAVs\n
+    Parameters: None\n
     Functionality: Writes the correspoinding data to scenario_input.json file
     """
+    global N, M
     scenario_data = {}
     parent_dir = os.getcwd()
     dir_name = 'input_files'
@@ -38,8 +49,7 @@ def update_files(N, M, number_users, UAV_to_UAV_comm, rad):
     file_path = os.path.join(parent_dir, dir_name, file_name)
     with open(file_path, 'w') as file_pointer:
         json.dump(scenario_data, file_pointer)
-
-
+    generate_clusters()
 
 def take_input():
     """
@@ -47,23 +57,22 @@ def take_input():
     Parameters: None\n
     Functionality: reads user_location.json (for Grid size and number of users) and scenario_input.json for Radius values\n
     """
-    global N, M, rad, UAV_to_UAV_comm, number_users
-    user_input={}
-    parent_dir=os.getcwd()
-    dir_name='input_files'
-    file_name='user_location.json'
+    global N, M, number_users, radius_UAV
+    user_input = {}
+    parent_dir = os.getcwd()
+    dir_name = 'input_files'
+    file_name = 'user_location.json'
     with open(os.path.join(parent_dir, dir_name, file_name), 'r') as file_pointer:
-        user_input=json.load(file_pointer)
-    N=user_input['N']
-    M=user_input['M']
-    number_users=user_input['Number of User']
-    scenario_data={}
-    file_name='scenario_input.json'
+        user_input = json.load(file_pointer)
+    N = user_input['N']
+    M = user_input['M']
+    number_users = user_input['Number of User']
+    scenario_data = {}
+    file_name = 'scenario_input.json'
     with open(os.path.join(parent_dir, dir_name, file_name), 'r') as file_pointer:
-        scenario_data=json.load(file_pointer)
-    UAV_to_UAV_comm=scenario_data['UAV_to_UAV_threshold']
-    rad=scenario_data['radius_UAV']
-    update_files(N, M, number_users, UAV_to_UAV_comm, rad)
+        scenario_data = json.load(file_pointer)
+    UAV_to_UAV_comm = scenario_data['radius_UAV']
+    update_files(N, M, number_users)
 
 
 take_input()
