@@ -193,6 +193,11 @@ def runner_function():
 
 
 if __name__ == "__main__":
+    dir_path = os.path.join(os.getcwd(), 'analysis_output_files')
+    try:
+        os.mkdir(dir_path)
+    except OSError as error:
+        pass
     print("Relax!! We have taken the charge:)")
     runner_function()
     os.system("python3 plot_graph.py")

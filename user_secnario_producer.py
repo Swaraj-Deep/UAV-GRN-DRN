@@ -13,8 +13,8 @@ def generate_user_input(N, M, number_users):
     """
     user_pos = []
     while len(user_pos) < number_users:
-        a = random.randint(0, N - 1)
-        b = random.randint(0, M - 1)
+        a = round(random.uniform(0, N - 1), 2)
+        b = round(random.uniform(0, M - 1), 2)
         if str(a) + " " + str(b) not in user_pos:
             user_pos.append(str(a) + " " + str(b))
     write_data = {

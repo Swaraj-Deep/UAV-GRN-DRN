@@ -22,6 +22,23 @@ radius_UAV = 0
 user_loc_lst = []
 
 
+def write_to_file():
+    """
+    Function: write_to_file\n
+    Parameters: None\n
+    Functionality: writes the user_location to file\n
+    """
+    global number_users, user_loc_lst
+    write_data = {}
+    write_data["Number of Ground users"] = number_users
+    write_data["Position of Ground users"] = user_loc_lst
+    parent_dir = os.getcwd()
+    dir_name = "input_files"
+    file_name = "user_input.json"
+    with open(os.path.join(parent_dir, dir_name, file_name), 'w') as file_pointer:
+        json.dump(write_data, file_pointer)
+
+
 def generate_user_points():
     """
     Function: generate_user_points\n
@@ -32,29 +49,34 @@ def generate_user_points():
     c_a = round(random.uniform(0, N - 1), 2)
     c_b = round(random.uniform(0, M - 1), 2)
     pos1 = (c_a, c_b)
-    user_loc_lst.append((c_a, c_b))
-    lst_rad_mul = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
-    cluster_radius = random.randint(0, len(lst_rad_mul) - 1) * radius_UAV
-    temp_user_lst = []
+    user_loc_lst.append(f'{c_a} {c_b}')
     number_user_in_cluster = random.randint(10, 31)
     users_left = number_users - len(user_loc_lst)
     if number_user_in_cluster > users_left:
         number_user_in_cluster = users_left
+    lst_rad_mul = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
+    pos = random.randint(1, len(lst_rad_mul)) - 1
+    cluster_radius = radius_UAV * lst_rad_mul[pos]
+    temp_user_lst = []
     while len(temp_user_lst) < number_user_in_cluster:
         a = round(random.uniform(0, N - 1), 2)
         b = round(random.uniform(0, M - 1), 2)
         pos2 = (a, b)
         if move_endpoint.movement.get_euc_dist(pos1, pos2) <= cluster_radius:
-            pass
+            temp_user_lst.append(f'{a} {b}')
+    return temp_user_lst
+
 
 def generate_clusters():
     """
     Function: generate_clusters\n
     Parameters: None\n
-    Functionality: Generate clusters for users location\n
+    Functionality: Generate user location\n
     """
     global N, M, number_users, user_loc_lst, radius_UAV
-    generate_user_points()
+    while len(user_loc_lst) < number_users:
+        user_loc_lst += generate_user_points()
+    write_to_file()
 
 
 def update_files():
@@ -98,8 +120,9 @@ def take_input():
     file_name = 'scenario_input.json'
     with open(os.path.join(parent_dir, dir_name, file_name), 'r') as file_pointer:
         scenario_data = json.load(file_pointer)
-    UAV_to_UAV_comm = scenario_data['radius_UAV']
-    update_files(N, M, number_users)
+    radius_UAV = scenario_data['radius_UAV'] * 1000
+    update_files()
 
 
-take_input()
+if __name__ == "__main__":
+    take_input()
