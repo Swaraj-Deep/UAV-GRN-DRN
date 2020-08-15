@@ -20,7 +20,7 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
     for j in placed:
         pos_j = UAV_location[j]
         emc_reward = 0
-        if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) <= UAV_to_UAV_threshold:
+        if move_endpoint.movement.get_euc_dist(pos_i, pos_j) <= UAV_to_UAV_threshold:
             if grn_endpoint.grn_info.is_edge_grn(grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)):
                 emc_reward = (grn_endpoint.grn_info.get_emc(
                     grn_endpoint.grn_info.m(UAV_node), grn_endpoint.grn_info.m(j)) + 1)
@@ -34,7 +34,7 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
         user_den = ground_users
         user_conn /= user_den
         pos_reward = emc_reward + user_conn
-        if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold - t:
+        if move_endpoint.movement.get_euc_dist(pos_i, pos_j) < UAV_to_UAV_threshold - t:
             neg_reward += 1
         reward += pos_reward / neg_reward
     reward *= rho_reward / power_UAV
@@ -58,7 +58,7 @@ def reward_function_old(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV
     # RHO function
     for j in placed:
         pos_j = UAV_location[j]
-        if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold:
+        if move_endpoint.movement.get_euc_dist(pos_i, pos_j) < UAV_to_UAV_threshold:
             rho_reward = 1
             break
     # Outer Summation
@@ -75,7 +75,7 @@ def reward_function_old(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV
         user_den = ground_users
         user_conn /= user_den
         pos_reward = emc_reward + user_conn
-        if move_endpoint.movement.get_dist_UAV(pos_i, pos_j) < UAV_to_UAV_threshold - t:
+        if move_endpoint.movement.get_euc_dist(pos_i, pos_j) < UAV_to_UAV_threshold - t:
             neg_reward += 1
         reward += pos_reward / neg_reward
     reward *= rho_reward / power_UAV

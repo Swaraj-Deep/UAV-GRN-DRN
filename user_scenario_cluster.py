@@ -2,6 +2,7 @@ import random
 import json
 import os
 import math
+import move_endpoint.movement
 
 
 # Global Variable N, M for Grid Size
@@ -20,15 +21,40 @@ radius_UAV = 0
 
 user_loc_lst = []
 
+
+def generate_user_points():
+    """
+    Function: generate_user_points\n
+    Parameters: None\n
+    Returns: list of user location\n
+    """
+    global number_users, user_loc_lst, N, M, radius_UAV
+    c_a = round(random.uniform(0, N - 1), 2)
+    c_b = round(random.uniform(0, M - 1), 2)
+    pos1 = (c_a, c_b)
+    user_loc_lst.append((c_a, c_b))
+    lst_rad_mul = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
+    cluster_radius = random.randint(0, len(lst_rad_mul) - 1) * radius_UAV
+    temp_user_lst = []
+    number_user_in_cluster = random.randint(10, 31)
+    users_left = number_users - len(user_loc_lst)
+    if number_user_in_cluster > users_left:
+        number_user_in_cluster = users_left
+    while len(temp_user_lst) < number_user_in_cluster:
+        a = round(random.uniform(0, N - 1), 2)
+        b = round(random.uniform(0, M - 1), 2)
+        pos2 = (a, b)
+        if move_endpoint.movement.get_euc_dist(pos1, pos2) <= cluster_radius:
+            pass
+
 def generate_clusters():
     """
     Function: generate_clusters\n
     Parameters: None\n
     Functionality: Generate clusters for users location\n
     """
-    
-
-
+    global N, M, number_users, user_loc_lst, radius_UAV
+    generate_user_points()
 
 
 def update_files():
@@ -50,6 +76,7 @@ def update_files():
     with open(file_path, 'w') as file_pointer:
         json.dump(scenario_data, file_pointer)
     generate_clusters()
+
 
 def take_input():
     """
