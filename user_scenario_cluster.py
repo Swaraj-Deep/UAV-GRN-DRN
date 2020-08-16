@@ -21,6 +21,14 @@ radius_UAV = 0
 
 user_loc_lst = []
 
+# Cell Size 
+
+cell_size = 0
+
+# Unit Multiplier
+
+unit_mul = 0
+
 
 def write_to_file():
     """
@@ -45,7 +53,7 @@ def generate_user_points():
     Parameters: None\n
     Returns: list of user location\n
     """
-    global number_users, user_loc_lst, N, M, radius_UAV
+    global number_users, user_loc_lst, N, M, radius_UAV, unit_mul, cell_size
     c_a = round(random.uniform(0, N - 1), 2)
     c_b = round(random.uniform(0, M - 1), 2)
     pos1 = (c_a, c_b)
@@ -62,7 +70,7 @@ def generate_user_points():
         a = round(random.uniform(0, N - 1), 2)
         b = round(random.uniform(0, M - 1), 2)
         pos2 = (a, b)
-        if move_endpoint.movement.get_euc_dist(pos1, pos2) <= cluster_radius:
+        if move_endpoint.movement.get_euc_dist(pos1, pos2) * cell_size <= cluster_radius:
             temp_user_lst.append(f'{a} {b}')
     return temp_user_lst
 
@@ -106,7 +114,7 @@ def take_input():
     Parameters: None\n
     Functionality: reads user_location.json (for Grid size and number of users) and scenario_input.json for Radius values\n
     """
-    global N, M, number_users, radius_UAV
+    global N, M, number_users, radius_UAV, cell_size, unit_mul
     user_input = {}
     parent_dir = os.getcwd()
     dir_name = 'input_files'
@@ -120,7 +128,10 @@ def take_input():
     file_name = 'scenario_input.json'
     with open(os.path.join(parent_dir, dir_name, file_name), 'r') as file_pointer:
         scenario_data = json.load(file_pointer)
-    radius_UAV = scenario_data['radius_UAV'] * 1000
+    cell_size = scenario_data['cell_size']
+    unit_mul = scenario_data['unit_multiplier']
+    radius_UAV = scenario_data['radius_UAV'] * unit_mul
+    cell_size *= unit_mul
     update_files()
 
 
