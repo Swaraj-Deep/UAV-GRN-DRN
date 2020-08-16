@@ -125,7 +125,7 @@ def init():
         power_UAV = file_data['power_UAV']
         coverage_threshold = file_data['coverage_threshold']
         similarity_threshold = file_data['similarity_threshold']
-    users_endpoint.users.init(radius_UAV, N, M)
+    users_endpoint.users.init()
     grn_endpoint.grn_info.init()
 
 
@@ -349,7 +349,6 @@ def write_output(placed):
         dir_path)])
     os.chdir(dir_path)
     text_file_name = 'Output_text' + str(file_num // 2) + '.txt'
-    graph_file_name = 'Output_graph' + str(file_num // 2) + '.json'
     image_path = os.path.join(dir_path, 'images')
     try:
         os.mkdir(image_path)
@@ -409,29 +408,7 @@ def write_output(placed):
     text_file_data.append(f'Maximum Edge motif centrality is {PI}\n')
     nx.draw(UAV_G, with_labels=True)
     plt.savefig(os.path.join(image_path, png_file_name))
-    graph_data = {}
-    global radius_UAV
-    graph_data["radius_UAV"] = radius_UAV
-    user_served = {}
-    for UAV, location in UAV_location.items():
-        user_served[f"{UAV}"] = users_endpoint.users.get_users_cell_connections(
-            location)
-    ground_user_pos = users_endpoint.users.get_ground_user_pos_dict()
-    ground_user = {}
-    for loc, user in ground_user_pos.items():
-        ground_user[user] = loc
-    graph_data["user_loc"] = ground_user
-    graph_data["edge_UAV"] = list(UAV_G.edges())
-    graph_data["UAV_serves"] = user_served
-    graph_data["gusers"] = sorted(ground_placed)
-    global N
-    global M
     global end_time
-    graph_data['N'] = N
-    graph_data['M'] = M
-    graph_data['UAV_location'] = UAV_location
-    with open(graph_file_name, 'w') as file_pointer:
-        json.dump(graph_data, file_pointer)
     text_file_data.append(
         f'Standard Deviation of distances between users: {users_endpoint.users.get_standard_deviation()}\n')
     end_time = time.time()
