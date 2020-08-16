@@ -68,9 +68,6 @@ def get_cell_vicinity(i, j, UAV_to_UAV_threshold, N, M):
         cell_list.append((i, right))
     for i in range(left, right + 1):
         cell_list.append((right, i))
-    # for i in range(up, down + 1):
-    #     for j in range(left, right + 1):
-    #         # cell_list.append ((i, j))
     return cell_list
 
 

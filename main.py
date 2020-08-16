@@ -80,6 +80,14 @@ UAV_location = {}
 
 ground_placed = []
 
+# Cell Size of grid
+
+cell_size = 0
+
+# Unit multiplier
+
+unit_mul = 0
+
 
 def init():
     """
@@ -101,6 +109,7 @@ def init():
     global radius_UAV
     global UAV_to_UAV_threshold
     global power_UAV
+    global cell_size, unit_mul
     dir_path = os.path.join(os.getcwd(), 'output_files')
     try:
         os.mkdir(dir_path)
@@ -125,6 +134,13 @@ def init():
         power_UAV = file_data['power_UAV']
         coverage_threshold = file_data['coverage_threshold']
         similarity_threshold = file_data['similarity_threshold']
+        cell_size = file_data['cell_size']
+        unit_mul = file_data['unit_multiplier']
+    UAV_to_UAV_threshold *= unit_mul
+    radius_UAV *= unit_mul
+    cell_size *= unit_mul
+    t *= unit_mul
+    t //= cell_size
     users_endpoint.users.init()
     grn_endpoint.grn_info.init()
 
@@ -148,14 +164,14 @@ def q_learn(UAV_node, placed):
     Q = np.zeros((N * M, 15))
     # Centroid Location
     # loc = move_endpoint.movement.get_centroid_location(
-    #     N, M, UAV_location, UAV_to_UAV_threshold)
+    #     N, M, UAV_location, int(UAV_to_UAV_threshold // cell_size))
     # Center Location
     # loc = move_endpoint.movement.get_center_location(N, M)
     # Random Location
     loc = move_endpoint.movement.get_random_location(N, M)
     # Vicinity Location
     # loc = move_endpoint.movement.get_vicinity_location(
-    # N, M, UAV_location, UAV_to_UAV_threshold)
+    # N, M, UAV_location, int(UAV_to_UAV_threshold // cell_size))
     epsilon_val = epsilon
     # low, medium, high power
     action_power = [0, 5, 10]
@@ -168,11 +184,11 @@ def q_learn(UAV_node, placed):
         if random.uniform(0, 1) <= epsilon_val:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
             Q[index, action] = reward_endpoint.rewards.reward_function(
-                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M, ground_placed)
+                UAV_node, placed, loc, UAV_location, t, power_UAV, int(UAV_to_UAV_threshold // cell_size), int(radius_UAV // cell_size), N, M, ground_placed)
         else:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
             reward = reward_endpoint.rewards.reward_function(
-                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M, ground_placed)
+                UAV_node, placed, loc, UAV_location, t, power_UAV, int(UAV_to_UAV_threshold // cell_size), int(radius_UAV // cell_size), N, M, ground_placed)
             Q[index, action] = Q[index, action] + learning_rate * \
                 (reward + decay_factor *
                  np.max(Q[index, :]) - Q[index, action])
@@ -245,7 +261,7 @@ def bruteforce(UAV_node, placed):
         for j in range(M):
             loc = (i, j)
             reward = reward_endpoint.rewards.reward_function(
-                UAV_node, placed, loc, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M, ground_placed)
+                UAV_node, placed, loc, UAV_location, t, power_UAV, int(UAV_to_UAV_threshold // cell_size), int(radius_UAV // cell_size), N, M, ground_placed)
             if reward > max_reward and valid_loc(loc):
                 max_reward = reward
                 max_pos = loc
@@ -290,12 +306,13 @@ def get_UAV_graph(placed):
     Parameters: placed -> list of already placed ground users\n:
     Returns: UAV graph at a particular point of time\n
     """
+    global UAV_to_UAV_threshold, cell_size
     UAV_G = nx.Graph()
     for node in placed:
         UAV_G.add_node(node)
     for node1 in placed:
         for node2 in placed:
-            if move_endpoint.movement.get_euc_dist(UAV_location[node1], UAV_location[node2]) <= UAV_to_UAV_threshold and node1 != node2:
+            if move_endpoint.movement.get_euc_dist(UAV_location[node1], UAV_location[node2]) <= int(UAV_to_UAV_threshold // cell_size) and node1 != node2:
                 UAV_G.add_edge(node1, node2)
     return UAV_G
 
@@ -348,13 +365,13 @@ def write_output(placed):
     file_num = len([name for name in os.listdir(
         dir_path)])
     os.chdir(dir_path)
-    text_file_name = 'Output_text' + str(file_num // 2) + '.txt'
+    text_file_name = 'Output_text' + str(file_num // 1) + '.txt'
     image_path = os.path.join(dir_path, 'images')
     try:
         os.mkdir(image_path)
     except OSError as error:
         pass
-    png_file_name = 'Output_graph' + str(file_num // 2) + '.png'
+    png_file_name = 'Output_graph' + str(file_num // 1) + '.png'
     text_file_data = []
     text_file_data.append(
         f'Total Number of users served: {len(ground_placed)}\nList of users: {sorted(ground_placed)}\n')
@@ -421,4 +438,5 @@ def write_output(placed):
 if __name__ == "__main__":
     print(f'Initialiazing the environment')
     init()
+    print(f'Initialiazed environment')
     simulation()

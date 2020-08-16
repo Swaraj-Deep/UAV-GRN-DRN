@@ -275,4 +275,3 @@ def mapping_function(non_increasing_grn_nodes, grn_graph):
 
 if __name__ == "__main__":
     init()
-    pass
