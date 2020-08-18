@@ -1,8 +1,12 @@
 import os
 import os.path
+import matplotlib.pyplot as plt
 import json
 
 # Global Declarations
+# Dictionary containing graph value
+graph_data = {}
+
 # list for similarity thresholds
 sim_thld_lst = []
 
@@ -16,7 +20,7 @@ x_label = ''
 y_label = ''
 
 # Maximum Iteration
-max_iter = 0
+max_iter = 1
 
 
 def set_to_defaults():
@@ -91,7 +95,7 @@ def plot(type, lst_to_iterate):
     Parameter: type -> which plot to plot ^_^, lst_to_iterate -> list of data which will be changing \n
     Functionality: Create the plot of desiered type\n
     """
-    global sim_thld_lst, x_label, y_label, plot_title
+    global sim_thld_lst
     parent_dir = os.getcwd()
     dir_name = 'input_files'
     file_path = os.path.join(parent_dir, dir_name)
@@ -100,14 +104,21 @@ def plot(type, lst_to_iterate):
             file_name = 'scenario_input.json'
             scenario_data = {}
             with open(os.path.join(file_path, file_name), 'r') as file_pointer:
-                    scenario_data = json.load(file_pointer)
+                scenario_data = json.load(file_pointer)
             scenario_data['similarity_threshold'] = similarity_threshold
-            scenario_data[type] = value
             with open(os.path.join(file_path, file_name), 'w') as file_pointer:
                 json.dump(scenario_data, file_pointer)
             for value in lst_to_iterate:
                 file_name = 'user_location.json'
-
+                user_loc = {}
+                with open(os.path.join(file_path, file_name), 'r') as file_pointer:
+                    user_loc = json.load(file_pointer)
+                user_loc[type] = value
+                with open(os.path.join(file_path, file_name), 'w') as file_pointer:
+                    json.dump(user_loc, file_pointer)
+                execute()
+                update_dictionary(similarity_threshold, value)
+                os.system('bash fresh_analysis.sh')
     else:
         for similarity_threshold in sim_thld_lst:
             for value in lst_to_iterate:
@@ -119,8 +130,96 @@ def plot(type, lst_to_iterate):
                 scenario_data[type] = value
                 with open(os.path.join(file_path, file_name), 'w') as file_pointer:
                     json.dump(scenario_data, file_pointer)
-                os.system('python3 user_scenario_cluster.py')
-                os.system('python3 main.py')
+                execute()
+                update_dictionary(similarity_threshold, value)
+                os.system('bash fresh_analysis.sh')
+    plot_graph()
 
 
-take_input()
+def update_dictionary(similarity_threshold, x_data):
+    """
+    Function update_dictionary\n
+    Parameters: similarity_threshold, x_data -> data point on x axis\n
+    Functionality: Updates the dictionary with required Parameters\n
+    """
+    parent_dir = os.getcwd()
+    dir_name = 'input_files'
+    file_path = os.path.join(parent_dir, dir_name)
+    scenario_input = {}
+    file_name = 'scenario_input.json'
+    with open(os.path.join(file_path, file_name), 'r') as file_pointer:
+        scenario_input = json.load(file_pointer)
+    epsilon = scenario_input['epsilon']
+    learning_rate = scenario_input['learning_rate']
+    decay_factor = scenario_input['decay_factor']
+    parent_dir = os.path.join(os.getcwd(), 'output_files')
+    curr_dir = str(epsilon) + "_" + str(learning_rate) + \
+        "_" + str(decay_factor)
+    dir_path = os.path.join(parent_dir, curr_dir)
+    file_name = 'analysis.log'
+    file_data = []
+    with open(os.path.join(dir_path, file_name), 'r') as file_pointer:
+        file_data = file_pointer.readlines()
+    line_number = get_line_number(file_data)
+    y_data = int(float(file_data[line_number].split(':')[1]))
+    global graph_data
+    if similarity_threshold in graph_data:
+        graph_data[similarity_threshold].append((x_data, y_data))
+    else:
+        graph_data[similarity_threshold] = [(x_data, y_data)]
+
+
+def get_line_number(file_data):
+    """
+    Function: get_line_number\n
+    Parameters: file_data -> list of lines in the file\n
+    """
+    return 13
+
+
+def execute():
+    """
+    Function excute\n
+    Parameters: None\n
+    Functionality: Executes main.py given number of times\n
+    """
+    for iter in range(max_iter):
+        os.system('python3 user_scenario_cluster.py')
+        os.system('python3 main.py')
+    os.system('python3 analysis.py')
+
+
+def plot_graph():
+    """
+    Function: plot_graph\n
+    Parameter: None\n
+    Functionality: Generate the plot\n
+    """
+    global graph_data, plot_title, x_label, y_label
+    for sim_thld, points in graph_data.items():
+        x = []
+        y = []
+        for point in points:
+            a, b = point
+            x.append(a)
+            y.append(b)
+        plt.scatter(x, y)
+        plt.plot(x, y, label=f'{sim_thld}')
+    plt.title(
+        plot_title, fontweight="bold")
+    plt.xlabel(x_label, fontweight='bold')
+    plt.ylabel(y_label, fontweight='bold')
+    plt.legend()
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
+    file_name = f'{plot_title}'
+    plt.savefig(os.path.join(parent_dir, dir_name, file_name))
+    file_name = 'graph_data.json'
+    with open(os.path.join(parent_dir, dir_name, file_name), 'w') as file_pointer:
+        json.dump(graph_data, file_pointer)
+
+
+if __name__ == "__main__":
+    print(f'Relax!! we have taken the charge. ^_^')
+    os.system('bash fresh_analysis.sh')
+    take_input()
