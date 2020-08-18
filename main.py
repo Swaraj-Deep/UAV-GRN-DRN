@@ -365,13 +365,15 @@ def write_output(placed):
     file_num = len([name for name in os.listdir(
         dir_path)])
     os.chdir(dir_path)
-    text_file_name = 'Output_text' + str(file_num // 1) + '.txt'
+    if file_num == 0:
+        file_num = 1
+    text_file_name = 'Output_text' + str(file_num) + '.txt'
     image_path = os.path.join(dir_path, 'images')
     try:
         os.mkdir(image_path)
     except OSError as error:
         pass
-    png_file_name = 'Output_graph' + str(file_num // 1) + '.png'
+    png_file_name = 'Output_graph' + str(file_num) + '.png'
     text_file_data = []
     text_file_data.append(
         f'Total Number of users served: {len(ground_placed)}\nList of users: {sorted(ground_placed)}\n')
