@@ -119,6 +119,29 @@ def plot(type, lst_to_iterate):
                 execute()
                 update_dictionary(similarity_threshold, value)
                 os.system('bash fresh_analysis.sh')
+        plot_graph(True)
+    elif type == 'NM':
+        for similarity_threshold in sim_thld_lst:
+            file_name = 'scenario_input.json'
+            scenario_data = {}
+            with open(os.path.join(file_path, file_name), 'r') as file_pointer:
+                scenario_data = json.load(file_pointer)
+            scenario_data['similarity_threshold'] = similarity_threshold
+            with open(os.path.join(file_path, file_name), 'w') as file_pointer:
+                json.dump(scenario_data, file_pointer)
+            for value in lst_to_iterate:
+                N, M = map(int, value.split(' '))
+                file_name = 'user_location.json'
+                user_loc = {}
+                with open(os.path.join(file_path, file_name), 'r') as file_pointer:
+                    user_loc = json.load(file_pointer)
+                user_loc['N'] = N
+                user_loc['M'] = M
+                with open(os.path.join(file_path, file_name), 'w') as file_pointer:
+                    json.dump(user_loc, file_pointer)
+                execute()
+                update_dictionary(similarity_threshold, (N, M))
+        plot_graph(False)
     else:
         for similarity_threshold in sim_thld_lst:
             for value in lst_to_iterate:
@@ -133,7 +156,7 @@ def plot(type, lst_to_iterate):
                 execute()
                 update_dictionary(similarity_threshold, value)
                 os.system('bash fresh_analysis.sh')
-    plot_graph()
+        plot_graph(True)
 
 
 def update_dictionary(similarity_threshold, x_data):
@@ -189,34 +212,65 @@ def execute():
     os.system('python3 analysis.py')
 
 
-def plot_graph():
+def plot_graph(flag):
     """
     Function: plot_graph\n
-    Parameter: None\n
+    Parameter: flag -> bool variable to indicate the type of plot\n
     Functionality: Generate the plot\n
     """
     global graph_data, plot_title, x_label, y_label
-    for sim_thld, points in graph_data.items():
-        x = []
-        y = []
-        for point in points:
-            a, b = point
-            x.append(a)
-            y.append(b)
-        plt.scatter(x, y)
-        plt.plot(x, y, label=f'{sim_thld}')
-    plt.title(
-        plot_title, fontweight="bold")
-    plt.xlabel(x_label, fontweight='bold')
-    plt.ylabel(y_label, fontweight='bold')
-    plt.legend()
-    parent_dir = os.getcwd()
-    dir_name = 'analysis_output_files'
-    file_name = f'{plot_title}'
-    plt.savefig(os.path.join(parent_dir, dir_name, file_name))
-    file_name = 'graph_data.json'
-    with open(os.path.join(parent_dir, dir_name, file_name), 'w') as file_pointer:
-        json.dump(graph_data, file_pointer)
+    if flag:
+        for sim_thld, points in graph_data.items():
+            x = []
+            y = []
+            for point in points:
+                a, b = point
+                x.append(a)
+                y.append(b)
+            plt.scatter(x, y)
+            plt.plot(x, y, label=f'{sim_thld}')
+        plt.title(
+            plot_title, fontweight="bold")
+        plt.xlabel(x_label, fontweight='bold')
+        plt.ylabel(y_label, fontweight='bold')
+        plt.legend()
+    else:
+        parent_dir = os.getcwd()
+        dir_name = 'input_files'
+        file_name = 'scenario_input.json'
+        scenario_data = {}
+        with open(os.path.join(parent_dir, dir_name, file_name), 'r') as file_pointer:
+            scenario_data = json.load(file_pointer)
+        cell_size = scenario_data['cell_size']
+        unit_mul = scenario_data['unit_multiplier']
+        cell_size *= unit_mul
+        cell_size = unit_mul / cell_size
+        for sim_thld, points in graph_data.items():
+            x = []
+            y = []
+            for point in points:
+                x_data, y_data = point
+                N, M = x_data
+                x.append(f'{N // cell_size} X {M // cell_size}')
+                y.append(y_data)
+            plt.scatter(x, y)
+            plt.plot(x, y, label=f'{sim_thld}')
+        plt.title(
+            plot_title, fontweight="bold")
+        plt.xlabel(x_label, fontweight='bold')
+        plt.ylabel(y_label, fontweight='bold')
+        plt.legend()
+        plt.show()
+        # N, M = points
+        # print(N // cell_size, M // cell_size)
+
+    # parent_dir = os.getcwd()
+    # dir_name = 'analysis_output_files'
+    # file_name = f'{plot_title}'
+    # plt.savefig(os.path.join(parent_dir, dir_name, file_name))
+    # file_name = 'graph_data.json'
+    # with open(os.path.join(parent_dir, dir_name, file_name), 'w') as file_pointer:
+    #     json.dump(graph_data, file_pointer)
 
 
 if __name__ == "__main__":

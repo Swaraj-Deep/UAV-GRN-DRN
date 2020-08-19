@@ -34,6 +34,6 @@
         20
     ],
     "plot_name": "UAV vs Ground user coverage threshold",
-    "x_axis": "Ground User Coverage threshold",
+    "x_axis": "Area Size",
     "y_axis": "Number of UAV"
 }
