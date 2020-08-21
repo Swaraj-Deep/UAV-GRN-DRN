@@ -81,7 +81,7 @@ def determine(lst_to_iterate):
     global x_label, sim_thld_lst
     if 'coverage' in x_label.lower():
         plot('coverage_threshold', lst_to_iterate)
-    elif 'ground' in x_label.lower():
+    elif 'users' in x_label.lower():
         plot('Number of User', lst_to_iterate)
     elif 'area' in x_label.lower():
         plot('NM', lst_to_iterate)
