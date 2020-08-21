@@ -260,20 +260,21 @@ def plot_graph(flag):
         plt.xlabel(x_label, fontweight='bold')
         plt.ylabel(y_label, fontweight='bold')
         plt.legend()
-        plt.show()
-        # N, M = points
-        # print(N // cell_size, M // cell_size)
-
-    # parent_dir = os.getcwd()
-    # dir_name = 'analysis_output_files'
-    # file_name = f'{plot_title}'
-    # plt.savefig(os.path.join(parent_dir, dir_name, file_name))
-    # file_name = 'graph_data.json'
-    # with open(os.path.join(parent_dir, dir_name, file_name), 'w') as file_pointer:
-    #     json.dump(graph_data, file_pointer)
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
+    file_name = f'{plot_title}'
+    plt.savefig(os.path.join(parent_dir, dir_name, file_name))
+    file_name = 'graph_data.json'
+    with open(os.path.join(parent_dir, dir_name, file_name), 'w') as file_pointer:
+        json.dump(graph_data, file_pointer)
 
 
 if __name__ == "__main__":
+    dir_path = os.path.join(os.getcwd(), 'analysis_output_files')
+    try:
+        os.mkdir(dir_path)
+    except OSError as error:
+        pass
     print(f'Relax!! we have taken the charge. ^_^')
     os.system('bash fresh_analysis.sh')
     take_input()
