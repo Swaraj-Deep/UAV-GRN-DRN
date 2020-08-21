@@ -29,6 +29,13 @@ cell_size = 0
 
 unit_mul = 0
 
+# Cluster centers
+
+cls_center = []
+
+# Distance between cluster centers
+
+dis_cls_center = 8
 
 def write_to_file():
     """
@@ -53,10 +60,28 @@ def generate_user_points():
     Parameters: None\n
     Returns: list of user location\n
     """
-    global number_users, user_loc_lst, N, M, radius_UAV, unit_mul, cell_size
-    c_a = round(random.uniform(0, N - 1), 2)
-    c_b = round(random.uniform(0, M - 1), 2)
-    pos1 = (c_a, c_b)
+    global number_users, user_loc_lst, N, M, radius_UAV, unit_mul, cell_size, cls_center, dis_cls_center
+    req_dist = ((dis_cls_center * unit_mul) // cell_size)
+    pos1 = (0, 0)
+    if len(cls_center) > 0:
+        while True:
+            flag = False
+            c_a = round(random.uniform(0, N - 1), 2)
+            c_b = round(random.uniform(0, M - 1), 2)
+            pos1 = (c_a, c_b)
+            for point in cls_center:
+                pos2 = point
+                if move_endpoint.movement.get_euc_dist(pos1, pos2) <= req_dist:
+                    cls_center.append((c_a, c_b))
+                    flag = True
+                    break
+            if flag:
+                break
+    else:
+        c_a = round(random.uniform(0, N - 1), 2)
+        c_b = round(random.uniform(0, M - 1), 2)
+        pos1 = (c_a, c_b)
+        cls_center.append((c_a, c_b))
     user_loc_lst.append(f'{c_a} {c_b}')
     number_user_in_cluster = random.randint(10, 31)
     users_left = number_users - len(user_loc_lst)
