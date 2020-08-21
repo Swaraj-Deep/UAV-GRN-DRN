@@ -141,6 +141,7 @@ def plot(type, lst_to_iterate):
                     json.dump(user_loc, file_pointer)
                 execute()
                 update_dictionary(similarity_threshold, (N, M))
+                os.system('bash fresh_analysis.sh')
         plot_graph(False)
     else:
         for similarity_threshold in sim_thld_lst:
@@ -270,6 +271,7 @@ if __name__ == "__main__":
         os.mkdir(dir_path)
     except OSError as error:
         pass
+    os.system('bash fresh_analysis.sh')
     print(f'Relax!! we have taken the charge. ^_^')
     os.system('bash fresh_analysis.sh')
     take_input()
