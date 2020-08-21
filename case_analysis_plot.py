@@ -229,11 +229,6 @@ def plot_graph(flag):
                 y.append(b)
             plt.scatter(x, y)
             plt.plot(x, y, label=f'{sim_thld}')
-        plt.title(
-            plot_title, fontweight="bold")
-        plt.xlabel(x_label, fontweight='bold')
-        plt.ylabel(y_label, fontweight='bold')
-        plt.legend()
     else:
         parent_dir = os.getcwd()
         dir_name = 'input_files'
@@ -255,11 +250,11 @@ def plot_graph(flag):
                 y.append(y_data)
             plt.scatter(x, y)
             plt.plot(x, y, label=f'{sim_thld}')
-        plt.title(
-            plot_title, fontweight="bold")
-        plt.xlabel(x_label, fontweight='bold')
-        plt.ylabel(y_label, fontweight='bold')
-        plt.legend()
+    plt.title(
+        plot_title, fontweight="bold")
+    plt.xlabel(x_label, fontweight='bold')
+    plt.ylabel(y_label, fontweight='bold')
+    plt.legend()
     parent_dir = os.getcwd()
     dir_name = 'analysis_output_files'
     file_name = f'{plot_title}'

@@ -12,7 +12,7 @@
         0.8,
         1
     ],
-    "Number of Ground Users": [
+    "Number of Users": [
         50,
         100,
         200,
@@ -26,14 +26,14 @@
         "250 250",
         "375 375"
     ],
-    "UAV Coverage Radius": [
+    "UAV Communication Radius": [
         4,
         8,
         12,
         16,
         20
     ],
-    "plot_name": "UAV vs Ground user coverage threshold",
-    "x_axis": "Area Size",
+    "plot_name": "UAV vs UAV Communication Radius",
+    "x_axis": "UAV Communication Radius",
     "y_axis": "Number of UAV"
 }
