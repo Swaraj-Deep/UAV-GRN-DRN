@@ -3,6 +3,7 @@ import json
 import os
 import math
 import move_endpoint.movement
+import matplotlib.pyplot as plt
 
 
 # Global Variable N, M for Grid Size
@@ -21,7 +22,7 @@ radius_UAV = 0
 
 user_loc_lst = []
 
-# Cell Size 
+# Cell Size
 
 cell_size = 0
 
@@ -33,9 +34,11 @@ unit_mul = 0
 
 cls_center = []
 
-# Distance between cluster centers
+# Range of Distance between cluster centers
 
-dis_cls_center = 8
+min_dis_cls_center = 9
+max_dis_cls_center = 18
+
 
 def write_to_file():
     """
@@ -47,11 +50,20 @@ def write_to_file():
     write_data = {}
     write_data["Number of Ground users"] = number_users
     write_data["Position of Ground users"] = user_loc_lst
+    x = [float(point.split(' ')[0]) for point in user_loc_lst]
+    y = [float(point.split(' ')[1]) for point in user_loc_lst]
+    plt.scatter(x, y, label=f'Ground user')
+    plt.legend()
+    plt.title(f'Ground user location', fontweight="bold")
+    plt.xlabel(f'X axis', fontweight='bold')
+    plt.ylabel(f'Y axis', fontweight='bold')
     parent_dir = os.getcwd()
     dir_name = "input_files"
     file_name = "user_input.json"
     with open(os.path.join(parent_dir, dir_name, file_name), 'w') as file_pointer:
         json.dump(write_data, file_pointer)
+    file_name = 'user_loc.png'
+    plt.savefig(os.path.join(parent_dir, dir_name, file_name))
 
 
 def generate_user_points():
@@ -60,7 +72,8 @@ def generate_user_points():
     Parameters: None\n
     Returns: list of user location\n
     """
-    global number_users, user_loc_lst, N, M, radius_UAV, unit_mul, cell_size, cls_center, dis_cls_center
+    global number_users, user_loc_lst, N, M, radius_UAV, unit_mul, cell_size, cls_center, min_dis_cls_center, max_dis_cls_center
+    dis_cls_center = random.randint(min_dis_cls_center, max_dis_cls_center)
     req_dist = ((dis_cls_center * unit_mul) // cell_size)
     pos1 = (0, 0)
     if len(cls_center) > 0:

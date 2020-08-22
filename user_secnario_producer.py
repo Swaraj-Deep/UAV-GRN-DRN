@@ -2,6 +2,7 @@ import os.path
 import random
 import json
 import os
+import matplotlib.pyplot as plt
 
 
 def generate_user_input(N, M, number_users):
@@ -21,6 +22,13 @@ def generate_user_input(N, M, number_users):
         "Number of Ground users": number_users,
         "Position of Ground users": user_pos
     }
+    x = [float(point.split(' ')[0]) for point in user_pos]
+    y = [float(point.split(' ')[1]) for point in user_pos]
+    plt.scatter(x, y, label=f'Ground user')
+    plt.legend()
+    plt.title(f'Ground user location', fontweight="bold")
+    plt.xlabel(f'X axis', fontweight='bold')
+    plt.ylabel(f'Y axis', fontweight='bold')
     parent_dir = os.getcwd()
     file_name = "user_input.json"
     file_path = os.path.join(parent_dir, 'input_files', file_name)
@@ -34,7 +42,9 @@ def generate_user_input(N, M, number_users):
     file_data["M"] = M
     with open(file_path, 'w') as file_pointer:
         json.dump(file_data, file_pointer)
-
+    file_name = "user_loc.png"
+    file_path = os.path.join(parent_dir, 'input_files', file_name)
+    plt.savefig(file_path)
 
 if __name__ == "__main__":
     parent_dir = os.getcwd()
