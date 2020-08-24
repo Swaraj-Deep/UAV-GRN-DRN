@@ -37,7 +37,7 @@ cls_center = []
 # Range of Distance between cluster centers
 
 min_dis_cls_center = 9
-max_dis_cls_center = 18
+max_dis_cls_center = 9
 
 
 def write_to_file():
