@@ -34,10 +34,9 @@ unit_mul = 0
 
 cls_center = []
 
-# Range of Distance between cluster centers
+# Distance between cluster centers
 
-min_dis_cls_center = 9
-max_dis_cls_center = 9
+dis_cls_center = 0
 
 
 def write_to_file():
@@ -72,8 +71,7 @@ def generate_user_points():
     Parameters: None\n
     Returns: list of user location\n
     """
-    global number_users, user_loc_lst, N, M, radius_UAV, unit_mul, cell_size, cls_center, min_dis_cls_center, max_dis_cls_center
-    dis_cls_center = random.randint(min_dis_cls_center, max_dis_cls_center)
+    global number_users, user_loc_lst, N, M, radius_UAV, unit_mul, cell_size, cls_center, dis_cls_center
     req_dist = ((dis_cls_center * unit_mul) // cell_size)
     pos1 = (0, 0)
     if len(cls_center) > 0:
@@ -152,7 +150,7 @@ def take_input():
     Parameters: None\n
     Functionality: reads user_location.json (for Grid size and number of users) and scenario_input.json for Radius values\n
     """
-    global N, M, number_users, radius_UAV, cell_size, unit_mul
+    global N, M, number_users, radius_UAV, cell_size, unit_mul, dis_cls_center
     user_input = {}
     parent_dir = os.getcwd()
     dir_name = 'input_files'
@@ -169,6 +167,7 @@ def take_input():
     cell_size = scenario_data['cell_size']
     unit_mul = scenario_data['unit_multiplier']
     radius_UAV = scenario_data['radius_UAV'] * unit_mul
+    dis_cls_center = scenario_data['UAV_to_UAV_threshold']
     cell_size *= unit_mul
     update_files()
 
