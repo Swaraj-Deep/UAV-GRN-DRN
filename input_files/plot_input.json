@@ -1,8 +1,5 @@
 {
     "Similarity Threshold": [
-        0.05,
-        0.25,
-        0.5,
         0.75
     ],
     "Ground User Coverage threshold": [
@@ -17,9 +14,7 @@
         100,
         150,
         200,
-        250,
-        300,
-        350
+        250
     ],
     "Area Size": [
         "20 20",

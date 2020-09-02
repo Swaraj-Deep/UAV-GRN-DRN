@@ -26,7 +26,7 @@ x_label = ''
 y_label = ''
 
 # Maximum Iteration
-max_iter = 100
+max_iter = 5
 
 # Running command
 
@@ -112,6 +112,7 @@ def plot(type, lst_to_iterate):
     file_path = os.path.join(parent_dir, dir_name)
     if type == 'Number of User':
         for iter in range(max_iter):
+            helper_dict = {}
             for i in range(len(lst_to_iterate)):
                 value = lst_to_iterate[i]
                 diff = 0
@@ -148,7 +149,6 @@ def plot(type, lst_to_iterate):
                 user_loc[type] = value
                 with open(os.path.join(file_path, file_name), 'w') as file_pointer:
                     json.dump(user_loc, file_pointer)
-                helper_dict = {}
                 for similarity_threshold in sim_thld_lst:
                     file_name = 'scenario_input.json'
                     scenario_data = {}
