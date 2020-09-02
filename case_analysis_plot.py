@@ -26,7 +26,7 @@ x_label = ''
 y_label = ''
 
 # Maximum Iteration
-max_iter = 2
+max_iter = 1
 
 # Running command
 
@@ -111,17 +111,41 @@ def plot(type, lst_to_iterate):
     dir_name = 'input_files'
     file_path = os.path.join(parent_dir, dir_name)
     if type == 'Number of User':
-        for value in lst_to_iterate:
-            helper_dict = {}
-            file_name = 'user_location.json'
-            user_loc = {}
-            with open(os.path.join(file_path, file_name), 'r') as file_pointer:
-                user_loc = json.load(file_pointer)
-            user_loc[type] = value
-            with open(os.path.join(file_path, file_name), 'w') as file_pointer:
-                json.dump(user_loc, file_pointer)
-            for iter in range(max_iter):
-                os.system(f'{command} {user_generation_script}')
+        for iter in range(max_iter):
+            for i in range(len(lst_to_iterate)):
+                value = lst_to_iterate[i]
+                diff = 0
+                file_name = 'user_location.json'
+                user_loc = {}
+                user_input = {}
+                with open(os.path.join(file_path, file_name), 'r') as file_pointer:
+                    user_loc = json.load(file_pointer)
+                if i != 0:
+                    diff = value - lst_to_iterate[i - 1]
+                    user_loc[type] = diff
+                    file_name  = 'user_input.json'
+                    with open(os.path.join(file_path, file_name), 'r') as file_pointer:
+                        user_input = json.load(file_pointer)
+                    prev_user_pos = user_input['Position of Ground users']
+                    file_name = 'user_location.json'
+                    with open(os.path.join(file_path, file_name), 'w') as file_pointer:
+                        json.dump(user_loc, file_pointer)
+                    os.system(f'{command} {user_generation_script}')
+                    file_name  = 'user_input.json'
+                    with open(os.path.join(file_path, file_name), 'r') as file_pointer:
+                        user_input = json.load(file_pointer)
+                    new_user_pos = user_input['Position of Ground users']
+                    print(user_input)
+                    user_input['Number of Ground users'] = value
+                    user_input['Position of Ground users'] = prev_user_pos + new_user_pos
+                    with open(os.path.join(file_path, file_name), 'w') as file_pointer:
+                        json.dump(user_input, file_pointer)
+                else:
+                    user_loc[type] = value
+                    with open(os.path.join(file_path, file_name), 'w') as file_pointer:
+                        json.dump(user_loc, file_pointer)
+                    os.system(f'{command} {user_generation_script}')
+                helper_dict = {}
                 for similarity_threshold in sim_thld_lst:
                     file_name = 'scenario_input.json'
                     scenario_data = {}

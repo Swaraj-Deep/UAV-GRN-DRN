@@ -15,9 +15,11 @@
     "Number of Users": [
         50,
         100,
+        150,
         200,
-        400,
-        500
+        250,
+        300,
+        350
     ],
     "Area Size": [
         "20 20",
@@ -32,7 +34,7 @@
         16,
         20
     ],
-    "plot_name": "UAV vs Ground User Coverage threshold",
-    "x_axis": "Ground User Coverage threshold",
+    "plot_name": "UAV vs Number of Users",
+    "x_axis": "Number of Users",
     "y_axis": "Number of UAV"
 }
