@@ -26,7 +26,7 @@ x_label = ''
 y_label = ''
 
 # Maximum Iteration
-max_iter = 1
+max_iter = 100
 
 # Running command
 
@@ -135,7 +135,6 @@ def plot(type, lst_to_iterate):
                     with open(os.path.join(file_path, file_name), 'r') as file_pointer:
                         user_input = json.load(file_pointer)
                     new_user_pos = user_input['Position of Ground users']
-                    print(user_input)
                     user_input['Number of Ground users'] = value
                     user_input['Position of Ground users'] = prev_user_pos + new_user_pos
                     with open(os.path.join(file_path, file_name), 'w') as file_pointer:
@@ -145,6 +144,10 @@ def plot(type, lst_to_iterate):
                     with open(os.path.join(file_path, file_name), 'w') as file_pointer:
                         json.dump(user_loc, file_pointer)
                     os.system(f'{command} {user_generation_script}')
+                file_name = 'user_location.json'
+                user_loc[type] = value
+                with open(os.path.join(file_path, file_name), 'w') as file_pointer:
+                    json.dump(user_loc, file_pointer)
                 helper_dict = {}
                 for similarity_threshold in sim_thld_lst:
                     file_name = 'scenario_input.json'
