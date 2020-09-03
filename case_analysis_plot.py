@@ -112,7 +112,6 @@ def plot(type, lst_to_iterate):
     file_path = os.path.join(parent_dir, dir_name)
     if type == 'Number of User':
         for iter in range(max_iter):
-            helper_dict = {}
             for i in range(len(lst_to_iterate)):
                 value = lst_to_iterate[i]
                 diff = 0
@@ -124,7 +123,7 @@ def plot(type, lst_to_iterate):
                 if i != 0:
                     diff = value - lst_to_iterate[i - 1]
                     user_loc[type] = diff
-                    file_name  = 'user_input.json'
+                    file_name = 'user_input.json'
                     with open(os.path.join(file_path, file_name), 'r') as file_pointer:
                         user_input = json.load(file_pointer)
                     prev_user_pos = user_input['Position of Ground users']
@@ -132,12 +131,13 @@ def plot(type, lst_to_iterate):
                     with open(os.path.join(file_path, file_name), 'w') as file_pointer:
                         json.dump(user_loc, file_pointer)
                     os.system(f'{command} {user_generation_script}')
-                    file_name  = 'user_input.json'
+                    file_name = 'user_input.json'
                     with open(os.path.join(file_path, file_name), 'r') as file_pointer:
                         user_input = json.load(file_pointer)
                     new_user_pos = user_input['Position of Ground users']
                     user_input['Number of Ground users'] = value
-                    user_input['Position of Ground users'] = prev_user_pos + new_user_pos
+                    user_input['Position of Ground users'] = prev_user_pos + \
+                        new_user_pos
                     with open(os.path.join(file_path, file_name), 'w') as file_pointer:
                         json.dump(user_input, file_pointer)
                 else:
@@ -159,8 +159,8 @@ def plot(type, lst_to_iterate):
                         json.dump(scenario_data, file_pointer)
                     os.system(f'{command} main.py')
                     os.system(f'{command} analysis.py')
-                    update_dictionary(similarity_threshold,
-                                      value, get_number_UAV())
+                    update_file(similarity_threshold,
+                                value, get_number_UAV())
                     os.system('bash fresh_analysis.sh')
         plot_graph(True)
     elif type == 'NM':
@@ -187,8 +187,8 @@ def plot(type, lst_to_iterate):
                         json.dump(scenario_data, file_pointer)
                     os.system(f'{command} main.py')
                     os.system(f'{command} analysis.py')
-                    update_dictionary(similarity_threshold,
-                                      value, get_number_UAV())
+                    update_file(similarity_threshold,
+                                value, get_number_UAV())
                     os.system('bash fresh_analysis.sh')
         plot_graph(False)
     else:
@@ -207,31 +207,24 @@ def plot(type, lst_to_iterate):
                         json.dump(scenario_data, file_pointer)
                     os.system(f'{command} main.py')
                     os.system(f'{command} analysis.py')
-                    update_dictionary(similarity_threshold,
-                                      value, get_number_UAV())
+                    update_file(similarity_threshold,
+                                value, get_number_UAV())
                     os.system('bash fresh_analysis.sh')
         plot_graph(True)
 
 
-def update_dictionary(similarity_threshold, x_data, y_data):
+def update_file(similarity_threshold, x_data, y_data):
     """
-    Function update_dictionary\n
+    Function update_file\n
     Parameters: similarity_threshold, x_data -> data point on x axis, y_data -> data point on y axis\n
-    Functionality: Updates the dictionary with required Parameters\n
+    Functionality: Updates the file with required Parameters\n
     """
-    global graph_data, helper_dict
-    if x_data in graph_data:
-        if similarity_threshold in helper_dict:
-            helper_dict[similarity_threshold].append(y_data)
-        else:
-            helper_dict[similarity_threshold] = [y_data]
-        graph_data[x_data] = helper_dict
-    else:
-        if similarity_threshold in helper_dict:
-            helper_dict[similarity_threshold].append(y_data)
-        else:
-            helper_dict[similarity_threshold] = [y_data]
-        graph_data[x_data] = helper_dict
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
+    file_name = 'graph_data.log'
+    line_to_write = f'{similarity_threshold} {x_data} {y_data}\n'
+    with open(os.path.join(parent_dir, dir_name, file_name), 'a') as file_pointer:
+        file_pointer.writelines(line_to_write)
 
 
 def get_number_UAV():
@@ -267,20 +260,44 @@ def process_graph_data():
     Function: process_graph_data\n
     Parameter: None\n
     Functionality: Process the graph_data to make it ready for plots\n
-    Returns: dictionary where key is similarity_threshold and value is a list where each list item contains a tuple of x_point and a list of y_point where list items are 75%, std, mean\n
+    Returns: dictionary where key is similarity_threshold and value is a list where each list item contains a tuple of x_point and a list of y_point where list items are 75%, std, mean, min, max, median\n
     """
     global graph_data
     processed_data = {}
-    for x_point, values in graph_data.items():
-        for similarity, y_data in values.items():
-            temp_df = pd.DataFrame(y_data)
-            temp_lst = [int(round(temp_df.describe()[0]['75%'], 2)) + 1, round(temp_df.describe()[
-                0]['std'], 2), int(round(temp_df.describe()[0]['mean'], 2))]
-            if similarity in processed_data:
-                processed_data[similarity].append((x_point, temp_lst))
-            else:
-                processed_data[similarity] = [(x_point, temp_lst)]
-    return processed_data
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
+    file_name = 'graph_data.log'
+    data = []
+    with open(os.path.join(parent_dir, dir_name, file_name), 'r') as file_pointer:
+        data = file_pointer.readlines()
+    data = data[1:]
+    for line in data:
+        lst_temp = line.split(' ')
+        if len(lst_temp) == 4:
+            sim_th = round(float(lst_temp[0]), 2)
+            N = round(float(lst_temp[1]), 2)
+            M = round(float(lst_temp[2]), 2)
+            x_data = (N, M)
+            y_data = round(float(lst_temp[3]), 2)
+        else:    
+            sim_th = round(float(lst_temp[0]), 2)
+            x_data = round(float(lst_temp[1]), 2)
+            y_data = float(lst_temp[2])
+        key = (sim_th, x_data)
+        if key not in processed_data:
+            processed_data[key] = [y_data]
+        else:
+            processed_data[key].append(y_data)
+    for key, y_lst in processed_data.items():
+        temp_df = pd.DataFrame(y_lst)
+        des_dict = temp_df.describe()[0]
+        output_lst = [round(float(des_dict['75%']), 2), round(float(des_dict['std']), 2), round(float(des_dict['mean']), 2), round(float(des_dict['min']), 2), round(float(des_dict['max']), 2), round(float(des_dict['50%']), 2)]
+        sim_th, x_data = key
+        if sim_th not in graph_data:
+            graph_data[sim_th] = [(x_data, output_lst)]
+        else:
+            graph_data[sim_th].append((x_data, output_lst))
+    return graph_data
 
 
 def plot_graph(flag):
@@ -322,7 +339,7 @@ def plot_graph(flag):
             y = []
             for point in points:
                 x_data, y_data = point
-                N, M = map(int, x_data.split(' '))
+                N, M = map(int, x_data)
                 x.append(f'{N // cell_size} X {M // cell_size}')
                 y.append(y_data[0])
             plt.scatter(x, y)
@@ -332,6 +349,7 @@ def plot_graph(flag):
     plt.xlabel(x_label, fontweight='bold')
     plt.ylabel(y_label, fontweight='bold')
     plt.legend()
+    plt.show()
     file_name = f'{plot_title}'
     parent_dir = os.getcwd()
     dir_name = 'analysis_output_files'
@@ -344,7 +362,13 @@ if __name__ == "__main__":
         os.mkdir(dir_path)
     except OSError as error:
         pass
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
+    file_name = 'graph_data.log'
+    line_to_write = f'+-----------------------------Data-----------------------------+\n'
+    with open (os.path.join (parent_dir, dir_name, file_name), 'w') as file_pointer:
+        file_pointer.writelines(line_to_write)
     os.system('bash fresh_analysis.sh')
-    print(f'Relax!! we have taken the charge. ^_^')
+    print(f'Relax!! we have taken the charge. (-_-)')
     os.system('bash fresh_analysis.sh')
     take_input()

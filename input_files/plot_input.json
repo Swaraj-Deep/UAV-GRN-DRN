@@ -1,11 +1,15 @@
 {
     "Similarity Threshold": [
+        0.5,
+        0.25,
+        0.5,
         0.75
     ],
     "Ground User Coverage threshold": [
         0,
         0.2,
         0.4,
+        0.6,
         0.8,
         1
     ],
@@ -14,13 +18,16 @@
         100,
         150,
         200,
-        250
+        250,
+        300,
+        350
     ],
     "Area Size": [
-        "20 20",
-        "50 50",
-        "100 100",
-        "150 150"
+        "18 18",
+        "24 24",
+        "28 28",
+        "32 32",
+        "34 34"
     ],
     "UAV Communication Radius": [
         4,
@@ -29,7 +36,7 @@
         16,
         20
     ],
-    "plot_name": "UAV vs Number of Users",
-    "x_axis": "Number of Users",
+    "plot_name": "UAV vs UAV Communication Radius",
+    "x_axis": "UAV Communication Radius",
     "y_axis": "Number of UAV"
 }
