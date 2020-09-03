@@ -94,7 +94,7 @@ def generate_user_points():
         pos1 = (c_a, c_b)
         cls_center.append((c_a, c_b))
     user_loc_lst.append(f'{c_a} {c_b}')
-    number_user_in_cluster = random.randint(10, 31)
+    number_user_in_cluster = random.randint(12, 16)
     users_left = number_users - len(user_loc_lst)
     if number_user_in_cluster > users_left:
         number_user_in_cluster = users_left
