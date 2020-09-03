@@ -84,32 +84,32 @@ def analyse_output_files():
                     minm_UAV_used = curr_UAV_used
                     best_file = file
                     best_graph = file.split(
-                        '_')[0] + '_graph' + file.split('_')[1][4:-4] + '.json'
+                        '_')[0] + '_graph' + file.split('_')[1][4:-4] + '.pdf'
             if curr_UAV_used > minm_UAV_used:
                 if curr_user_served < minm_user_served:
                     minm_user_served = curr_user_served
                     worst_file = file
                     worst_graph = file.split(
-                        '_')[0] + '_graph' + file.split('_')[1][4:-4] + '.json'
+                        '_')[0] + '_graph' + file.split('_')[1][4:-4] + '.pdf'
             if similarity_percentage > maxm_sim:
                 maxm_sim = similarity_percentage
                 best_file_sim_per = file
                 best_graph_sim_per = file.split(
-                    '_')[0] + '_graph' + file.split('_')[1][4:-4] + '.json'
+                    '_')[0] + '_graph' + file.split('_')[1][4:-4] + '.pdf'
             if similarity_percentage < minm_sim:
                 minm_sim = similarity_percentage
                 worst_file_sim_per = file
                 worst_graph_sim_per = file.split(
-                    '_')[0] + '_graph' + file.split('_')[1][4:-4] + '.json'
+                    '_')[0] + '_graph' + file.split('_')[1][4:-4] + '.pdf'
 
     best_file = os.path.join(dir_path, best_file)
-    best_graph = os.path.join(dir_path, best_graph)
+    best_graph = os.path.join(dir_path, 'images', best_graph)
     worst_file = os.path.join(dir_path, worst_file)
-    worst_graph = os.path.join(dir_path, worst_graph)
+    worst_graph = os.path.join(dir_path, 'images',  worst_graph)
     best_file_sim_per = os.path.join(dir_path, best_file_sim_per)
-    best_graph_sim_per = os.path.join(dir_path, best_graph_sim_per)
+    best_graph_sim_per = os.path.join(dir_path, 'images',  best_graph_sim_per)
     worst_file_sim_per = os.path.join(dir_path, worst_file_sim_per)
-    worst_graph_sim_per = os.path.join(dir_path, worst_graph_sim_per)
+    worst_graph_sim_per = os.path.join(dir_path,  'images', worst_graph_sim_per)
 
     df_UAV = pd.DataFrame(lst_UAV)
     df_user = pd.DataFrame(lst_user)

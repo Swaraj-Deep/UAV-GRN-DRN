@@ -349,7 +349,6 @@ def plot_graph(flag):
     plt.xlabel(x_label, fontweight='bold')
     plt.ylabel(y_label, fontweight='bold')
     plt.legend()
-    plt.show()
     file_name = f'{plot_title}'
     parent_dir = os.getcwd()
     dir_name = 'analysis_output_files'

@@ -10,6 +10,7 @@ import grn_endpoint.grn_info
 import move_endpoint.movement
 import reward_endpoint.rewards
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 
 # Global variables declaration
 # User coverage threshold
@@ -354,7 +355,9 @@ def write_output(placed):
     Parameters: placed -> list of already placed UAVs
     Functionality: write the output to the respective files
     """
-    parent_dir = os.path.join(os.getcwd(), 'output_files')
+    global radius_UAV, cell_size
+    main_file_name = os.getcwd()
+    parent_dir = os.path.join(main_file_name, 'output_files')
     curr_dir = str(epsilon) + "_" + str(learning_rate) + \
         "_" + str(decay_factor)
     dir_path = os.path.join(parent_dir, curr_dir)
@@ -373,7 +376,7 @@ def write_output(placed):
         os.mkdir(image_path)
     except OSError as error:
         pass
-    png_file_name = 'Output_graph' + str(file_num) + '.png'
+    graph_file_name = 'Output_graph' + str(file_num) + '.pdf'
     text_file_data = []
     text_file_data.append(
         f'Total Number of users served: {len(ground_placed)}\nList of users: {sorted(ground_placed)}\n')
@@ -425,8 +428,8 @@ def write_output(placed):
             f'Edge {edge} has edge motif centrality of {e_motif[edge]}\n')
         PI = max(PI, e_motif[edge])
     text_file_data.append(f'Maximum Edge motif centrality is {PI}\n')
+    UAV_topology = plt.figure(1)
     nx.draw(UAV_G, with_labels=True)
-    plt.savefig(os.path.join(image_path, png_file_name))
     global end_time
     text_file_data.append(
         f'Standard Deviation of distances between users: {users_endpoint.users.get_standard_deviation()}\n')
@@ -435,6 +438,50 @@ def write_output(placed):
         f'Total time to run the simulation: {end_time - start_time} seconds')
     with open(text_file_name, 'w') as file_pointer:
         file_pointer.writelines(text_file_data)
+    plt.close()
+    g_x, g_y = get_user_location(main_file_name)
+    UAV_guser_plot = plt.figure(2)
+    plt.scatter(g_x, g_y, color='red')
+    UAV_x = []
+    UAV_y = []
+    rad = int(radius_UAV // cell_size)
+    for node, loc in UAV_location.items():
+        a, b = loc
+        UAV_x.append(a)
+        UAV_y.append(b)
+        c = plt.Circle((a, b), rad, color='green', fill=False)
+        ax = plt.gca()
+        ax.add_artist(c)
+    plt.scatter(UAV_x, UAV_y, color='black')
+    plt.title('Overall Scenario Visualization', fontweight="bold")
+    plt.xlabel('N', fontweight='bold')
+    plt.ylabel('M', fontweight='bold')
+    pp = PdfPages(os.path.join(image_path, graph_file_name))
+    pp.savefig(UAV_topology, dpi = 500, transparent = True)
+    pp.savefig(UAV_guser_plot, dpi = 500, transparent = True)
+    pp.close()
+
+
+def get_user_location(parent_dir):
+    """
+    Function: get_user_location\n
+    Parameter: parent_dir -> path of current dir\n
+    Returns: Returns list of x and y coordinates of ground users\n
+    """
+    dir_name = 'input_files'
+    file_name = 'user_input.json'
+    user_input = {}
+    with open(os.path.join(parent_dir, dir_name, file_name), 'r') as file_pointer:
+        user_input = json.load(file_pointer)
+    pos = user_input['Position of Ground users']
+    x = []
+    y = []
+    for item in pos:
+        a, b = map(float, item.split(' '))
+        x.append(a)
+        y.append(b)
+    return (x, y)
+
 
 
 if __name__ == "__main__":
