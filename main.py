@@ -355,7 +355,7 @@ def write_output(placed):
     Parameters: placed -> list of already placed UAVs
     Functionality: write the output to the respective files
     """
-    global radius_UAV, cell_size
+    global radius_UAV, cell_size, UAV_to_UAV_threshold
     main_file_name = os.getcwd()
     parent_dir = os.path.join(main_file_name, 'output_files')
     curr_dir = str(epsilon) + "_" + str(learning_rate) + \
@@ -453,12 +453,25 @@ def write_output(placed):
         ax = plt.gca()
         ax.add_artist(c)
     plt.scatter(UAV_x, UAV_y, color='black')
+    edge_x = []
+    edge_y = []
+    for edge in UAV_G.edges:
+        a, b = edge
+        loc_a = UAV_location[a]
+        loc_b = UAV_location[b]
+        x1, y1 = loc_a
+        x2, y2 = loc_b
+        edge_x.append(x1)
+        edge_x.append(x2)
+        edge_y.append(y1)
+        edge_y.append(y2)
+    plt.plot(edge_x, edge_y)
     plt.title('Overall Scenario Visualization', fontweight="bold")
     plt.xlabel('N', fontweight='bold')
     plt.ylabel('M', fontweight='bold')
     pp = PdfPages(os.path.join(image_path, graph_file_name))
-    pp.savefig(UAV_topology, dpi = 500, transparent = True)
-    pp.savefig(UAV_guser_plot, dpi = 500, transparent = True)
+    pp.savefig(UAV_topology, dpi=500, transparent=True)
+    pp.savefig(UAV_guser_plot, dpi=500, transparent=True)
     pp.close()
 
 
@@ -481,7 +494,6 @@ def get_user_location(parent_dir):
         x.append(a)
         y.append(b)
     return (x, y)
-
 
 
 if __name__ == "__main__":
