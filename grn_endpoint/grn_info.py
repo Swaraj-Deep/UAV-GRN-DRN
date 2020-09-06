@@ -1,6 +1,7 @@
 import networkx as nx
 import pickle
 import os
+import random
 
 # Variable to hold the GRN graph
 
@@ -145,10 +146,10 @@ def generate_subgraph(grn_graph, number_nodes, output_file_name):
     nx.write_gml(SG, output_file_name)
 
 
-def subgraph_on_motif_centrality(non_increasing_grn_nodes, grn_graph, number_genes, file_name):
+def subgraph_on_motif_centrality(non_increasing_grn_nodes, grn_graph, number_genes, req_per, file_name):
     """
     Function: subgraph_on_motif_centrality\n
-    Parameter: non_increasing_grn_nodes -> list of genes arranged in non increasing order of their node motif centrality, grn_graph -> The GRN graph, number_genes -> number of genes to generate subgraph from, file_name -> file name of the output subgraph\n
+    Parameter: non_increasing_grn_nodes -> list of genes arranged in non increasing order of their node motif centrality, grn_graph -> The GRN graph, number_genes -> number of genes to generate subgraph from, req_per -> Percentatge of extra random edges , file_name -> file name of the output subgraph\n
     Functionality: generates subgraph based on the node motif centrality\n
     """
     mapped_genes = set()
@@ -181,7 +182,23 @@ def subgraph_on_motif_centrality(non_increasing_grn_nodes, grn_graph, number_gen
                     edge_list.append((node2, node1))
     SG = grn_graph.__class__()
     SG.add_nodes_from(node_list)
-    SG.add_edges_from(edge_list)
+    for edge in edge_list:
+        u, v = edge
+        SG.add_edge(u, v)
+    old_edges = len (SG.edges)
+    new_edges = int(old_edges * req_per)
+    nodes = list(SG.nodes)
+    new_edge_list = []
+    while len(new_edge_list) < new_edges:
+        a = random.randint(0, len(nodes) - 1)
+        b = random.randint(0, len(nodes) - 1)
+        u = nodes[a]
+        v = nodes[b]
+        if (u, v) not in edge_list:
+            new_edge_list.append((u, v))
+    for edge in new_edge_list:
+        u, v = edge
+        SG.add_edge(u, v)
     nx.write_gml(SG, file_name)
 
 
@@ -203,7 +220,7 @@ def init():
     """
     global grn_graph
     parent_path = os.getcwd()
-    file_prefix = '400'
+    file_prefix = '400_50'
     file_name = file_prefix + '.gml'
     grn_file_path = os.path.join(parent_path, 'grn_endpoint', file_name)
     grn_graph = nx.read_gml(grn_file_path)
