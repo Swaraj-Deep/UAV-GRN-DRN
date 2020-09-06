@@ -220,7 +220,7 @@ def init():
     """
     global grn_graph
     parent_path = os.getcwd()
-    file_prefix = '400_50'
+    file_prefix = '400_75'
     file_name = file_prefix + '.gml'
     grn_file_path = os.path.join(parent_path, 'grn_endpoint', file_name)
     grn_graph = nx.read_gml(grn_file_path)
