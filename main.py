@@ -339,7 +339,8 @@ def reallocate(placed):
         loc = bruteforce(UAV_node, placed, False)
         UAV_location[UAV_node] = loc
         for user in prev_user_list:
-            ground_placed.remove(user)
+            if user in ground_placed:
+                ground_placed.remove(user)
         user_list = users_endpoint.users.get_users_cell_connections(loc)
         for user in user_list:
             ground_placed.append(user)
@@ -351,18 +352,16 @@ def reallocate(placed):
         if total_edge_grn_SG == 0:
             total_edge_grn_SG = 1
         edge_similarity = len(common_lst) / total_edge_grn_SG
-        if edge_similarity > prev_edge_similarity:
-            if len_ground >= prev_len_ground:
-                print(f'ReDeployed UAV {UAV_node}')
-            else:
-                UAV_location[UAV_node] = prev_loc
-                for user in prev_user_list:
-                    ground_placed.append(user)
-                print(f'ReDeployment of UAV {UAV_node} failed')
+        print(prev_len_ground, len_ground)
+        if edge_similarity > prev_edge_similarity and len_ground >= prev_len_ground:
+            print(f'ReDeployed UAV {UAV_node}')
         else:
             UAV_location[UAV_node] = prev_loc
             for user in prev_user_list:
                 ground_placed.append(user)
+            for user in user_list:
+                if user in ground_placed:
+                    ground_placed.remove(user)
             print(f'ReDeployment of UAV {UAV_node} failed')
 
 
@@ -381,17 +380,16 @@ def simulation(placed):
     for UAV_node in range(placed[-1] + 1, number_UAV + 1):
         unplaced.append(UAV_node)
     for UAV_node in unplaced:
-        loc = q_learn(UAV_node, placed, False)
+        loc = bruteforce(UAV_node, placed, False)
         UAV_location[UAV_node] = loc
         placed.append(UAV_node)
         print(f'Placed UAV {UAV_node}')
+        user_list = users_endpoint.users.get_users_cell_connections(loc)
+        for user in user_list:
+            ground_placed.append(user)
         reallocate(placed)
         if done_simulation(ground_placed, placed):
             break
-        user_list = users_endpoint.users.get_users_cell_connections(loc)
-        for user in user_list:
-            if user not in ground_placed:
-                ground_placed.append(user)
     write_output(placed)
 
 

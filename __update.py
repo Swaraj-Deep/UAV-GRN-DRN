@@ -15,20 +15,20 @@ def update_main_file(type):
     file_data = []
     with open(file_path, 'r') as file_pointer:
         file_data = file_pointer.readlines()
-        line_to_change1 = file_data[307].split('=')
-        line_to_change2 = file_data[337].split('=')
-        line_to_change3 = file_data[359].split('=')
+        line_to_change1 = file_data[306].split('=')
+        line_to_change2 = file_data[338].split('=')
+        line_to_change3 = file_data[382].split('=')
         if type == 'bruteforce':
             line_to_change1[1] = 'bruteforce(UAV_node, placed, True)\n'
             line_to_change2[1] = 'bruteforce(UAV_node, placed, False)\n'
-            line_to_change2[1] = 'bruteforce(UAV_node, placed, False)\n'
+            line_to_change3[1] = 'bruteforce(UAV_node, placed, False)\n'
         else:
             line_to_change1[1] = 'q_learn(UAV_node, placed, True)\n'
             line_to_change2[1] = 'q_learn(UAV_node, placed, False)\n'
             line_to_change3[1] = 'q_learn(UAV_node, placed, False)\n'
-    file_data[307] = '= '.join(line_to_change1)
-    file_data[337] = '= '.join(line_to_change2)
-    file_data[359] = '= '.join(line_to_change3)
+    file_data[306] = '= '.join(line_to_change1)
+    file_data[338] = '= '.join(line_to_change2)
+    file_data[382] = '= '.join(line_to_change3)
     with (open(file_path, 'w')) as file_pointer:
         file_pointer.writelines(file_data)
 
