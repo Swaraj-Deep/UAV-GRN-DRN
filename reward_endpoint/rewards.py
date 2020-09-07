@@ -40,6 +40,32 @@ def reward_function(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_
     reward *= rho_reward / power_UAV
     return reward
 
+def reward_function_user(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M, ground_placed):
+    """
+    Function: reward_function\n
+    Parameters: UAV_node -> the UAV which needs to be placed, placed -> list of already placed UAVs, pos_i -> current position of the UAV_node, UAV_location -> Dictionary storing locations of UAVs, t -> threshold distance of UAV, power_UAV -> power of UAV, UAV_to_UAV_threshold -> UAV to UAV communication threshold, radius_UAV -> radius of the UAV, (N, M) -> size of the grid, ground_placed -> list of users already placed\n
+    Returns: the reward for this configuration\n
+    """
+    pos_reward = 1
+    rho_reward = 1
+    neg_reward = 1
+    reward = 1
+    ground_users = users_endpoint.users.get_number_ground_users()
+    for j in placed:
+        pos_j = UAV_location[j]
+        g_placed_i = set(
+            users_endpoint.users.get_users_cell_connections(pos_i))
+        ground_placed = set(ground_placed)
+        user_conn = len(g_placed_i - ground_placed)
+        user_den = ground_users
+        user_conn /= user_den
+        pos_reward = user_conn
+        if move_endpoint.movement.get_euc_dist(pos_i, pos_j) < t:
+            neg_reward += 1
+        reward += pos_reward / neg_reward
+    reward *= rho_reward / power_UAV
+    return reward
+
 
 def reward_function_old(UAV_node, placed, pos_i, UAV_location, t, power_UAV, UAV_to_UAV_threshold, radius_UAV, N, M, ground_placed):
     """

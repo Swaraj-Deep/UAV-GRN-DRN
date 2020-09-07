@@ -146,10 +146,10 @@ def init():
     grn_endpoint.grn_info.init()
 
 
-def q_learn(UAV_node, placed):
+def q_learn(UAV_node, placed, flag):
     """
     Function: q_learn\n
-    Parameters: UAV_node -> UAV_node which is to be placed, placed -> list of already placed UAV_nodes\n
+    Parameters: UAV_node -> UAV_node which is to be placed, placed -> list of already placed UAV_nodes, flag -> True if only user coverage is considered\n
     Return: the optimal position where the UAV_node needs to be placed\n
     """
     global N
@@ -184,12 +184,20 @@ def q_learn(UAV_node, placed):
         power_UAV += power_factor
         if random.uniform(0, 1) <= epsilon_val:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
-            Q[index, action] = reward_endpoint.rewards.reward_function(
-                UAV_node, placed, loc, UAV_location, t, power_UAV, int(UAV_to_UAV_threshold // cell_size), int(radius_UAV // cell_size), N, M, ground_placed)
+            if flag:
+                Q[index, action] = reward_endpoint.rewards.reward_function_user(
+                    UAV_node, placed, loc, UAV_location, t, power_UAV, int(UAV_to_UAV_threshold // cell_size), int(radius_UAV // cell_size), N, M, ground_placed)
+            else:
+                Q[index, action] = reward_endpoint.rewards.reward_function(
+                    UAV_node, placed, loc, UAV_location, t, power_UAV, int(UAV_to_UAV_threshold // cell_size), int(radius_UAV // cell_size), N, M, ground_placed)
         else:
             index = move_endpoint.movement.map_2d_to_1d(loc, N)
-            reward = reward_endpoint.rewards.reward_function(
-                UAV_node, placed, loc, UAV_location, t, power_UAV, int(UAV_to_UAV_threshold // cell_size), int(radius_UAV // cell_size), N, M, ground_placed)
+            if flag:
+                reward = reward_endpoint.rewards.reward_function_user(
+                    UAV_node, placed, loc, UAV_location, t, power_UAV, int(UAV_to_UAV_threshold // cell_size), int(radius_UAV // cell_size), N, M, ground_placed)
+            else:
+                reward = reward_endpoint.rewards.reward_function(
+                    UAV_node, placed, loc, UAV_location, t, power_UAV, int(UAV_to_UAV_threshold // cell_size), int(radius_UAV // cell_size), N, M, ground_placed)
             Q[index, action] = Q[index, action] + learning_rate * \
                 (reward + decay_factor *
                  np.max(Q[index, :]) - Q[index, action])
@@ -243,10 +251,10 @@ def valid_loc(loc):
     return True
 
 
-def bruteforce(UAV_node, placed):
+def bruteforce(UAV_node, placed, flag):
     """
     Function: bruteforce\n
-    Parameters: UAV_node -> UAV_node which is to be placed, placed -> list of already placed UAV_nodes\n
+    Parameters: UAV_node -> UAV_node which is to be placed, placed -> list of already placed UAV_nodes, flag -> True if only user coverage is considered\n
     Functionality: bruteforce all the grid location\n
     """
     global N
@@ -261,21 +269,26 @@ def bruteforce(UAV_node, placed):
     for i in range(N):
         for j in range(M):
             loc = (i, j)
-            reward = reward_endpoint.rewards.reward_function(
-                UAV_node, placed, loc, UAV_location, t, power_UAV, int(UAV_to_UAV_threshold // cell_size), int(radius_UAV // cell_size), N, M, ground_placed)
+            if flag:
+                reward = reward_endpoint.rewards.reward_function_user(
+                    UAV_node, placed, loc, UAV_location, t, power_UAV, int(UAV_to_UAV_threshold // cell_size), int(radius_UAV // cell_size), N, M, ground_placed)
+            else:
+                reward = reward_endpoint.rewards.reward_function(
+                    UAV_node, placed, loc, UAV_location, t, power_UAV, int(UAV_to_UAV_threshold // cell_size), int(radius_UAV // cell_size), N, M, ground_placed)
             if reward > max_reward and valid_loc(loc):
                 max_reward = reward
                 max_pos = loc
     return max_pos
 
 
-def simulation():
+def consider_user_coverage():
     """
-    Function: simulation\n
+    Function: consider_user_coverage\n
     Parameters: None\n
-    Functionality: Simulates the network\n
+    Functionality: consider only user_coverage of the network\n
     """
     global ground_placed
+    ground_users = users_endpoint.users.get_number_ground_users()
     placed = [1]
     unplaced = []
     max_pos, max_density = users_endpoint.users.get_max_pos_density()
@@ -288,10 +301,68 @@ def simulation():
     for UAV_node in range(2, number_UAV + 1):
         unplaced.append(UAV_node)
     for UAV_node in unplaced:
-        loc = bruteforce(UAV_node, placed)
+        if done_simulation(ground_placed, placed):
+            break
+        if len(ground_placed) / ground_users >= coverage_threshold:
+            break
+        loc = bruteforce(UAV_node, placed, True)
         UAV_location[UAV_node] = loc
         placed.append(UAV_node)
         print(f'Placed UAV {UAV_node}')
+        user_list = users_endpoint.users.get_users_cell_connections(loc)
+        for user in user_list:
+            if user not in ground_placed:
+                ground_placed.append(user)
+    return placed
+
+
+def reallocate(placed):
+    """
+    Function: reallocate\n
+    Parameters: placed -> list of UAVs which are placed\n
+    Functionality: Checks if reallocating the UAVs meets the criteria or not
+    """
+    global UAV_location, ground_placed
+    for UAV_node in placed:
+        if done_simulation(ground_placed, placed):
+            break
+        print(f'Trying to redeploy UAV {UAV_node}')
+        prev_loc = UAV_location[UAV_node]
+        UAV_G = get_UAV_graph(placed)
+        common_lst, _, grn_edge_lst, _ = similarity_criteria(
+            UAV_G)
+        total_edge_grn_SG = len(grn_edge_lst)
+        if total_edge_grn_SG == 0:
+            total_edge_grn_SG = 1
+        edge_similarity = len(common_lst) / total_edge_grn_SG
+        loc = bruteforce(UAV_node, placed, False)
+        if len(common_lst) / total_edge_grn_SG >= edge_similarity:
+            UAV_location[UAV_node] = loc
+            print(f'ReDeployed UAV {UAV_node}')
+        else:
+            print(f'ReDeployment of UAV {UAV_node} failed')
+
+
+def simulation(placed):
+    """
+    Function: simulation\n
+    Parameters: placed -> list of placed UAVs\n
+    Functionality: Simulates the network\n
+    """
+    global ground_placed
+    reallocate(placed)
+    if done_simulation(ground_placed, placed):
+        write_output(placed)
+        return
+    unplaced = []
+    for UAV_node in range(placed[-1] + 1, number_UAV + 1):
+        unplaced.append(UAV_node)
+    for UAV_node in unplaced:
+        loc =  q_learn(UAV_node, placed, False)
+        UAV_location[UAV_node] = loc
+        placed.append(UAV_node)
+        print(f'Placed UAV {UAV_node}')
+        reallocate(placed)
         if done_simulation(ground_placed, placed):
             break
         user_list = users_endpoint.users.get_users_cell_connections(loc)
@@ -307,7 +378,7 @@ def get_UAV_graph(placed):
     Parameters: placed -> list of already placed ground users\n:
     Returns: UAV graph at a particular point of time\n
     """
-    global UAV_to_UAV_threshold, cell_size
+    global UAV_to_UAV_threshold, cell_size, UAV_location
     UAV_G = nx.Graph()
     for node in placed:
         UAV_G.add_node(node)
@@ -500,4 +571,8 @@ if __name__ == "__main__":
     print(f'Initialiazing the environment')
     init()
     print(f'Initialiazed environment')
-    simulation()
+    placed = consider_user_coverage()
+    if done_simulation(ground_placed, placed):
+        write_output(placed)
+    else:
+        simulation(placed)
