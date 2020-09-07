@@ -352,7 +352,6 @@ def reallocate(placed):
         if total_edge_grn_SG == 0:
             total_edge_grn_SG = 1
         edge_similarity = len(common_lst) / total_edge_grn_SG
-        print(prev_len_ground, len_ground)
         if edge_similarity > prev_edge_similarity and len_ground >= prev_len_ground:
             print(f'ReDeployed UAV {UAV_node}')
         else:
