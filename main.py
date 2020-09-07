@@ -328,6 +328,7 @@ def reallocate(placed):
             break
         print(f'Trying to redeploy UAV {UAV_node}')
         prev_loc = UAV_location[UAV_node]
+        prev_user_list = users_endpoint.users.get_users_cell_connections(prev_loc)
         UAV_G = get_UAV_graph(placed)
         common_lst, _, grn_edge_lst, _ = similarity_criteria(
             UAV_G)
@@ -338,6 +339,13 @@ def reallocate(placed):
         loc = bruteforce(UAV_node, placed, False)
         if len(common_lst) / total_edge_grn_SG >= edge_similarity:
             UAV_location[UAV_node] = loc
+            for user in prev_user_list:
+                if user in ground_placed:
+                    ground_placed.remove(user)
+            user_list = users_endpoint.users.get_users_cell_connections(loc)
+            for user in user_list:
+                if user not in ground_placed:
+                    ground_placed.append(user)
             print(f'ReDeployed UAV {UAV_node}')
         else:
             print(f'ReDeployment of UAV {UAV_node} failed')
