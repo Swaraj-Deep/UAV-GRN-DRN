@@ -16,7 +16,7 @@ if [ ${type_input,,} == bruteforce ]; then
   python3 __update.py bruteforce
   for i in $(seq 1 $number); do
     echo Generating user location
-    python3 user_scenario_cluster.py
+    python3 user_secnario_producer.py
     echo Generated user location
     echo Starting to execute main.py
     warning=$(python3 main.py 2>&1)
@@ -26,7 +26,7 @@ else
   echo "Updating to q_learn"
   python3 __update.py q_learn
   echo Generating user location
-  python3 user_scenario_cluster.py
+  python3 user_secnario_producer.py
   echo Generated user location
   for i in $(seq 1 $number); do
     echo Starting to execute main.py
