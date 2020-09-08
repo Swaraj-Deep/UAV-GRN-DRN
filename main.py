@@ -336,11 +336,11 @@ def reallocate(placed):
             total_edge_grn_SG = 1
         prev_edge_similarity = len(common_lst) / total_edge_grn_SG
         prev_len_ground = len(set(ground_placed))
-        loc = bruteforce(UAV_node, placed, False)
-        UAV_location[UAV_node] = loc
         for user in prev_user_list:
             if user in ground_placed:
                 ground_placed.remove(user)
+        loc = bruteforce(UAV_node, placed, False)
+        UAV_location[UAV_node] = loc
         user_list = users_endpoint.users.get_users_cell_connections(loc)
         for user in user_list:
             ground_placed.append(user)
@@ -352,7 +352,8 @@ def reallocate(placed):
         if total_edge_grn_SG == 0:
             total_edge_grn_SG = 1
         edge_similarity = len(common_lst) / total_edge_grn_SG
-        if edge_similarity > prev_edge_similarity and len_ground >= prev_len_ground:
+        print(f'Total User covered when UAV {UAV_node} was placed at {prev_loc} was {prev_len_ground}\nTotal User covered when UAV {UAV_node} is placed at {loc} is {len_ground}\nPrevious Edge Similarity was {round(prev_edge_similarity, 2)}\nCurrent edge similarity is {round(edge_similarity, 2)}')
+        if edge_similarity >= prev_edge_similarity and len_ground >= prev_len_ground:
             print(f'ReDeployed UAV {UAV_node}')
         else:
             UAV_location[UAV_node] = prev_loc
