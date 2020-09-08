@@ -219,6 +219,7 @@ def done_simulation(ground_placed, placed):
     Parameters: ground_placed -> list of users alredy placed, placed -> list of UAVs placed\n
     Returns: True if simulation is done\n
     """
+    global coverage_threshold, similarity_threshold
     ground_users = users_endpoint.users.get_number_ground_users()
     done_user_connectivity = False
     done_UAV_coverage = False
@@ -353,7 +354,9 @@ def reallocate(placed):
             total_edge_grn_SG = 1
         edge_similarity = len(common_lst) / total_edge_grn_SG
         print(f'Total User covered when UAV {UAV_node} was placed at {prev_loc} was {prev_len_ground}\nTotal User covered when UAV {UAV_node} is placed at {loc} is {len_ground}\nPrevious Edge Similarity was {round(prev_edge_similarity * 100, 2)}\nCurrent edge similarity is {round(edge_similarity * 100, 2)}')
-        if edge_similarity >= prev_edge_similarity and len_ground >= prev_len_ground:
+        global coverage_threshold
+        ground_users = users_endpoint.users.get_number_ground_users()
+        if edge_similarity >= prev_edge_similarity and (len_ground >= prev_len_ground or len_ground / ground_users >= coverage_threshold):
             print(f'ReDeployed UAV {UAV_node}')
         else:
             UAV_location[UAV_node] = prev_loc
