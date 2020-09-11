@@ -393,20 +393,20 @@ def write_output(placed):
         c = plt.Circle((a, b), rad, color='green', fill=False)
         ax = plt.gca()
         ax.add_artist(c)
-    plt.scatter(UAV_x, UAV_y, color='black')
-    edge_x = []
-    edge_y = []
+    plt.scatter(UAV_x, UAV_y, color='purple')
+    for idx in range(len(UAV_x)):
+        plt.annotate(f'{idx + 1}', (UAV_x[idx], UAV_y[idx]), color='black')
     for edge in UAV_G.edges:
+        edge_x = []
+        edge_y = []
         a, b = edge
         loc_a = UAV_location[a]
         loc_b = UAV_location[b]
         x1, y1 = loc_a
         x2, y2 = loc_b
-        edge_x.append(x1)
-        edge_x.append(x2)
-        edge_y.append(y1)
-        edge_y.append(y2)
-    plt.plot(edge_x, edge_y)
+        edge_x = [x1, x2]
+        edge_y = [y1, y2]
+        plt.plot(edge_x, edge_y, color='purple')
     plt.title('Overall Scenario Visualization', fontweight="bold")
     plt.xlabel('N', fontweight='bold')
     plt.ylabel('M', fontweight='bold')
