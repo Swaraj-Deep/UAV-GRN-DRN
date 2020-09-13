@@ -111,7 +111,13 @@ def init():
     global UAV_to_UAV_threshold
     global power_UAV
     global cell_size, unit_mul
-    dir_path = os.path.join(os.getcwd(), 'output_files')
+    parent_dir = os.getcwd()
+    dir_path = os.path.join(parent_dir, 'output_files')
+    try:
+        os.mkdir(dir_path)
+    except OSError as error:
+        pass
+    dir_path = os.path.join(parent_dir, 'graph_output_files')
     try:
         os.mkdir(dir_path)
     except OSError as error:
@@ -568,6 +574,11 @@ def write_output(placed):
     pp.savefig(UAV_topology, dpi=500, transparent=True)
     pp.savefig(UAV_guser_plot, dpi=500, transparent=True)
     pp.close()
+    graph_output_dir = os.path.join(main_file_name, 'graph_output_files')
+    file_num = len([name for name in os.listdir(graph_output_dir)])
+    file_name = os.path.join(graph_output_dir, f'output_main{file_num + 1}.json')
+    with open(file_name, 'w') as file_pointer:
+        json.dump(UAV_location, file_pointer)
 
 
 def get_user_location(parent_dir):
