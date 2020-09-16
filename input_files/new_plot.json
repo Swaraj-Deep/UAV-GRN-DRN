@@ -1,0 +1,6 @@
+{
+    "Nodes": [1, 2, 3, 4, 5, 6],
+    "Plot title": "New plot",
+    "x-label": "Number of UAVs removed",
+    "y-label": "Y label of the plot"
+}

@@ -390,7 +390,7 @@ def simulation(placed):
         unplaced.append(UAV_node)
     for UAV_node in unplaced:
         loc = bruteforce(UAV_node, placed, False)
-        UAV_location[UAV_node] = loc
+        UAV_location[UAV_node] = bruteforce(UAV_node, placed, False)
         placed.append(UAV_node)
         print(f'Placed UAV {UAV_node}')
         user_list = users_endpoint.users.get_users_cell_connections(loc)
