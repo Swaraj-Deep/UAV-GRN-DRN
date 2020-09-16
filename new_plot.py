@@ -33,18 +33,6 @@ UAV_to_UAV_threshold = 0
 
 cell_size = 0
 
-# Plot title
-
-plot_title = ""
-
-# Plot x label
-
-x_label = ""
-
-# Plot y label
-
-y_label = ""
-
 # Nodes to remove
 
 nodes_rem_lst = []
@@ -77,7 +65,7 @@ def get_motif_count(UAV_G):
     n_motif = grn_endpoint.grn_info.get_motif_dict(UAV_G)
     motifs = [motif for node, motif in n_motif.items()]
     motifs = pd.DataFrame(motifs)
-    return motifs.describe()[0]['75%']
+    return motifs.describe()[0]['mean']
 
 
 def get_network_efficiency(placed, UAV_location, UAV_G):
@@ -343,7 +331,6 @@ def draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
     Parameters: baseline_dict -> Processed values of baseline_dict, main_dict -> Processed values of main_dict, baseline2_dict -> Processed values of baseline2_dict, baseline3_dict -> Processed values of baseline3_dict\n
     Functionality: Draws the plot\n
     """
-    global plot_title, x_label, y_label
     overall_dict = {
         "Baseline": baseline_dict,
         "Main": main_dict,
@@ -354,31 +341,49 @@ def draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
     dir_name = 'analysis_output_files'
     with open(os.path.join(parent_dir, dir_name, 'new_plot_output.json'), 'w') as file_pointer:
         json.dump(overall_dict, file_pointer)
-    # x_axis = [x for x, ret_val in baseline_dict.items()]
+    x_axis = [x for x, ret_val in baseline_dict.items()]
+    b_mc_y = [ret_val[0][0] for x, ret_val in baseline_dict.items()]
+    m_mc_y = [ret_val[0][0] for x, ret_val in baseline_dict.items()]
+    b2_mc_y = [ret_val[0][0] for x, ret_val in baseline_dict.items()]
+    b3_mc_y = [ret_val[0][0] for x, ret_val in baseline_dict.items()]
+    print(b_mc_y, m_mc_y, b2_mc_y, b3_mc_y)
+    # plt.scatter(x_axis, b_mc_y)
+    # plt.plot(x_axis, b_mc_y, label=f'Baseline')
+    # plt.scatter(x_axis, m_mc_y)
+    # plt.plot(x_axis, b_mc_y, label=f'Main')
+    # plt.scatter(x_axis, b2_mc_y)
+    # plt.plot(x_axis, b_mc_y, label=f'Baseline2')
+    # plt.scatter(x_axis, b3_mc_y)
+    # plt.plot(x_axis, b_mc_y, label=f'Baseline3')
+    # plt.show()
     # y_data = [ret_val[0] for x, ret_val in baseline_dict.items()]
     # print(x_axis, y_data)
     # for xpts, ypts in zip(x_axis, y_data):
     #     plt.scatter([xpts] * len(ypts), ypts, label=f'Baseline')
     # plt.xticks(x_axis)
     # plt.axes().set_xticklabels(x_axis)
+    # plt.show()
     # x_axis = [x for x, ret_val in main_dict.items()]
     # y_data = [ret_val[0] for x, ret_val in main_dict.items()]
     # for xpts, ypts in zip(x_axis, y_data):
     #     plt.scatter([xpts] * len(ypts), ypts, label=f'Main')
     # plt.xticks(x_axis)
     # plt.axes().set_xticklabels(x_axis)
+    # plt.show()
     # x_axis = [x for x, ret_val in baseline2_dict.items()]
     # y_data = [ret_val[0] for x, ret_val in baseline2_dict.items()]
     # for xpts, ypts in zip(x_axis, y_data):
     #     plt.scatter([xpts] * len(ypts), ypts, label=f'Baseline2')
     # plt.xticks(x_axis)
     # plt.axes().set_xticklabels(x_axis)
+    # plt.show()
     # x_axis = [x for x, ret_val in baseline3_dict.items()]
     # y_data = [ret_val[0] for x, ret_val in baseline3_dict.items()]
     # for xpts, ypts in zip(x_axis, y_data):
     #     plt.scatter([xpts] * len(ypts), ypts, label=f'Baseline3')
     # plt.xticks(x_axis)
     # plt.axes().set_xticklabels(x_axis)
+    # plt.show()
     # plt.title(
     #     plot_title, fontweight="bold")
     # plt.xlabel(x_label, fontweight='bold')
@@ -426,7 +431,7 @@ def init():
     Function: init
     Functionality: Sets all the global variables
     """
-    global UAV_to_UAV_threshold, cell_size, plot_title, x_label, y_label, nodes_rem_lst, N, M
+    global UAV_to_UAV_threshold, cell_size, nodes_rem_lst, N, M
     parent_dir = os.getcwd()
     parent_dir = os.getcwd()
     folder_name = 'input_files'
@@ -445,9 +450,6 @@ def init():
     file_path = os.path.join(parent_dir, folder_name, file_name)
     with open(file_path, 'r') as file_pointer:
         file_data = json.load(file_pointer)
-        plot_title = file_data['Plot title']
-        x_label = file_data['x-label']
-        y_label = file_data['y-label']
         nodes_rem_lst = file_data['Nodes']
     users_endpoint.users.init()
     grn_endpoint.grn_info.init()
