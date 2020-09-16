@@ -60,7 +60,7 @@ def get_motif_count(UAV_G):
     """
     Function: get_motif_count\n
     Parameters: UAV_G -> UAV graph\n
-    Returns: 75% of the motif count of nodes\n
+    Returns: mean of the motif count of nodes\n
     """
     n_motif = grn_endpoint.grn_info.get_motif_dict(UAV_G)
     motifs = [motif for node, motif in n_motif.items()]
@@ -342,54 +342,111 @@ def draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
     with open(os.path.join(parent_dir, dir_name, 'new_plot_output.json'), 'w') as file_pointer:
         json.dump(overall_dict, file_pointer)
     x_axis = [x for x, ret_val in baseline_dict.items()]
-    b_mc_y = [ret_val[0][0] for x, ret_val in baseline_dict.items()]
-    m_mc_y = [ret_val[0][0] for x, ret_val in baseline_dict.items()]
-    b2_mc_y = [ret_val[0][0] for x, ret_val in baseline_dict.items()]
-    b3_mc_y = [ret_val[0][0] for x, ret_val in baseline_dict.items()]
-    print(b_mc_y, m_mc_y, b2_mc_y, b3_mc_y)
-    # plt.scatter(x_axis, b_mc_y)
-    # plt.plot(x_axis, b_mc_y, label=f'Baseline')
-    # plt.scatter(x_axis, m_mc_y)
-    # plt.plot(x_axis, b_mc_y, label=f'Main')
-    # plt.scatter(x_axis, b2_mc_y)
-    # plt.plot(x_axis, b_mc_y, label=f'Baseline2')
-    # plt.scatter(x_axis, b3_mc_y)
-    # plt.plot(x_axis, b_mc_y, label=f'Baseline3')
-    # plt.show()
-    # y_data = [ret_val[0] for x, ret_val in baseline_dict.items()]
-    # print(x_axis, y_data)
-    # for xpts, ypts in zip(x_axis, y_data):
-    #     plt.scatter([xpts] * len(ypts), ypts, label=f'Baseline')
-    # plt.xticks(x_axis)
-    # plt.axes().set_xticklabels(x_axis)
-    # plt.show()
-    # x_axis = [x for x, ret_val in main_dict.items()]
-    # y_data = [ret_val[0] for x, ret_val in main_dict.items()]
-    # for xpts, ypts in zip(x_axis, y_data):
-    #     plt.scatter([xpts] * len(ypts), ypts, label=f'Main')
-    # plt.xticks(x_axis)
-    # plt.axes().set_xticklabels(x_axis)
-    # plt.show()
-    # x_axis = [x for x, ret_val in baseline2_dict.items()]
-    # y_data = [ret_val[0] for x, ret_val in baseline2_dict.items()]
-    # for xpts, ypts in zip(x_axis, y_data):
-    #     plt.scatter([xpts] * len(ypts), ypts, label=f'Baseline2')
-    # plt.xticks(x_axis)
-    # plt.axes().set_xticklabels(x_axis)
-    # plt.show()
-    # x_axis = [x for x, ret_val in baseline3_dict.items()]
-    # y_data = [ret_val[0] for x, ret_val in baseline3_dict.items()]
-    # for xpts, ypts in zip(x_axis, y_data):
-    #     plt.scatter([xpts] * len(ypts), ypts, label=f'Baseline3')
-    # plt.xticks(x_axis)
-    # plt.axes().set_xticklabels(x_axis)
-    # plt.show()
-    # plt.title(
-    #     plot_title, fontweight="bold")
-    # plt.xlabel(x_label, fontweight='bold')
-    # plt.ylabel(y_label, fontweight='bold')
-    # plt.legend()
-    # plt.show()
+    b_mc_y = []
+    m_mc_y = []
+    b2_mc_y = []
+    b3_mc_y = []
+    for x in baseline_dict:
+        b_mc_y.append(baseline_dict[x][0][0])
+        m_mc_y.append(main_dict[x][0][0])
+        b2_mc_y.append(baseline2_dict[x][0][0])
+        b3_mc_y.append(baseline3_dict[x][0][0])
+    plt.scatter(x_axis, b_mc_y)
+    plt.plot(x_axis, b_mc_y, label=f'Baseline')
+    plt.scatter(x_axis, m_mc_y)
+    plt.plot(x_axis, m_mc_y, label=f'Main')
+    plt.scatter(x_axis, b2_mc_y)
+    plt.plot(x_axis, b2_mc_y, label=f'Baseline2')
+    plt.scatter(x_axis, b3_mc_y)
+    plt.plot(x_axis, b3_mc_y, label=f'Baseline3')
+    plt.legend()
+    plt.title('Motif Count Vs Number of UAV Removed', fontweight="bold")
+    plt.xlabel('Number of UAV to remove', fontweight='bold')
+    plt.ylabel('Average Motif Count', fontweight='bold')
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
+    file_name = 'MotifvsUAVremoved'
+    plt.savefig(os.path.join(parent_dir, dir_name, file_name))
+    plt.clf()
+    b_cc_y = []
+    m_cc_y = []
+    b2_cc_y = []
+    b3_cc_y = []
+    for x in baseline_dict:
+        b_cc_y.append(baseline_dict[x][0][1])
+        m_cc_y.append(main_dict[x][0][1])
+        b2_cc_y.append(baseline2_dict[x][0][1])
+        b3_cc_y.append(baseline3_dict[x][0][1])
+    plt.scatter(x_axis, b_cc_y)
+    plt.plot(x_axis, b_cc_y, label=f'Baseline')
+    plt.scatter(x_axis, m_cc_y)
+    plt.plot(x_axis, m_cc_y, label=f'Main')
+    plt.scatter(x_axis, b2_cc_y)
+    plt.plot(x_axis, b2_cc_y, label=f'Baseline2')
+    plt.scatter(x_axis, b3_cc_y)
+    plt.plot(x_axis, b3_cc_y, label=f'Baseline3')
+    plt.legend()
+    plt.title('Connected Components Vs Number of UAV Removed', fontweight="bold")
+    plt.xlabel('Number of UAV to remove', fontweight='bold')
+    plt.ylabel('Number of Connected Components', fontweight='bold')
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
+    file_name = 'ConnectedvsUAVremoved'
+    plt.savefig(os.path.join(parent_dir, dir_name, file_name))
+    plt.clf()
+    b_gu_y = []
+    m_gu_y = []
+    b2_gu_y = []
+    b3_gu_y = []
+    for x in baseline_dict:
+        b_gu_y.append(baseline_dict[x][0][2])
+        m_gu_y.append(main_dict[x][0][2])
+        b2_gu_y.append(baseline2_dict[x][0][2])
+        b3_gu_y.append(baseline3_dict[x][0][2])
+    plt.scatter(x_axis, b_gu_y)
+    plt.plot(x_axis, b_gu_y, label=f'Baseline')
+    plt.scatter(x_axis, m_gu_y)
+    plt.plot(x_axis, m_gu_y, label=f'Main')
+    plt.scatter(x_axis, b2_gu_y)
+    plt.plot(x_axis, b2_gu_y, label=f'Baseline2')
+    plt.scatter(x_axis, b3_gu_y)
+    plt.plot(x_axis, b3_gu_y, label=f'Baseline3')
+    plt.legend()
+    plt.title('Ground User percentage Vs Number of UAV Removed',
+              fontweight="bold")
+    plt.xlabel('Number of UAV to remove', fontweight='bold')
+    plt.ylabel('Ground User percentage', fontweight='bold')
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
+    file_name = 'Ground_user_coveragevsUAVremoved'
+    plt.savefig(os.path.join(parent_dir, dir_name, file_name))
+    plt.clf()
+    b_ne_y = []
+    m_ne_y = []
+    b2_ne_y = []
+    b3_ne_y = []
+    for x in baseline_dict:
+        b_ne_y.append(baseline_dict[x][0][3])
+        m_ne_y.append(main_dict[x][0][3])
+        b2_ne_y.append(baseline2_dict[x][0][3])
+        b3_ne_y.append(baseline3_dict[x][0][3])
+    plt.scatter(x_axis, b_ne_y)
+    plt.plot(x_axis, b_ne_y, label=f'Baseline')
+    plt.scatter(x_axis, m_ne_y)
+    plt.plot(x_axis, m_ne_y, label=f'Main')
+    plt.scatter(x_axis, b2_ne_y)
+    plt.plot(x_axis, b2_ne_y, label=f'Baseline2')
+    plt.scatter(x_axis, b3_ne_y)
+    plt.plot(x_axis, b3_ne_y, label=f'Baseline3')
+    plt.legend()
+    plt.title('Network Efficiency Vs Number of UAV Removed', fontweight="bold")
+    plt.xlabel('Number of UAV to remove', fontweight='bold')
+    plt.ylabel('Network Efficiency', fontweight='bold')
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
+    file_name = 'NetworkEfficiencyvsUAVremoved'
+    plt.savefig(os.path.join(parent_dir, dir_name, file_name))
+    plt.clf()
 
 
 def simulate_plot_making():
