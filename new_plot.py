@@ -6,6 +6,7 @@ import grn_endpoint.grn_info
 import users_endpoint.users
 import move_endpoint.movement
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Command python or python3
 
@@ -17,7 +18,7 @@ script = "user_secnario_producer.py"
 
 # Maximum number of iterations
 
-max_iter = 5
+max_iter = 1
 
 # Area Size
 
@@ -89,7 +90,10 @@ def get_network_efficiency(placed, UAV_location, UAV_G):
     for node1 in placed:
         for node2 in placed:
             if node1 != node2:
-                paths.append(nx.shortest_path(UAV_G, node1, node2))
+                try:
+                    paths.append(nx.shortest_path(UAV_G, node1, node2))
+                except Exception as ex:
+                    pass
     total_edge_cost = 0
     for path in paths:
         for i in range(1, len(path)):
@@ -137,133 +141,250 @@ def parse_input_graph(file_name, dir_name):
     UAV_location = {}
     with open(os.path.join(dir_name, file_name), 'r') as file_pointer:
         UAV_location = json.load(file_pointer)
+    UAV_loc = {}
     for node, loc in UAV_location.items():
-        loc = (loc[0], loc[1])
-        UAV_location[node] = loc
-    placed = [node for node, loc in UAV_location.items()]
-    return (UAV_location, placed)
-    # UAV_G = get_UAV_graph(UAV_location)
-    # mc = get_motif_count(UAV_G)
-    # cc = get_connected_componets(UAV_G)
-    # guser = ground_user_coverage(UAV_location)
-    # ne = get_network_efficiency(placed, UAV_location, UAV_G)
-    # print(mc, cc, guser, ne)
+        UAV_loc[int(node)] = (loc[0], loc[1])
+    placed = [node for node in UAV_loc]
+    return (UAV_loc, placed)
 
 
-def add_UAVs(x, UAV_location):
+def add_UAVs(x, UAV_loc):
     """
     Function: add_UAVs\n
-    Parameter: x -> The number of UAVs to add, UAV_location -> Current state of the UAVs\n
+    Parameter: x -> The number of UAVs to add, UAV_loc -> Current state of the UAVs\n
     Returns -> Updated State of the UAVs and placed list\n
     """
     global N, M
+    UAV_location = {}
+    for node, loc in UAV_loc.items():
+        UAV_location[node] = loc
     placed = [node for node, loc in UAV_location.items()]
     reserved_locations = [loc for node, loc in UAV_location.items()]
     locations = []
-    while len (locations) < x:
+    while len(locations) < x:
         a = random.randint(0, N)
         b = random.randint(0, M)
         if (a, b) not in reserved_locations:
-            locations.append(a, b)
+            locations.append((a, b))
     for loc in locations:
-        if placed[-1] + 1 not in UAV_location:
-            UAV_location[placed[-1] + 1] = loc
+        key = int(placed[-1]) + 1
+        if key not in UAV_location:
+            UAV_location[key] = loc
         else:
-            UAV_location[placed[-1] + 1] = loc
-        placed.append(placed[-1] + 1)
+            UAV_location[key] = loc
+        placed.append(key)
+    placed = [node for node, loc in UAV_location.items()]
     return UAV_location, placed
 
 
-def remove_UAVs(x):
+def remove_UAVs(x, UAV_loc):
     """
     Function: remove_UAVs\n
-    Parameter: x -> The number of UAVs to remove\n
+    Parameter: x -> The number of UAVs to remove, UAV_loc -> Scenario of UAVs to remove\n
     Functionality: remove x UAVs from the network randomly\n
     """
+    UAV_location = {}
+    for node, loc in UAV_loc.items():
+        UAV_location[node] = loc
+    len_old = len(UAV_location)
+    diff = len_old - x
+    if diff < 0:
+        diff = 0
+    while len(UAV_location) > diff:
+        placed = [node for node, loc in UAV_location.items()]
+        rem = placed[random.randint(0, len(placed) - 1)]
+        UAV_location.pop(rem)
+    placed = [node for node, loc in UAV_location.items()]
+    return UAV_location, placed
 
 
-def process_input_graphs(file_type):
+def process_baseline2(UAV_location_main, UAV_location_baseline):
     """
-    Function: process_input_graphs\n
-    Parameters: None\n
-    Functionality: Input the graph which is the output of Either of the algorithms i.e. main.py or baseline.py
+    Function: process_baseline2\n
+    Parameters: UAV_location_main -> UAVs position in the main approach, UAV_location_baseline -> UAVs position in the baseline approach\n
+    Returns: Modified UAV_location and placed list\n
     """
-    parent_dir = os.getcwd()
-    dir_name = 'graph_output_files'
-    for file in os.listdir(os.path.join(parent_dir, dir_name)):
-        if file_type in file:
-            print(parse_input_graph(file, os.path.join(parent_dir, dir_name)))
-            break
+    len_main = len(UAV_location_main)
+    len_baseline = len(UAV_location_baseline)
+    if len_main > len_baseline:
+        return add_UAVs(len_main - len_baseline, UAV_location_baseline)
+    else:
+        return remove_UAVs(len_baseline - len_main, UAV_location_baseline)
 
 
-def process_baseline(x):
+def process_baseline3(UAV_location_main, UAV_location_baseline):
     """
-    Function: process_baseline\n
-    Parameters: x -> number of UAVs to remove\n
-    Returns: For each iteration return a tuple containing motif_count, connected_components, ground_user_coverage and network efficiency
+    Function: process_baseline3\n
+    Parameters: UAV_location_main -> UAVs position in the main approach, UAV_location_baseline -> UAVs position in the baseline approach\n
+    Returns: Modified UAV_location and placed list\n
+    """
+    len_main = len(UAV_location_main)
+    len_baseline = len(UAV_location_baseline)
+    if len_baseline >= int(1.5 * len_main):
+        return remove_UAVs(len_baseline - (1.5 * len_main), UAV_location_baseline)
+    else:
+        return add_UAVs((1.5 * len_main) - len_baseline, UAV_location_baseline)
+
+
+def run(x):
+    """
+    Function: run\n
+    Parameter: x -> Number of UAVs to delete\n
+    Functionality: Runs all the four simulations\n
     """
     parent_dir = os.getcwd()
     dir_name = 'graph_output_files'
     os.system(f'bash fresh_analysis.sh')
     os.system(f'{command} baseline.py')
-    os.system(f'bash fresh_analysis.sh')
-    UAV_location, placed = parse_input_graph('output_baseline1.json', os.path.join(parent_dir, dir_name))
+    os.system(f'{command} main.py')
+    UAV_location_baseline, placed = parse_input_graph(
+        'output_baseline1.json', os.path.join(parent_dir, dir_name))
+    UAV_location, placed = remove_UAVs(x, UAV_location_baseline)
     UAV_G = get_UAV_graph(UAV_location)
     mc = get_motif_count(UAV_G)
     cc = get_connected_componets(UAV_G)
     guser = ground_user_coverage(UAV_location)
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
-    process_baseline2(x, UAV_location)
-    process_baseline3(x, UAV_location)
-    pass
-
-
-def process_main():
-    """
-    Function: process_main\n
-    Parameters: None\n
-    Returns: For each iteration return a tuple containing motif_count, connected_components, ground_user_coverage and network efficiency
-    """
-    os.system(f'{command} {script}')
-    os.system(f'{command} baseline.py')
-    pass
-
-def process_baseline2(x, UAV_location_baseline):
-    """
-    Function: process_baseline2\n
-    Parameters: x -> number of UAVs to remove, UAV_location_baseline -> UAVs position in the baseline approach\n
-    Returns: For each iteration return a tuple containing motif_count, connected_components, ground_user_coverage and network efficiency
-    """
-    parent_dir = os.getcwd()
-    dir_name = 'graph_output_files'
-    os.system(f'bash fresh_analysis.sh')
-    os.system(f'{command} main.py')
-    os.system(f'bash fresh_analysis.sh')
-    UAV_location, placed = parse_input_graph('output_main1.json', os.path.join(parent_dir, dir_name))
-    number_UAV_baseline = len(UAV_location_baseline)
-    number_UAV_main = len(UAV_location)
-    if number_UAV_baseline < number_UAV_main:
-        UAV_location_baseline = add_UAVs(number_UAV_main - number_UAV_baseline, UAV_location_baseline)
-    else:
-        UAV_location_baseline = remove_UAVs(number_UAV_baseline - number_UAV_main, UAV_location_baseline)
-    UAV_G = get_UAV_graph(UAV_location_baseline)
+    ret_val1 = (mc, cc, guser, ne)
+    UAV_location_main, placed = parse_input_graph(
+        'output_main2.json', os.path.join(parent_dir, dir_name))
+    UAV_location, placed = remove_UAVs(x, UAV_location_main)
+    UAV_G = get_UAV_graph(UAV_location)
     mc = get_motif_count(UAV_G)
     cc = get_connected_componets(UAV_G)
-    guser = ground_user_coverage(UAV_location_baseline)
-    ne = get_network_efficiency(placed, UAV_location_baseline, UAV_G)
-    pass
+    guser = ground_user_coverage(UAV_location)
+    ne = get_network_efficiency(placed, UAV_location, UAV_G)
+    ret_val2 = (mc, cc, guser, ne)
+    UAV_location_baseline2, placed = process_baseline2(
+        UAV_location_main, UAV_location_baseline)
+    UAV_location, placed = remove_UAVs(x, UAV_location_baseline2)
+    UAV_G = get_UAV_graph(UAV_location)
+    mc = get_motif_count(UAV_G)
+    cc = get_connected_componets(UAV_G)
+    guser = ground_user_coverage(UAV_location)
+    ne = get_network_efficiency(placed, UAV_location, UAV_G)
+    ret_val3 = (mc, cc, guser, ne)
+    UAV_location_baseline3, placed = process_baseline3(
+        UAV_location_main, UAV_location_baseline)
+    UAV_location, placed = remove_UAVs(x, UAV_location_baseline3)
+    UAV_G = get_UAV_graph(UAV_location)
+    mc = get_motif_count(UAV_G)
+    cc = get_connected_componets(UAV_G)
+    guser = ground_user_coverage(UAV_location)
+    ne = get_network_efficiency(placed, UAV_location, UAV_G)
+    ret_val4 = (mc, cc, guser, ne)
+    os.system(f'bash fresh_analysis.sh')
+    return (ret_val1, ret_val2, ret_val3, ret_val4)
 
 
-def process_baseline3():
+def process_output(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
     """
-    Function: process_baseline3\n
-    Parameters: None\n
-    Returns: For each iteration return a tuple containing motif_count, connected_components, ground_user_coverage and network efficiency
+    Function: process_output\n
+    Parameters: baseline_dict -> output of baseline, main_dict -> output of main, baseline2_dict -> output of baseline2, baseline3_dict -> output of baseline3
     """
-    print("Bye")
-    pass
-   
-   
+    for x, ret_val_lst in baseline_dict.items():
+        mc = []
+        cc = []
+        guser = []
+        ne = []
+        for ret_val in ret_val_lst:
+            m, c, g, n = ret_val
+            mc.append(m)
+            cc.append(c)
+            guser.append(g)
+            ne.append(n)
+        baseline_dict[x] = [(pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(cc).describe()[
+                             0]['75%'], pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['75%'])]
+    for x, ret_val_lst in main_dict.items():
+        mc = []
+        cc = []
+        guser = []
+        ne = []
+        for ret_val in ret_val_lst:
+            m, c, g, n = ret_val
+            mc.append(m)
+            cc.append(c)
+            guser.append(g)
+            ne.append(n)
+        main_dict[x] = [(pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(cc).describe()[
+                         0]['75%'], pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['75%'])]
+    for x, ret_val_lst in baseline2_dict.items():
+        mc = []
+        cc = []
+        guser = []
+        ne = []
+        for ret_val in ret_val_lst:
+            m, c, g, n = ret_val
+            mc.append(m)
+            cc.append(c)
+            guser.append(g)
+            ne.append(n)
+        baseline2_dict[x] = [(pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(cc).describe()[
+                              0]['75%'], pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['75%'])]
+    for x, ret_val_lst in baseline3_dict.items():
+        mc = []
+        cc = []
+        guser = []
+        ne = []
+        for ret_val in ret_val_lst:
+            m, c, g, n = ret_val
+            mc.append(m)
+            cc.append(c)
+            guser.append(g)
+            ne.append(n)
+        baseline3_dict[x] = [(pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(cc).describe()[
+                              0]['75%'], pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['75%'])]
+    draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict)
+
+
+def draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
+    """
+    Function: draw_plot\n
+    Parameters: baseline_dict -> Processed values of baseline_dict, main_dict -> Processed values of main_dict, baseline2_dict -> Processed values of baseline2_dict, baseline3_dict -> Processed values of baseline3_dict\n
+    Functionality: Draws the plot\n
+    """
+    global plot_title, x_label, y_label
+    overall_dict = {
+        "Baseline": baseline_dict,
+        "Main": main_dict,
+        "Baseline2": baseline2_dict,
+        "Baseline3": baseline3_dict
+    }
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
+    with open(os.path.join(parent_dir, dir_name, 'new_plot_output.json'), 'w') as file_pointer:
+        json.dump(overall_dict, file_pointer)
+    # x_axis = [x for x, ret_val in baseline_dict.items()]
+    # y_data = [ret_val[0] for x, ret_val in baseline_dict.items()]
+    # print(x_axis, y_data)
+    # for xpts, ypts in zip(x_axis, y_data):
+    #     plt.scatter([xpts] * len(ypts), ypts, label=f'Baseline')
+    # plt.xticks(x_axis)
+    # plt.axes().set_xticklabels(x_axis)
+    # x_axis = [x for x, ret_val in main_dict.items()]
+    # y_data = [ret_val[0] for x, ret_val in main_dict.items()]
+    # for xpts, ypts in zip(x_axis, y_data):
+    #     plt.scatter([xpts] * len(ypts), ypts, label=f'Main')
+    # plt.xticks(x_axis)
+    # plt.axes().set_xticklabels(x_axis)
+    # x_axis = [x for x, ret_val in baseline2_dict.items()]
+    # y_data = [ret_val[0] for x, ret_val in baseline2_dict.items()]
+    # for xpts, ypts in zip(x_axis, y_data):
+    #     plt.scatter([xpts] * len(ypts), ypts, label=f'Baseline2')
+    # plt.xticks(x_axis)
+    # plt.axes().set_xticklabels(x_axis)
+    # x_axis = [x for x, ret_val in baseline3_dict.items()]
+    # y_data = [ret_val[0] for x, ret_val in baseline3_dict.items()]
+    # for xpts, ypts in zip(x_axis, y_data):
+    #     plt.scatter([xpts] * len(ypts), ypts, label=f'Baseline3')
+    # plt.xticks(x_axis)
+    # plt.axes().set_xticklabels(x_axis)
+    # plt.title(
+    #     plot_title, fontweight="bold")
+    # plt.xlabel(x_label, fontweight='bold')
+    # plt.ylabel(y_label, fontweight='bold')
+    # plt.legend()
+    # plt.show()
 
 
 def simulate_plot_making():
@@ -273,17 +394,31 @@ def simulate_plot_making():
     Functionality: Simulate the plot making process\n
     """
     global nodes_rem_lst
-    baseline_lst = []
-    main_lst = []
-    baseline2_lst = []
-    baseline3_lst = []
+    baseline_dict = {}
+    main_dict = {}
+    baseline2_dict = {}
+    baseline3_dict = {}
     for x in nodes_rem_lst:
         for _ in range(max_iter):
             os.system(f'{command} {script}')
-            baseline_lst.append(process_baseline())
-        for _ in range(max_iter):
-            main_lst.append(process_main())
-
+            r1, r2, r3, r4 = run(x)
+            if x not in baseline_dict:
+                baseline_dict[x] = [r1]
+            else:
+                baseline_dict[x].append(r1)
+            if x not in main_dict:
+                main_dict[x] = [r2]
+            else:
+                main_dict[x].append(r2)
+            if x not in baseline2_dict:
+                baseline2_dict[x] = [r3]
+            else:
+                baseline2_dict[x].append(r3)
+            if x not in baseline3_dict:
+                baseline3_dict[x] = [r4]
+            else:
+                baseline3_dict[x].append(r4)
+    process_output(baseline_dict, main_dict, baseline2_dict, baseline3_dict)
 
 
 def init():
@@ -316,8 +451,9 @@ def init():
         nodes_rem_lst = file_data['Nodes']
     users_endpoint.users.init()
     grn_endpoint.grn_info.init()
-    process_input_graphs('main40')
+    simulate_plot_making()
 
 
 if __name__ == "__main__":
+    print(f'Relax!! we have taken the charge. (-_-)')
     init()
