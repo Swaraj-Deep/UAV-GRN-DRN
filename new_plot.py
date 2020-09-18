@@ -38,6 +38,15 @@ cell_size = 0
 nodes_rem_lst = []
 
 
+# Flag variable
+
+flag = True
+UAV_location_clone = {}
+UAV_location_clone1 = {}
+UAV_location_main = {}
+UAV_location_baseline = {}
+
+
 def get_UAV_graph(UAV_location):
     """
     Function: get_UAV_graph\n
@@ -62,10 +71,7 @@ def get_motif_count(UAV_G):
     Parameters: UAV_G -> UAV graph\n
     Returns: mean of the motif count of nodes\n
     """
-    n_motif = grn_endpoint.grn_info.get_motif_dict(UAV_G)
-    motifs = [motif for node, motif in n_motif.items()]
-    motifs = pd.DataFrame(motifs)
-    return motifs.describe()[0]['mean']
+    return sum(nx.triangles(UAV_G).values()) / 3
 
 
 def get_network_efficiency(placed, UAV_location, UAV_G):
@@ -75,24 +81,24 @@ def get_network_efficiency(placed, UAV_location, UAV_G):
     Returns: Network Efficiency of the network
     """
     paths = []
+    total_edge_cost = 1
     for node1 in placed:
         for node2 in placed:
             if node1 != node2:
                 try:
-                    paths.append(nx.shortest_path(UAV_G, node1, node2))
+                    den = len(nx.shortest_path(UAV_G, node1, node2)) - 1
                 except Exception as ex:
-                    pass
-    total_edge_cost = 0
-    for path in paths:
-        for i in range(1, len(path)):
-            pos1 = UAV_location[path[i - 1]]
-            pos2 = UAV_location[path[i]]
-            den = move_endpoint.movement.get_euc_dist(pos1, pos2)
-            total_edge_cost += 1 / den
+                    den = 0
+                if den <= 0:
+                    den = 1
+                total_edge_cost += 1 / den
     n = len(placed)
     first_part = n * (n - 1)
+    if first_part <= 0:
+        first_part = 1
     first_part = 1 / first_part
     return first_part * total_edge_cost
+    # return nx.global_efficiency(UAV_G)
 
 
 def get_connected_componets(UAV_G):
@@ -136,16 +142,13 @@ def parse_input_graph(file_name, dir_name):
     return (UAV_loc, placed)
 
 
-def add_UAVs(x, UAV_loc):
+def add_UAVs(x, UAV_location):
     """
     Function: add_UAVs\n
-    Parameter: x -> The number of UAVs to add, UAV_loc -> Current state of the UAVs\n
+    Parameter: x -> The number of UAVs to add, UAV_location -> Current state of the UAVs\n
     Returns -> Updated State of the UAVs and placed list\n
     """
     global N, M
-    UAV_location = {}
-    for node, loc in UAV_loc.items():
-        UAV_location[node] = loc
     placed = [node for node, loc in UAV_location.items()]
     reserved_locations = [loc for node, loc in UAV_location.items()]
     locations = []
@@ -165,15 +168,12 @@ def add_UAVs(x, UAV_loc):
     return UAV_location, placed
 
 
-def remove_UAVs(x, UAV_loc):
+def remove_UAVs(x, UAV_location):
     """
     Function: remove_UAVs\n
-    Parameter: x -> The number of UAVs to remove, UAV_loc -> Scenario of UAVs to remove\n
+    Parameter: x -> The number of UAVs to remove, UAV_location -> Scenario of UAVs to remove\n
     Functionality: remove x UAVs from the network randomly\n
     """
-    UAV_location = {}
-    for node, loc in UAV_loc.items():
-        UAV_location[node] = loc
     len_old = len(UAV_location)
     diff = len_old - x
     if diff < 0:
@@ -220,13 +220,16 @@ def run(x):
     Parameter: x -> Number of UAVs to delete\n
     Functionality: Runs all the four simulations\n
     """
+    global flag
+    global UAV_location_clone, UAV_location_clone1, UAV_location_baseline, UAV_location_main
     parent_dir = os.getcwd()
     dir_name = 'graph_output_files'
-    os.system(f'bash fresh_analysis.sh')
-    os.system(f'{command} baseline.py')
-    os.system(f'{command} main.py')
-    UAV_location_baseline, placed = parse_input_graph(
-        'output_baseline1.json', os.path.join(parent_dir, dir_name))
+    if flag:
+        UAV_location_baseline, placed = parse_input_graph(
+            'output_baseline1.json', os.path.join(parent_dir, dir_name))
+        for node, loc in UAV_location_baseline.items():
+            UAV_location_clone[node] = loc
+            UAV_location_clone1[node] = loc
     UAV_location, placed = remove_UAVs(x, UAV_location_baseline)
     UAV_G = get_UAV_graph(UAV_location)
     mc = get_motif_count(UAV_G)
@@ -234,8 +237,10 @@ def run(x):
     guser = ground_user_coverage(UAV_location)
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val1 = (mc, cc, guser, ne)
-    UAV_location_main, placed = parse_input_graph(
-        'output_main2.json', os.path.join(parent_dir, dir_name))
+    if flag:
+        UAV_location_main, placed = parse_input_graph(
+            'output_main2.json', os.path.join(parent_dir, dir_name))
+        flag = False
     UAV_location, placed = remove_UAVs(x, UAV_location_main)
     UAV_G = get_UAV_graph(UAV_location)
     mc = get_motif_count(UAV_G)
@@ -244,7 +249,7 @@ def run(x):
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val2 = (mc, cc, guser, ne)
     UAV_location_baseline2, placed = process_baseline2(
-        UAV_location_main, UAV_location_baseline)
+        UAV_location_main, UAV_location_clone)
     UAV_location, placed = remove_UAVs(x, UAV_location_baseline2)
     UAV_G = get_UAV_graph(UAV_location)
     mc = get_motif_count(UAV_G)
@@ -253,7 +258,7 @@ def run(x):
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val3 = (mc, cc, guser, ne)
     UAV_location_baseline3, placed = process_baseline3(
-        UAV_location_main, UAV_location_baseline)
+        UAV_location_main, UAV_location_clone1)
     UAV_location, placed = remove_UAVs(x, UAV_location_baseline3)
     UAV_G = get_UAV_graph(UAV_location)
     mc = get_motif_count(UAV_G)
@@ -261,7 +266,6 @@ def run(x):
     guser = ground_user_coverage(UAV_location)
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val4 = (mc, cc, guser, ne)
-    os.system(f'bash fresh_analysis.sh')
     return (ret_val1, ret_val2, ret_val3, ret_val4)
 
 
@@ -281,8 +285,11 @@ def process_output(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
             cc.append(c)
             guser.append(g)
             ne.append(n)
-        baseline_dict[x] = [(pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(cc).describe()[
-                             0]['75%'], pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['75%'])]
+        baseline_dict[x] = [([pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(mc).describe()[0]['75%'], pd.DataFrame(mc).describe()[0]['std'], pd.DataFrame(mc).describe()[0]['50%']], [pd.DataFrame(cc).describe()[
+                             0]['75%'], pd.DataFrame(cc).describe()[
+                             0]['mean'], pd.DataFrame(cc).describe()[
+                             0]['50%'], pd.DataFrame(cc).describe()[
+                             0]['std']], [pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(guser).describe()[0]['mean'], pd.DataFrame(guser).describe()[0]['50%'], pd.DataFrame(guser).describe()[0]['std']], [pd.DataFrame(ne).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['mean'], pd.DataFrame(ne).describe()[0]['50%'], pd.DataFrame(ne).describe()[0]['std']])]
     for x, ret_val_lst in main_dict.items():
         mc = []
         cc = []
@@ -294,8 +301,11 @@ def process_output(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
             cc.append(c)
             guser.append(g)
             ne.append(n)
-        main_dict[x] = [(pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(cc).describe()[
-                         0]['75%'], pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['75%'])]
+        main_dict[x] = [([pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(mc).describe()[0]['75%'], pd.DataFrame(mc).describe()[0]['std'], pd.DataFrame(mc).describe()[0]['50%']], [pd.DataFrame(cc).describe()[
+                             0]['75%'], pd.DataFrame(cc).describe()[
+                             0]['mean'], pd.DataFrame(cc).describe()[
+                             0]['50%'], pd.DataFrame(cc).describe()[
+                             0]['std']], [pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(guser).describe()[0]['mean'], pd.DataFrame(guser).describe()[0]['50%'], pd.DataFrame(guser).describe()[0]['std']], [pd.DataFrame(ne).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['mean'], pd.DataFrame(ne).describe()[0]['50%'], pd.DataFrame(ne).describe()[0]['std']])]
     for x, ret_val_lst in baseline2_dict.items():
         mc = []
         cc = []
@@ -307,8 +317,11 @@ def process_output(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
             cc.append(c)
             guser.append(g)
             ne.append(n)
-        baseline2_dict[x] = [(pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(cc).describe()[
-                              0]['75%'], pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['75%'])]
+        baseline2_dict[x] = [([pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(mc).describe()[0]['75%'], pd.DataFrame(mc).describe()[0]['std'], pd.DataFrame(mc).describe()[0]['50%']], [pd.DataFrame(cc).describe()[
+                             0]['75%'], pd.DataFrame(cc).describe()[
+                             0]['mean'], pd.DataFrame(cc).describe()[
+                             0]['50%'], pd.DataFrame(cc).describe()[
+                             0]['std']], [pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(guser).describe()[0]['mean'], pd.DataFrame(guser).describe()[0]['50%'], pd.DataFrame(guser).describe()[0]['std']], [pd.DataFrame(ne).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['mean'], pd.DataFrame(ne).describe()[0]['50%'], pd.DataFrame(ne).describe()[0]['std']])]
     for x, ret_val_lst in baseline3_dict.items():
         mc = []
         cc = []
@@ -320,8 +333,11 @@ def process_output(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
             cc.append(c)
             guser.append(g)
             ne.append(n)
-        baseline3_dict[x] = [(pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(cc).describe()[
-                              0]['75%'], pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['75%'])]
+        baseline3_dict[x] = [([pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(mc).describe()[0]['75%'], pd.DataFrame(mc).describe()[0]['std'], pd.DataFrame(mc).describe()[0]['50%']], [pd.DataFrame(cc).describe()[
+                             0]['75%'], pd.DataFrame(cc).describe()[
+                             0]['mean'], pd.DataFrame(cc).describe()[
+                             0]['50%'], pd.DataFrame(cc).describe()[
+                             0]['std']], [pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(guser).describe()[0]['mean'], pd.DataFrame(guser).describe()[0]['50%'], pd.DataFrame(guser).describe()[0]['std']], [pd.DataFrame(ne).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['mean'], pd.DataFrame(ne).describe()[0]['50%'], pd.DataFrame(ne).describe()[0]['std']])]
     draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict)
 
 
@@ -347,10 +363,10 @@ def draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
     b2_mc_y = []
     b3_mc_y = []
     for x in baseline_dict:
-        b_mc_y.append(baseline_dict[x][0][0])
-        m_mc_y.append(main_dict[x][0][0])
-        b2_mc_y.append(baseline2_dict[x][0][0])
-        b3_mc_y.append(baseline3_dict[x][0][0])
+        b_mc_y.append(baseline_dict[x][0][0][0])
+        m_mc_y.append(main_dict[x][0][0][0])
+        b2_mc_y.append(baseline2_dict[x][0][0][0])
+        b3_mc_y.append(baseline3_dict[x][0][0][0])
     plt.scatter(x_axis, b_mc_y)
     plt.plot(x_axis, b_mc_y, label=f'Baseline')
     plt.scatter(x_axis, m_mc_y)
@@ -373,10 +389,10 @@ def draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
     b2_cc_y = []
     b3_cc_y = []
     for x in baseline_dict:
-        b_cc_y.append(baseline_dict[x][0][1])
-        m_cc_y.append(main_dict[x][0][1])
-        b2_cc_y.append(baseline2_dict[x][0][1])
-        b3_cc_y.append(baseline3_dict[x][0][1])
+        b_cc_y.append(baseline_dict[x][0][1][0])
+        m_cc_y.append(main_dict[x][0][1][0])
+        b2_cc_y.append(baseline2_dict[x][0][1][0])
+        b3_cc_y.append(baseline3_dict[x][0][1][0])
     plt.scatter(x_axis, b_cc_y)
     plt.plot(x_axis, b_cc_y, label=f'Baseline')
     plt.scatter(x_axis, m_cc_y)
@@ -399,10 +415,10 @@ def draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
     b2_gu_y = []
     b3_gu_y = []
     for x in baseline_dict:
-        b_gu_y.append(baseline_dict[x][0][2])
-        m_gu_y.append(main_dict[x][0][2])
-        b2_gu_y.append(baseline2_dict[x][0][2])
-        b3_gu_y.append(baseline3_dict[x][0][2])
+        b_gu_y.append(baseline_dict[x][0][2][0])
+        m_gu_y.append(main_dict[x][0][2][0])
+        b2_gu_y.append(baseline2_dict[x][0][2][0])
+        b3_gu_y.append(baseline3_dict[x][0][2][0])
     plt.scatter(x_axis, b_gu_y)
     plt.plot(x_axis, b_gu_y, label=f'Baseline')
     plt.scatter(x_axis, m_gu_y)
@@ -426,10 +442,10 @@ def draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
     b2_ne_y = []
     b3_ne_y = []
     for x in baseline_dict:
-        b_ne_y.append(baseline_dict[x][0][3])
-        m_ne_y.append(main_dict[x][0][3])
-        b2_ne_y.append(baseline2_dict[x][0][3])
-        b3_ne_y.append(baseline3_dict[x][0][3])
+        b_ne_y.append(baseline_dict[x][0][3][0])
+        m_ne_y.append(main_dict[x][0][3][0])
+        b2_ne_y.append(baseline2_dict[x][0][3][0])
+        b3_ne_y.append(baseline3_dict[x][0][3][0])
     plt.scatter(x_axis, b_ne_y)
     plt.plot(x_axis, b_ne_y, label=f'Baseline')
     plt.scatter(x_axis, m_ne_y)
@@ -460,10 +476,24 @@ def simulate_plot_making():
     main_dict = {}
     baseline2_dict = {}
     baseline3_dict = {}
-    for x in nodes_rem_lst:
-        for _ in range(max_iter):
-            os.system(f'{command} {script}')
-            r1, r2, r3, r4 = run(x)
+    global flag
+    global UAV_location_clone, UAV_location_clone1, UAV_location_main, UAV_location_baseline
+    for _ in range(max_iter):
+        os.system(f'bash fresh_analysis.sh')
+        os.system(f'{command} {script}')
+        os.system(f'{command} baseline.py')
+        os.system(f'{command} main.py')
+        flag = True
+        UAV_location_clone = {}
+        UAV_location_clone1 = {}
+        UAV_location_baseline = {}
+        UAV_location_main = {}
+        for i in range(len(nodes_rem_lst)):
+            x = nodes_rem_lst[i]
+            if i == 0:
+                r1, r2, r3, r4 = run(x)
+            else:
+                r1, r2, r3, r4 = run(x - nodes_rem_lst[i - 1])
             if x not in baseline_dict:
                 baseline_dict[x] = [r1]
             else:
@@ -514,5 +544,10 @@ def init():
 
 
 if __name__ == "__main__":
+    dir_path = os.path.join(os.getcwd(), 'analysis_output_files')
+    try:
+        os.mkdir(dir_path)
+    except OSError as error:
+        pass
     print(f'Relax!! we have taken the charge. (-_-)')
     init()
