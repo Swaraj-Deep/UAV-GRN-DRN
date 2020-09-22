@@ -126,7 +126,11 @@ def no_nodes_in_largest_connected_component(UAV_G):
     Parameter: UAV_G -> UAV graph\n
     Returns: Number of nodes in the largest connected components in the graph\n
     """
-    return max(nx.connected_component_subgraphs(UAV_G), key=len)
+    len_cc = [len(UAV_G.subgraph(c)) for c in nx.connected_components(UAV_G)]
+    if len_cc:
+        return max(len_cc)
+    else:
+        return 0
 
 
 def ground_user_coverage(UAV_location):
@@ -360,49 +364,67 @@ def process_output(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
         cc = []
         guser = []
         ne = []
+        mx = []
         for ret_val in ret_val_lst:
-            m, c, g, n = ret_val
+            m, c, g, n, l = ret_val
             mc.append(m)
             cc.append(c)
             guser.append(g)
             ne.append(n)
+            mx.append(l)
         main_dict[x] = [([pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(mc).describe()[0]['75%'], pd.DataFrame(mc).describe()[0]['std'], pd.DataFrame(mc).describe()[0]['50%']], [pd.DataFrame(cc).describe()[
             0]['75%'], pd.DataFrame(cc).describe()[
             0]['mean'], pd.DataFrame(cc).describe()[
             0]['50%'], pd.DataFrame(cc).describe()[
-            0]['std']], [pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(guser).describe()[0]['mean'], pd.DataFrame(guser).describe()[0]['50%'], pd.DataFrame(guser).describe()[0]['std']], [pd.DataFrame(ne).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['mean'], pd.DataFrame(ne).describe()[0]['50%'], pd.DataFrame(ne).describe()[0]['std']])]
+            0]['std']], [pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(guser).describe()[0]['mean'], pd.DataFrame(guser).describe()[0]['50%'], pd.DataFrame(guser).describe()[0]['std']], [pd.DataFrame(ne).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['mean'], pd.DataFrame(ne).describe()[0]['50%'], pd.DataFrame(ne).describe()[0]['std']], [pd.DataFrame(mx).describe()[
+                0]['75%'], pd.DataFrame(mx).describe()[
+                0]['mean'], pd.DataFrame(mx).describe()[
+                0]['50%'], pd.DataFrame(mx).describe()[
+                0]['std']])]
     for x, ret_val_lst in baseline2_dict.items():
         mc = []
         cc = []
         guser = []
         ne = []
+        mx = []
         for ret_val in ret_val_lst:
-            m, c, g, n = ret_val
+            m, c, g, n, l = ret_val
             mc.append(m)
             cc.append(c)
             guser.append(g)
             ne.append(n)
+            mx.append(l)
         baseline2_dict[x] = [([pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(mc).describe()[0]['75%'], pd.DataFrame(mc).describe()[0]['std'], pd.DataFrame(mc).describe()[0]['50%']], [pd.DataFrame(cc).describe()[
                              0]['75%'], pd.DataFrame(cc).describe()[
             0]['mean'], pd.DataFrame(cc).describe()[
             0]['50%'], pd.DataFrame(cc).describe()[
-            0]['std']], [pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(guser).describe()[0]['mean'], pd.DataFrame(guser).describe()[0]['50%'], pd.DataFrame(guser).describe()[0]['std']], [pd.DataFrame(ne).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['mean'], pd.DataFrame(ne).describe()[0]['50%'], pd.DataFrame(ne).describe()[0]['std']])]
+            0]['std']], [pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(guser).describe()[0]['mean'], pd.DataFrame(guser).describe()[0]['50%'], pd.DataFrame(guser).describe()[0]['std']], [pd.DataFrame(ne).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['mean'], pd.DataFrame(ne).describe()[0]['50%'], pd.DataFrame(ne).describe()[0]['std']], [pd.DataFrame(mx).describe()[
+                0]['75%'], pd.DataFrame(mx).describe()[
+                0]['mean'], pd.DataFrame(mx).describe()[
+                0]['50%'], pd.DataFrame(mx).describe()[
+                0]['std']])]
     for x, ret_val_lst in baseline3_dict.items():
         mc = []
         cc = []
         guser = []
         ne = []
+        mx = []
         for ret_val in ret_val_lst:
-            m, c, g, n = ret_val
+            m, c, g, n, l = ret_val
             mc.append(m)
             cc.append(c)
             guser.append(g)
             ne.append(n)
+            mx.append(l)
         baseline3_dict[x] = [([pd.DataFrame(mc).describe()[0]['mean'], pd.DataFrame(mc).describe()[0]['75%'], pd.DataFrame(mc).describe()[0]['std'], pd.DataFrame(mc).describe()[0]['50%']], [pd.DataFrame(cc).describe()[
                              0]['75%'], pd.DataFrame(cc).describe()[
             0]['mean'], pd.DataFrame(cc).describe()[
             0]['50%'], pd.DataFrame(cc).describe()[
-            0]['std']], [pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(guser).describe()[0]['mean'], pd.DataFrame(guser).describe()[0]['50%'], pd.DataFrame(guser).describe()[0]['std']], [pd.DataFrame(ne).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['mean'], pd.DataFrame(ne).describe()[0]['50%'], pd.DataFrame(ne).describe()[0]['std']])]
+            0]['std']], [pd.DataFrame(guser).describe()[0]['75%'], pd.DataFrame(guser).describe()[0]['mean'], pd.DataFrame(guser).describe()[0]['50%'], pd.DataFrame(guser).describe()[0]['std']], [pd.DataFrame(ne).describe()[0]['75%'], pd.DataFrame(ne).describe()[0]['mean'], pd.DataFrame(ne).describe()[0]['50%'], pd.DataFrame(ne).describe()[0]['std']], [pd.DataFrame(mx).describe()[
+                0]['75%'], pd.DataFrame(mx).describe()[
+                0]['mean'], pd.DataFrame(mx).describe()[
+                0]['50%'], pd.DataFrame(mx).describe()[
+                0]['std']])]
     draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict)
 
 
@@ -526,6 +548,32 @@ def draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
     parent_dir = os.getcwd()
     dir_name = 'analysis_output_files'
     file_name = 'NetworkEfficiencyvsUAVremoved'
+    plt.savefig(os.path.join(parent_dir, dir_name, file_name))
+    plt.clf()
+    b_mx_y = []
+    m_mx_y = []
+    b2_mx_y = []
+    b3_mx_y = []
+    for x in baseline_dict:
+        b_mx_y.append(baseline_dict[x][0][4][0])
+        m_mx_y.append(main_dict[x][0][4][0])
+        b2_mx_y.append(baseline2_dict[x][0][4][0])
+        b3_mx_y.append(baseline3_dict[x][0][4][0])
+    plt.scatter(x_axis, b_mx_y)
+    plt.plot(x_axis, b_mx_y, label=f'Baseline')
+    plt.scatter(x_axis, m_mx_y)
+    plt.plot(x_axis, m_mx_y, label=f'Main')
+    plt.scatter(x_axis, b2_mx_y)
+    plt.plot(x_axis, b2_mx_y, label=f'Baseline2')
+    plt.scatter(x_axis, b3_mx_y)
+    plt.plot(x_axis, b3_mx_y, label=f'Baseline3')
+    plt.legend()
+    plt.title('Nodes in largest connected component Vs Number of UAV Removed', fontweight="bold")
+    plt.xlabel('Number of UAV to remove', fontweight='bold')
+    plt.ylabel('Node in largest connected component', fontweight='bold')
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
+    file_name = 'NodeslargestccvsUAVremoved'
     plt.savefig(os.path.join(parent_dir, dir_name, file_name))
     plt.clf()
 
