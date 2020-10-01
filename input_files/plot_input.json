@@ -30,11 +30,11 @@
         "34 34"
     ],
     "UAV Communication Radius": [
-        4,
-        8,
-        12,
-        16,
-        20
+        4.5,
+        8.5,
+        12.5,
+        16.5,
+        20.5
     ],
     "plot_name": "UAV vs UAV Communication Radius",
     "x_axis": "UAV Communication Radius",

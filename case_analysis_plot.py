@@ -97,7 +97,7 @@ def determine(lst_to_iterate):
     elif 'area' in x_label.lower():
         plot('NM', lst_to_iterate)
     elif 'radius' in x_label.lower():
-        plot('UAV_to_UAV_threshold', lst_to_iterate)
+        plot('radius_UAV', lst_to_iterate)
 
 
 def plot(type, lst_to_iterate):
