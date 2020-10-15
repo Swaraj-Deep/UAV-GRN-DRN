@@ -542,10 +542,10 @@ def write_output(placed):
     plt.close()
     g_x, g_y = get_user_location(main_file_name)
     UAV_guser_plot = plt.figure(2)
-    plt.scatter(g_x, g_y, color='red')
+    plt.scatter(g_x, g_y, color='gray')
     UAV_x = []
     UAV_y = []
-    rad = int(radius_UAV // cell_size)
+    rad = int(radius_UAV // cell_size) + 1
     for node, loc in UAV_location.items():
         a, b = loc
         UAV_x.append(a)
@@ -553,7 +553,7 @@ def write_output(placed):
         c = plt.Circle((a, b), rad, color='green', fill=False)
         ax = plt.gca()
         ax.add_artist(c)
-    plt.scatter(UAV_x, UAV_y, color='purple')
+    plt.scatter(UAV_x, UAV_y, color='blue')
     for idx in range(len(UAV_x)):
         plt.annotate(f'{idx + 1}', (UAV_x[idx], UAV_y[idx]), color='black')
     for edge in UAV_G.edges:
@@ -566,7 +566,18 @@ def write_output(placed):
         x2, y2 = loc_b
         edge_x = [x1, x2]
         edge_y = [y1, y2]
-        plt.plot(edge_x, edge_y, color='purple')
+        plt.plot(edge_x, edge_y, color='red')
+    for edge in common_lst:
+        edge_x = []
+        edge_y = []
+        a, b = edge
+        loc_a = UAV_location[a]
+        loc_b = UAV_location[b]
+        x1, y1 = loc_a
+        x2, y2 = loc_b
+        edge_x = [x1, x2]
+        edge_y = [y1, y2]
+        plt.plot(edge_x, edge_y, color='blue')
     plt.title('Overall Scenario Visualization', fontweight="bold")
     plt.xlabel('N', fontweight='bold')
     plt.ylabel('M', fontweight='bold')
