@@ -18,7 +18,7 @@ script = "user_secnario_producer.py"
 
 # Maximum number of iterations
 
-max_iter = 5
+max_iter = 1
 
 # Area Size
 
@@ -90,24 +90,6 @@ def get_network_efficiency(placed, UAV_location, UAV_G):
     Parameters: placed -> list of placed UAVs, UAV_location -> Dictionary of placed UAVs along with their Locations, UAV_G -> UAV_graph\n
     Returns: Network Efficiency of the network
     """
-    # paths = []
-    # total_edge_cost = 1
-    # for node1 in placed:
-    #     for node2 in placed:
-    #         if node1 != node2:
-    #             try:
-    #                 den = len(nx.shortest_path(UAV_G, node1, node2)) - 1
-    #             except Exception as ex:
-    #                 den = 0
-    #             if den <= 0:
-    #                 den = 1
-    #             total_edge_cost += 1 / den
-    # n = len(placed)
-    # first_part = n * (n - 1)
-    # if first_part <= 0:
-    #     first_part = 1
-    # first_part = 1 / first_part
-    # return first_part * total_edge_cost
     return nx.global_efficiency(UAV_G)
 
 
@@ -271,6 +253,11 @@ def run(i):
     guser = ground_user_coverage(UAV_location)
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val1 = (mc, cc, guser, ne, mx)
+    ax = plt.gca()
+    ax.set_title(f'{nodes_rem_lst[i] * 100} Baseline Approach')
+    nx.draw(UAV_G, with_labels=True, ax=ax)
+    _ = ax.axis('off')   
+    plt.show()
     if flag:
         UAV_location_main, placed = parse_input_graph(
             'output_main2.json', os.path.join(parent_dir, dir_name))
@@ -293,6 +280,11 @@ def run(i):
     guser = ground_user_coverage(UAV_location)
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val2 = (mc, cc, guser, ne, mx)
+    ax = plt.gca()
+    ax.set_title(f'{nodes_rem_lst[i] * 100} Main Approach')
+    nx.draw(UAV_G, with_labels=True, ax=ax)
+    _ = ax.axis('off')   
+    plt.show()
     if i == 0:
         x = int(nodes_baseline2 * nodes_rem_lst[i])
         UAV_location_baseline2, placed = process_baseline2(
@@ -312,6 +304,11 @@ def run(i):
     guser = ground_user_coverage(UAV_location)
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val3 = (mc, cc, guser, ne, mx)
+    ax = plt.gca()
+    ax.set_title(f'{nodes_rem_lst[i] * 100} Baseline2 Approach')
+    nx.draw(UAV_G, with_labels=True, ax=ax)
+    _ = ax.axis('off')   
+    plt.show()
     if i == 0:
         x = int(nodes_baseline3 * nodes_rem_lst[i])
         UAV_location_baseline3, placed = process_baseline3(
@@ -331,6 +328,11 @@ def run(i):
     guser = ground_user_coverage(UAV_location)
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val4 = (mc, cc, guser, ne, mx)
+    ax = plt.gca()
+    ax.set_title(f'{nodes_rem_lst[i] * 100} Baseline3 Approach')
+    nx.draw(UAV_G, with_labels=True, ax=ax)
+    _ = ax.axis('off')   
+    plt.show()
     return (ret_val1, ret_val2, ret_val3, ret_val4)
 
 
