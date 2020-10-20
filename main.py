@@ -566,7 +566,7 @@ def write_output(placed):
         x2, y2 = loc_b
         edge_x = [x1, x2]
         edge_y = [y1, y2]
-        plt.plot(edge_x, edge_y, color='red')
+        plt.plot(edge_x, edge_y, color='blue')
     for edge in common_lst:
         edge_x = []
         edge_y = []
@@ -577,7 +577,7 @@ def write_output(placed):
         x2, y2 = loc_b
         edge_x = [x1, x2]
         edge_y = [y1, y2]
-        plt.plot(edge_x, edge_y, color='blue')
+        plt.plot(edge_x, edge_y, color='red')
     plt.title('Overall Scenario Visualization', fontweight="bold")
     plt.xlabel('N', fontweight='bold')
     plt.ylabel('M', fontweight='bold')

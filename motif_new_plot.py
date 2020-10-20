@@ -18,7 +18,7 @@ script = "user_secnario_producer.py"
 
 # Maximum number of iterations
 
-max_iter = 5
+max_iter = 1
 
 # Area Size
 
@@ -28,6 +28,7 @@ M = 0
 # UAV Communication threshold
 
 UAV_to_UAV_threshold = 0
+radius_UAV = 0
 
 # Cell size of each subgrid
 
@@ -55,6 +56,111 @@ nodes_main = 0
 nodes_baseline = 0
 nodes_baseline2 = 0
 nodes_baseline3 = 0
+
+
+def similarity_criteria(UAV_G):
+    """
+    Function:similarity_criteria\n
+    Parameter: UAV_G -> Current UAV graph\n
+    Returns: A tuple of common edges, uncommon edges and edges which are in grn graph. Dictionary of reverse mapping is also returned\n
+    """
+    grn_node_lst = [grn_endpoint.grn_info.m(node) for node in UAV_G.nodes]
+    reverse_mapping = {}
+    for node in UAV_G.nodes:
+        if grn_endpoint.grn_info.m(node) not in reverse_mapping:
+            reverse_mapping[grn_endpoint.grn_info.m(node)] = node
+    uncommon_lst = []
+    common_lst = []
+    grn_graph = grn_endpoint.grn_info.get_grn_graph()
+    grn_SG = grn_graph.subgraph(grn_node_lst)
+    grn_edge_lst = []
+    for edge in grn_SG.edges:
+        u, v = edge
+        if (u, v) not in grn_edge_lst and (v, u) not in grn_edge_lst:
+            grn_edge_lst.append((u, v))
+    for edge in grn_edge_lst:
+        u, v = edge
+        if (reverse_mapping[u], reverse_mapping[v]) in UAV_G.edges or (reverse_mapping[v], reverse_mapping[u]) in UAV_G.edges:
+            if (reverse_mapping[u], reverse_mapping[v]) not in common_lst and (reverse_mapping[v], reverse_mapping[u]) not in common_lst:
+                common_lst.append((reverse_mapping[u], reverse_mapping[v]))
+        else:
+            if (reverse_mapping[u], reverse_mapping[v]) not in uncommon_lst and (reverse_mapping[v], reverse_mapping[u]) not in uncommon_lst:
+                uncommon_lst.append((reverse_mapping[u], reverse_mapping[v]))
+    # return (common_lst, uncommon_lst, grn_edge_lst, reverse_mapping)
+    return common_lst
+
+
+def get_user_location(parent_dir):
+    """
+    Function: get_user_location\n
+    Parameter: parent_dir -> path of current dir\n
+    Returns: Returns list of x and y coordinates of ground users\n
+    """
+    dir_name = 'input_files'
+    file_name = 'user_input.json'
+    user_input = {}
+    with open(os.path.join(parent_dir, dir_name, file_name), 'r') as file_pointer:
+        user_input = json.load(file_pointer)
+    pos = user_input['Position of Ground users']
+    x = []
+    y = []
+    for item in pos:
+        a, b = map(float, item.split(' '))
+        x.append(a)
+        y.append(b)
+    return (x, y)
+
+
+def plot_graph(UAV_G, UAV_location, file_name, plot_label, x_label, y_label):
+    """
+    Function: plot_graph\n
+    Parameters: UAV_G -> UAV network, UAV_location -> Coordinates of each UAV, file_name -> name of the file, plot_label -> title of the plot, x_label -> x label of the plot, y_label -> y label of the plot\n
+    Functionality: Saves the Corresponding graph\n
+    """
+    global radius_UAV
+    plt.clf()
+    g_x, g_y = get_user_location(os.getcwd())
+    plt.scatter(g_x, g_y, color='gray')
+    UAV_x = []
+    UAV_y = []
+    rad = int(radius_UAV // cell_size) + 1
+    for node, loc in UAV_location.items():
+        a, b = loc
+        UAV_x.append(a)
+        UAV_y.append(b)
+        c = plt.Circle((a, b), rad, color='green', fill=False)
+        ax = plt.gca()
+        ax.add_artist(c)
+    plt.scatter(UAV_x, UAV_y, color='blue')
+    for idx in range(len(UAV_x)):
+        plt.annotate(f'{idx + 1}', (UAV_x[idx], UAV_y[idx]), color='black')
+    for edge in UAV_G.edges:
+        edge_x = []
+        edge_y = []
+        a, b = edge
+        loc_a = UAV_location[a]
+        loc_b = UAV_location[b]
+        x1, y1 = loc_a
+        x2, y2 = loc_b
+        edge_x = [x1, x2]
+        edge_y = [y1, y2]
+        plt.plot(edge_x, edge_y, color='blue')
+    common_lst = similarity_criteria(UAV_G)
+    for edge in common_lst:
+        edge_x = []
+        edge_y = []
+        a, b = edge
+        loc_a = UAV_location[a]
+        loc_b = UAV_location[b]
+        x1, y1 = loc_a
+        x2, y2 = loc_b
+        edge_x = [x1, x2]
+        edge_y = [y1, y2]
+        plt.plot(edge_x, edge_y, color='red')
+    plt.title(plot_label, fontweight="bold")
+    plt.xlabel(x_label, fontweight='bold')
+    plt.ylabel(y_label, fontweight='bold')
+    plt.savefig(os.path.join(os.getcwd(), 'node_failures_plots', file_name))
 
 
 def get_UAV_graph(UAV_location):
@@ -90,24 +196,6 @@ def get_network_efficiency(placed, UAV_location, UAV_G):
     Parameters: placed -> list of placed UAVs, UAV_location -> Dictionary of placed UAVs along with their Locations, UAV_G -> UAV_graph\n
     Returns: Network Efficiency of the network
     """
-    # paths = []
-    # total_edge_cost = 1
-    # for node1 in placed:
-    #     for node2 in placed:
-    #         if node1 != node2:
-    #             try:
-    #                 den = len(nx.shortest_path(UAV_G, node1, node2)) - 1
-    #             except Exception as ex:
-    #                 den = 0
-    #             if den <= 0:
-    #                 den = 1
-    #             total_edge_cost += 1 / den
-    # n = len(placed)
-    # first_part = n * (n - 1)
-    # if first_part <= 0:
-    #     first_part = 1
-    # first_part = 1 / first_part
-    # return first_part * total_edge_cost
     return nx.global_efficiency(UAV_G)
 
 
@@ -204,7 +292,8 @@ def remove_UAVs(x, UAV_location):
     while len(UAV_location) > diff:
         UAV_G = get_UAV_graph(UAV_location)
         triangles_dict = nx.triangles(UAV_G)
-        sorted_lst = sorted(triangles_dict.items(), key=lambda x: x[1], reverse=True)
+        sorted_lst = sorted(triangles_dict.items(),
+                            key=lambda x: x[1], reverse=True)
         rem, deg = sorted_lst[0]
         UAV_location.pop(rem)
     placed = [node for node, loc in UAV_location.items()]
@@ -248,6 +337,9 @@ def run(i):
     global flag, nodes_rem_lst, nodes_baseline, nodes_main, nodes_baseline2, nodes_baseline3
     global UAV_location_clone, UAV_location_clone1, UAV_location_baseline, UAV_location_main
     parent_dir = os.getcwd()
+    file_num = len([name for name in os.listdir(
+        os.path.join(parent_dir, 'node_failures_plots'))])
+    file_num //= 4
     dir_name = 'graph_output_files'
     if flag:
         UAV_location_baseline, placed = parse_input_graph(
@@ -271,6 +363,8 @@ def run(i):
     guser = ground_user_coverage(UAV_location)
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val1 = (mc, cc, guser, ne, mx)
+    plot_graph(UAV_G, UAV_location, f'EMST_{file_num}_(0).png',
+               f'Baseline with {nodes_rem_lst[i] * 100}% removal', 'N', 'M')
     if flag:
         UAV_location_main, placed = parse_input_graph(
             'output_main2.json', os.path.join(parent_dir, dir_name))
@@ -293,6 +387,8 @@ def run(i):
     guser = ground_user_coverage(UAV_location)
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val2 = (mc, cc, guser, ne, mx)
+    plot_graph(UAV_G, UAV_location, f'Proposed_{file_num}.png',
+               f'Main with {nodes_rem_lst[i] * 100}% removal', 'N', 'M')
     if i == 0:
         x = int(nodes_baseline2 * nodes_rem_lst[i])
         UAV_location_baseline2, placed = process_baseline2(
@@ -312,6 +408,8 @@ def run(i):
     guser = ground_user_coverage(UAV_location)
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val3 = (mc, cc, guser, ne, mx)
+    plot_graph(UAV_G, UAV_location, f'EMST_{file_num}_(1).png',
+               f'Baseline2 with {nodes_rem_lst[i] * 100}% removal', 'N', 'M')
     if i == 0:
         x = int(nodes_baseline3 * nodes_rem_lst[i])
         UAV_location_baseline3, placed = process_baseline3(
@@ -331,6 +429,8 @@ def run(i):
     guser = ground_user_coverage(UAV_location)
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val4 = (mc, cc, guser, ne, mx)
+    plot_graph(UAV_G, UAV_location, f'EMST_{file_num}_(1.5).png',
+               f'Baseline3 with {nodes_rem_lst[i] * 100}% removal', 'N', 'M')
     return (ret_val1, ret_val2, ret_val3, ret_val4)
 
 
@@ -570,7 +670,8 @@ def draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
     plt.scatter(x_axis, b3_mx_y)
     plt.plot(x_axis, b3_mx_y, label=f'Baseline3')
     plt.legend()
-    plt.title('Nodes in largest connected component Vs Number of UAV Removed', fontweight="bold")
+    plt.title(
+        'Nodes in largest connected component Vs Number of UAV Removed', fontweight="bold")
     plt.xlabel('Number of UAV to remove', fontweight='bold')
     plt.ylabel('Node in largest connected component', fontweight='bold')
     parent_dir = os.getcwd()
@@ -630,7 +731,7 @@ def init():
     Function: init
     Functionality: Sets all the global variables
     """
-    global UAV_to_UAV_threshold, cell_size, nodes_rem_lst, N, M
+    global UAV_to_UAV_threshold, cell_size, nodes_rem_lst, N, M, radius_UAV
     parent_dir = os.getcwd()
     parent_dir = os.getcwd()
     folder_name = 'input_files'
@@ -641,10 +742,12 @@ def init():
         UAV_to_UAV_threshold = file_data['UAV_to_UAV_threshold']
         cell_size = file_data['cell_size']
         unit_mul = file_data['unit_multiplier']
+        radius_UAV = file_data['radius_UAV']
         N = file_data['N']
         M = file_data['M']
     UAV_to_UAV_threshold *= unit_mul
     cell_size *= unit_mul
+    radius_UAV *= unit_mul
     file_name = 'new_plot.json'
     file_path = os.path.join(parent_dir, folder_name, file_name)
     with open(file_path, 'r') as file_pointer:
@@ -657,6 +760,11 @@ def init():
 
 if __name__ == "__main__":
     dir_path = os.path.join(os.getcwd(), 'analysis_output_files')
+    try:
+        os.mkdir(dir_path)
+    except OSError as error:
+        pass
+    dir_path = os.path.join(os.getcwd(), 'node_failures_plots')
     try:
         os.mkdir(dir_path)
     except OSError as error:
