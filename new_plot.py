@@ -57,6 +57,7 @@ nodes_baseline = 0
 nodes_baseline2 = 0
 nodes_baseline3 = 0
 
+
 def similarity_criteria(UAV_G):
     """
     Function:similarity_criteria\n
@@ -110,10 +111,10 @@ def get_user_location(parent_dir):
     return (x, y)
 
 
-def plot_graph(UAV_G, UAV_location, file_name, plot_label, x_label, y_label):
+def plot_graph(UAV_G, UAV_location, file_name, plot_label, x_label, y_label, flag):
     """
     Function: plot_graph\n
-    Parameters: UAV_G -> UAV network, UAV_location -> Coordinates of each UAV, file_name -> name of the file, plot_label -> title of the plot, x_label -> x label of the plot, y_label -> y label of the plot\n
+    Parameters: UAV_G -> UAV network, UAV_location -> Coordinates of each UAV, file_name -> name of the file, plot_label -> title of the plot, x_label -> x label of the plot, y_label -> y label of the plot, flag -> which plot to draw\n
     Functionality: Saves the Corresponding graph\n
     """
     global radius_UAV
@@ -133,29 +134,42 @@ def plot_graph(UAV_G, UAV_location, file_name, plot_label, x_label, y_label):
     plt.scatter(UAV_x, UAV_y, color='blue')
     for idx in range(len(UAV_x)):
         plt.annotate(f'{idx + 1}', (UAV_x[idx], UAV_y[idx]), color='black')
-    for edge in UAV_G.edges:
-        edge_x = []
-        edge_y = []
-        a, b = edge
-        loc_a = UAV_location[a]
-        loc_b = UAV_location[b]
-        x1, y1 = loc_a
-        x2, y2 = loc_b
-        edge_x = [x1, x2]
-        edge_y = [y1, y2]
-        plt.plot(edge_x, edge_y, color='blue')
-    common_lst = similarity_criteria(UAV_G)
-    for edge in common_lst:
-        edge_x = []
-        edge_y = []
-        a, b = edge
-        loc_a = UAV_location[a]
-        loc_b = UAV_location[b]
-        x1, y1 = loc_a
-        x2, y2 = loc_b
-        edge_x = [x1, x2]
-        edge_y = [y1, y2]
-        plt.plot(edge_x, edge_y, color='red')
+    if flag:
+        for edge in UAV_G.edges:
+            edge_x = []
+            edge_y = []
+            a, b = edge
+            loc_a = UAV_location[a]
+            loc_b = UAV_location[b]
+            x1, y1 = loc_a
+            x2, y2 = loc_b
+            edge_x = [x1, x2]
+            edge_y = [y1, y2]
+            plt.plot(edge_x, edge_y, color='blue')
+        common_lst = similarity_criteria(UAV_G)
+        for edge in common_lst:
+            edge_x = []
+            edge_y = []
+            a, b = edge
+            loc_a = UAV_location[a]
+            loc_b = UAV_location[b]
+            x1, y1 = loc_a
+            x2, y2 = loc_b
+            edge_x = [x1, x2]
+            edge_y = [y1, y2]
+            plt.plot(edge_x, edge_y, color='red')
+    else:
+        for edge in UAV_G.edges:
+            edge_x = []
+            edge_y = []
+            a, b = edge
+            loc_a = UAV_location[a]
+            loc_b = UAV_location[b]
+            x1, y1 = loc_a
+            x2, y2 = loc_b
+            edge_x = [x1, x2]
+            edge_y = [y1, y2]
+            plt.plot(edge_x, edge_y, color='black')
     plt.title(plot_label, fontweight="bold")
     plt.xlabel(x_label, fontweight='bold')
     plt.ylabel(y_label, fontweight='bold')
@@ -361,7 +375,7 @@ def run(i):
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val1 = (mc, cc, guser, ne, mx)
     plot_graph(UAV_G, UAV_location, f'EMST_{file_num}_(0).png',
-               f'Baseline with {nodes_rem_lst[i] * 100}% removal', 'N', 'M')
+               f'Baseline with {nodes_rem_lst[i] * 100}% removal', 'N', 'M', False)
     if flag:
         UAV_location_main, placed = parse_input_graph(
             'output_main2.json', os.path.join(parent_dir, dir_name))
@@ -385,7 +399,7 @@ def run(i):
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val2 = (mc, cc, guser, ne, mx)
     plot_graph(UAV_G, UAV_location, f'Proposed_{file_num}.png',
-               f'Main with {nodes_rem_lst[i] * 100}% removal', 'N', 'M')
+               f'Main with {nodes_rem_lst[i] * 100}% removal', 'N', 'M', True)
     if i == 0:
         x = int(nodes_baseline2 * nodes_rem_lst[i])
         UAV_location_baseline2, placed = process_baseline2(
@@ -406,7 +420,7 @@ def run(i):
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val3 = (mc, cc, guser, ne, mx)
     plot_graph(UAV_G, UAV_location, f'EMST_{file_num}_(1).png',
-               f'Baseline2 with {nodes_rem_lst[i] * 100}% removal', 'N', 'M')
+               f'Baseline2 with {nodes_rem_lst[i] * 100}% removal', 'N', 'M', False)
     if i == 0:
         x = int(nodes_baseline3 * nodes_rem_lst[i])
         UAV_location_baseline3, placed = process_baseline3(
@@ -427,7 +441,7 @@ def run(i):
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val4 = (mc, cc, guser, ne, mx)
     plot_graph(UAV_G, UAV_location, f'EMST_{file_num}_(1.5).png',
-               f'Baseline3 with {nodes_rem_lst[i] * 100}% removal', 'N', 'M')
+               f'Baseline3 with {nodes_rem_lst[i] * 100}% removal', 'N', 'M', False)
     return (ret_val1, ret_val2, ret_val3, ret_val4)
 
 
@@ -667,7 +681,8 @@ def draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
     plt.scatter(x_axis, b3_mx_y)
     plt.plot(x_axis, b3_mx_y, label=f'Baseline3')
     plt.legend()
-    plt.title('Nodes in largest connected component Vs Number of UAV Removed', fontweight="bold")
+    plt.title(
+        'Nodes in largest connected component Vs Number of UAV Removed', fontweight="bold")
     plt.xlabel('Number of UAV to remove', fontweight='bold')
     plt.ylabel('Node in largest connected component', fontweight='bold')
     parent_dir = os.getcwd()
