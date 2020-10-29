@@ -587,7 +587,7 @@ def write_output(placed):
     pp.close()
     graph_output_dir = os.path.join(main_file_name, 'graph_output_files')
     file_num = len([name for name in os.listdir(graph_output_dir)])
-    file_name = os.path.join(graph_output_dir, f'output_main{file_num + 1}.json')
+    file_name = os.path.join(graph_output_dir, f'output_main{file_num // 2}.json')
     with open(file_name, 'w') as file_pointer:
         json.dump(UAV_location, file_pointer)
 
