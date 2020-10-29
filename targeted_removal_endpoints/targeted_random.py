@@ -555,6 +555,7 @@ def draw_plot(baseline_dict, main_dict, baseline2_dict, baseline3_dict):
         m_mc_y.append(main_dict[x][0][0][0])
         b2_mc_y.append(baseline2_dict[x][0][0][0])
         b3_mc_y.append(baseline3_dict[x][0][0][0])
+    plt.clf()
     plt.scatter(x_axis, b_mc_y)
     plt.plot(x_axis, b_mc_y, label=f'Baseline')
     plt.scatter(x_axis, m_mc_y)
