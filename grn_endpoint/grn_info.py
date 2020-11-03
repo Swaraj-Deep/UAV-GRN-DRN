@@ -78,6 +78,15 @@ n_motif = {}
 mapping = {}
 
 
+def get_n_motif():
+    """
+    Function: get_n_motif\n
+    Parameter: None\n
+    returns: Node motif centrality of the grn graph
+    """
+    global n_motif
+    return n_motif
+
 def get_emc(u, v):
     """
     Function: get_emc\n
