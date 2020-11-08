@@ -124,23 +124,29 @@ def manage_all(degree_data, motif_data):
 
     # Option one
 
-    data = get_filter_data(degree_data, 10)
-    plot_option_one(data, '')
-    data = get_filter_data(motif_data, 5)
-    plot_option_one(data, '')
+    # data = get_filter_data(degree_data, 10)
+    # file_path = os.path.join(
+    #     os.getcwd(), 'analysis_output_files', 'grn_properties_degree_filter_plot.json')
+    # write_to_json(degree_data, file_path)
+    # plot_option_one(data, '')
+    # data = get_filter_data(motif_data, 5)
+    # file_path = os.path.join(
+    #     os.getcwd(), 'analysis_output_files', 'grn_properties_motif_filter_plot.json')
+    # write_to_json(motif_data, file_path)
+    # plot_option_one(data, '')
 
     # Option Two
 
-    # data_x = [degree for degree, frequency in degree_data.items()]
-    # data_y = [frequency for degree, frequency in degree_data.items()]
-    # plt.bar(data_x, data_y, color='r')
-    # plt.xticks(np.arange(min(data_x), max(data_x)+1, 50.0))
-    # plt.show()
-    # data_x = [degree for degree, frequency in motif_data.items()]
-    # data_y = [frequency for degree, frequency in motif_data.items()]
-    # plt.bar(data_x, data_y, color='r')
-    # plt.xticks(np.arange(min(data_x), max(data_x)+1, 50.0))
-    # plt.show()
+    data_x = [degree for degree, frequency in degree_data.items()]
+    data_y = [frequency for degree, frequency in degree_data.items()]
+    plt.bar(data_x, data_y, color='r')
+    plt.xticks(np.arange(min(data_x), max(data_x)+1, 50.0))
+    plt.show()
+    data_x = [degree for degree, frequency in motif_data.items()]
+    data_y = [frequency for degree, frequency in motif_data.items()]
+    plt.bar(data_x, data_y, color='r')
+    plt.xticks(np.arange(min(data_x), max(data_x)+1, 50.0))
+    plt.show()
 
     # Option Three
 
@@ -193,5 +199,4 @@ def init_proposed():
 if __name__ == "__main__":
     # degree_data, motif_data = init()
     degree_data, motif_data = init_proposed()
-    print(degree_data)
     manage_all(degree_data, motif_data)
