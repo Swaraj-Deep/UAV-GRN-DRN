@@ -2,7 +2,7 @@ import os
 import json
 import matplotlib.pyplot as plt
 
-number_UAVs = [1, 2, 4, 8, 16, 32]
+number_UAVs = [4, 8, 16, 32]
 command = "python3"
 script = "user_secnario_producer.py"
 
@@ -34,7 +34,7 @@ def execute():
     Functionality: Execute the  main file\n
     """
     global command
-    os.system('./fresh_analysis.sh')
+    os.system('bash fresh_analysis.sh')
     os.system(f'{command} main.py')
 
 
@@ -61,10 +61,10 @@ def get_output_directory():
     return os.path.join(parent_dir, output_dir, curr_dir)
 
 
-def get_grounduser_and_similarity():
+def get_grounduser_and_similarity(number_users):
     """
     Function: get_grounduser_and_similarity\n
-    Parameter: None\n
+    Parameter: number_users -> number of users in the environment\n
     Returns: Tuple of groundUser covered and similarity percentage\n
     """
     dir_path = get_output_directory()
@@ -74,7 +74,7 @@ def get_grounduser_and_similarity():
     curr_UAV_used = int(lines[2].split(':')[1])
     similarity_percentage = float(
         find_percentage(lines, curr_UAV_used))
-    return (curr_user_served, similarity_percentage)
+    return (curr_user_served / number_users, similarity_percentage)
 
 
 def line_plot(graph_data):
@@ -83,26 +83,52 @@ def line_plot(graph_data):
     Parameter: graph_data -> dictionary where key is the number of UAVs given and value is the tuple of ground user covered and similarity percentage\n
     Functionality: Draws a line plot\n
     """
+    parent_dir = os.getcwd()
+    dir_name = 'analysis_output_files'
+    file_name = 'GUNewPlot.png'
+    file_path = os.path.join(parent_dir, dir_name, file_name)
     x_val = [key for key in graph_data]
     ground_user_covered = [value[0] for key, value in graph_data.items()]
     similarity_percentage = [value[1] for key, value in graph_data.items()]
+    # Ground User percentage
     plt.scatter(x_val, ground_user_covered)
     plt.plot(x_val, ground_user_covered, label="Ground User served")
-    plt.scatter(x_val, similarity_percentage)
-    plt.plot(x_val, similarity_percentage, label="Similarity Percentage")
-    plt.ylabel('Ground User covered and Similarity percentage',
+    plt.ylabel('Percentage of Ground User covered',
                fontsize=12, fontweight='bold')
-    plt.xlabel('Maximum Number of UAVs', fontsize=12, fontweight='bold')
-    plt.title('Variation of user coverage and similarity percentage',
+    plt.xlabel('Number of UAVs', fontsize=12, fontweight='bold')
+    plt.title('User coverage percentage Vs Number of UAVs',
               fontsize=12, fontweight='bold')
     plt.xticks(fontsize=10, fontweight='bold')
     plt.yticks(fontsize=10, fontweight='bold')
     plt.legend()
-    parent_dir = os.getcwd()
-    dir_name = 'analysis_output_files'
-    file_name = 'GUandSimilarity.png'
+    plt.savefig(file_path)
+    # Clear plot
+    plt.clf()
+    # Similarity Percentage
+    plt.scatter(x_val, similarity_percentage)
+    plt.plot(x_val, similarity_percentage, label="Similarity Percentage")
+    plt.ylabel('Similarity Percentage',
+               fontsize=12, fontweight='bold')
+    plt.xlabel('Number of UAVs', fontsize=12, fontweight='bold')
+    plt.title('Similarity percentage Vs Number of UAVs',
+              fontsize=12, fontweight='bold')
+    plt.xticks(fontsize=10, fontweight='bold')
+    plt.yticks(fontsize=10, fontweight='bold')
+    plt.legend()
+    file_name = 'SimiPerctNewPlot.png'
     file_path = os.path.join(parent_dir, dir_name, file_name)
     plt.savefig(file_path)
+    
+
+
+def write_to_json(data, file_path):
+    """
+    Function: write_to_json\n
+    Parameters: data -> data to be written, file_path -> path of the file\n
+    Functionality: Writes the json data to the file\n
+    """
+    with open(file_path, 'w') as file_pointer:
+        json.dump(data, file_pointer)
 
 
 def init():
@@ -113,9 +139,14 @@ def init():
     """
     global number_UAVs
     graph_data = {}
-    os.system('./fresh_analysis.sh')
+    os.system('bash fresh_analysis.sh')
     parent_dir = os.getcwd()
     target_dir = 'input_files'
+    file_name = 'user_location.json'
+    file_path = os.path.join(parent_dir, target_dir, file_name)
+    with open(file_path, 'r') as file_pointer:
+        data = json.load(file_pointer)
+    number_users = data['Number of User'] / 100
     file_name = 'scenario_input.json'
     file_path = os.path.join(parent_dir, target_dir, file_name)
     global script, command
@@ -127,9 +158,17 @@ def init():
         with open(file_path, 'w') as file_pointer:
             json.dump(data, file_pointer)
         execute()
-        graph_data[number_UAV] = get_grounduser_and_similarity()
+        graph_data[number_UAV] = get_grounduser_and_similarity(number_users)
+    file_path = os.path.join(
+        os.getcwd(), 'analysis_output_files', 'GU_Similarity_plot.json')
+    write_to_json(graph_data, file_path)
     line_plot(graph_data)
 
 
 if __name__ == "__main__":
+    dir_path = os.path.join(os.getcwd(), 'analysis_output_files')
+    try:
+        os.mkdir(dir_path)
+    except OSError as error:
+        pass
     init()

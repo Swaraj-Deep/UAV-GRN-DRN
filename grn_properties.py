@@ -42,8 +42,13 @@ if __name__ == "__main__":
     init()
     print('Degree Count', get_degree_count())
     print('Motif Count', get_motif_count())
-    data = get_degree_count()
+    data = {1: 19, 2: 8, 3: 77, 4: 90, 5: 52, 6: 75, 7: 22, 8: 17, 9: 6, 10: 2, 11: 3, 12: 2, 13: 4, 14: 1, 15: 3, 17: 2, 21: 1, 23: 3, 24: 1, 28: 1, 30: 1, 36: 2, 50: 1, 54: 1, 72: 1}
     data_x = [degree for degree, frequency in data.items()]
+    print(data_x)
     data_y = [frequency for degree, frequency in data.items()]
+    print(max(data_x))
+    # print(max(data_y))
     plt.bar(data_x, data_y, color='r')
+    # plt.xscale("log")
+    plt.xticks(data_x)
     plt.show()
