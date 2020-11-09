@@ -78,35 +78,16 @@ def write_to_json(data, file_path):
         json.dump(data, file_pointer)
 
 
-def get_filter_data(data, division_block):
+def get_filter_data(data):
     """
     Function: get_filter_data\n
-    Parameters: data -> data to filter, division_block -> how the data will be divided\n
+    Parameters: data -> data to plot\n
     Functionality: Filter the data and return the filtered data\n
     """
-    filter_data = {}
-    for key, value in data.items():
-        if key // division_block in filter_data:
-            filter_data[key // division_block].append(value)
-        else:
-            filter_data[key // division_block] = [value]
-    new_data = {}
-    for key, value in filter_data.items():
-        value = pd.DataFrame(value).describe()[0]['50%']
-        new_data[key] = value
-    return new_data
-
-
-def plot_option_one(data, file_path):
-    """
-    Function: plot_option_one\n
-    Parameter: data -> data to plot, file_path -> path of the file to save the image\n
-    Functionality: generate and save the bar plot\n
-    """
-    data_x = [degree for degree, frequency in data.items()]
-    data_y = [frequency for degree, frequency in data.items()]
-    plt.bar(data_x, data_y, color='r')
-    plt.show()
+    data_x = [key for key, frequency in data.items()]
+    summation = sum(data.values())
+    data_y = [frequency / summation for key, frequency in data.items()]
+    return (data_x, data_y)
 
 
 def manage_all(degree_data, motif_data):
@@ -115,51 +96,41 @@ def manage_all(degree_data, motif_data):
     Parameters: degree_data -> data for the degree graph, motif_data -> data for the motif graph\n
     Functionality: Manages the simulation\n
     """
+    # Write data to file
     file_path = os.path.join(
         os.getcwd(), 'analysis_output_files', 'grn_properties_degree_plot.json')
     write_to_json(degree_data, file_path)
     file_path = os.path.join(
         os.getcwd(), 'analysis_output_files', 'grn_properties_motif_plot.json')
     write_to_json(motif_data, file_path)
-
-    # Option one
-
-    # data = get_filter_data(degree_data, 10)
-    # file_path = os.path.join(
-    #     os.getcwd(), 'analysis_output_files', 'grn_properties_degree_filter_plot.json')
-    # write_to_json(degree_data, file_path)
-    # plot_option_one(data, '')
-    # data = get_filter_data(motif_data, 5)
-    # file_path = os.path.join(
-    #     os.getcwd(), 'analysis_output_files', 'grn_properties_motif_filter_plot.json')
-    # write_to_json(motif_data, file_path)
-    # plot_option_one(data, '')
-
-    # Option Two
-
-    data_x = [degree for degree, frequency in degree_data.items()]
-    data_y = [frequency for degree, frequency in degree_data.items()]
-    plt.bar(data_x, data_y, color='r')
-    plt.xticks(np.arange(min(data_x), max(data_x)+1, 50.0))
-    plt.show()
-    data_x = [degree for degree, frequency in motif_data.items()]
-    data_y = [frequency for degree, frequency in motif_data.items()]
-    plt.bar(data_x, data_y, color='r')
-    plt.xticks(np.arange(min(data_x), max(data_x)+1, 50.0))
-    plt.show()
-
-    # Option Three
-
-    # data_x = [degree for degree, frequency in degree_data.items()]
-    # data_y = [frequency for degree, frequency in degree_data.items()]
-    # plt.bar(data_x, data_y, color='r')
-    # plt.xscale("log")
-    # plt.show()
-    # data_x = [degree for degree, frequency in motif_data.items()]
-    # data_y = [frequency for degree, frequency in motif_data.items()]
-    # plt.bar(data_x, data_y, color='r')
-    # plt.xscale("log")
-    # plt.show()
+    # End writing
+    file_name = 'degree_distribution_grn.png'
+    file_path = os.path.join(os.getcwd(), 'analysis_output_files', file_name)
+    # Description of degree distribution plot
+    data_x, data_y = get_filter_data(degree_data)
+    plt.bar(data_x, data_y, color='b', width=0.5)
+    plt.ylabel('Frequency of occurance',
+               fontsize=17, fontweight='bold')
+    plt.xlabel('Degree of nodes', fontsize=16, fontweight='bold')
+    # plt.title('Frequency Vs Degree of nodes',
+    #           fontsize=17, fontweight='bold')
+    plt.xticks(fontsize=15, fontweight='bold', rotation=45)
+    plt.yticks(fontsize=15, fontweight='bold')
+    plt.savefig(file_path)
+    # Description of motif distribution plot
+    file_name = 'motif_distribution_grn.png'
+    file_path = os.path.join(os.getcwd(), 'analysis_output_files', file_name)
+    data_x, data_y = get_filter_data(motif_data)
+    plt.bar(data_x, data_y, color='b', width=0.5)
+    plt.ylabel('Frequency of occurance',
+               fontsize=17, fontweight='bold')
+    plt.xlabel('Node motif centrality of nodes',
+               fontsize=16, fontweight='bold')
+    # plt.title('Frequency Vs Node motif centrality of nodes',
+    #           fontsize=17, fontweight='bold')
+    plt.xticks(fontsize=15, fontweight='bold', rotation=45)
+    plt.yticks(fontsize=15, fontweight='bold')
+    plt.savefig(file_path)
 
 
 def init_proposed():
@@ -197,6 +168,15 @@ def init_proposed():
 
 
 if __name__ == "__main__":
+    dir_path = os.path.join(os.getcwd(), 'analysis_output_files')
+    try:
+        os.mkdir(dir_path)
+    except OSError as error:
+        pass
     # degree_data, motif_data = init()
-    degree_data, motif_data = init_proposed()
+    # degree_data, motif_data = init_proposed()
+    degree_data = {"1": 19, "2": 8, "3": 77, "4": 90, "5": 52, "6": 75, "7": 22, "8": 17, "9": 6, "10": 2, "11": 3,
+                   "12": 2, "13": 4, "14": 1, "15": 3, "17": 2, "21": 1, "23": 3, "24": 1, "28": 1, "30": 1, "36": 2, "50": 1}
+    motif_data = {"0": 35, "1": 3, "2": 82, "3": 50, "4": 44, "5": 38, "6": 44, "7": 42, "8": 6, "9": 2, "10": 9,
+                  "11": 9, "13": 2, "15": 3, "16": 1, "17": 2, "18": 1, "21": 1, "24": 6, "28": 2, "29": 1, "32": 1, "33": 1, "34": 1}
     manage_all(degree_data, motif_data)
