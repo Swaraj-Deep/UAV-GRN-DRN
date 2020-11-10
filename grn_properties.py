@@ -108,7 +108,8 @@ def manage_all(degree_data, motif_data):
     file_path = os.path.join(os.getcwd(), 'analysis_output_files', file_name)
     # Description of degree distribution plot
     data_x, data_y = get_filter_data(degree_data)
-    plt.bar(data_x, data_y, color='b', width=0.5)
+    # plt.bar(data_x, data_y, color='b', width=0.5)
+    plt.scatter(data_x, data_y, color='b')
     plt.ylabel('Frequency of occurance',
                fontsize=17, fontweight='bold')
     plt.xlabel('Degree of nodes', fontsize=16, fontweight='bold')
@@ -121,7 +122,8 @@ def manage_all(degree_data, motif_data):
     file_name = 'motif_distribution_grn.png'
     file_path = os.path.join(os.getcwd(), 'analysis_output_files', file_name)
     data_x, data_y = get_filter_data(motif_data)
-    plt.bar(data_x, data_y, color='b', width=0.5)
+    # plt.bar(data_x, data_y, color='b', width=0.5)
+    plt.scatter(data_x, data_y, color='b')
     plt.ylabel('Frequency of occurance',
                fontsize=17, fontweight='bold')
     plt.xlabel('Node motif centrality of nodes',
@@ -173,10 +175,10 @@ if __name__ == "__main__":
         os.mkdir(dir_path)
     except OSError as error:
         pass
-    # degree_data, motif_data = init()
+    degree_data, motif_data = init()
     # degree_data, motif_data = init_proposed()
-    degree_data = {"1": 19, "2": 8, "3": 77, "4": 90, "5": 52, "6": 75, "7": 22, "8": 17, "9": 6, "10": 2, "11": 3,
-                   "12": 2, "13": 4, "14": 1, "15": 3, "17": 2, "21": 1, "23": 3, "24": 1, "28": 1, "30": 1, "36": 2, "50": 1}
-    motif_data = {"0": 35, "1": 3, "2": 82, "3": 50, "4": 44, "5": 38, "6": 44, "7": 42, "8": 6, "9": 2, "10": 9,
-                  "11": 9, "13": 2, "15": 3, "16": 1, "17": 2, "18": 1, "21": 1, "24": 6, "28": 2, "29": 1, "32": 1, "33": 1, "34": 1}
+    # degree_data = {"1": 19, "2": 8, "3": 77, "4": 90, "5": 52, "6": 75, "7": 22, "8": 17, "9": 6, "10": 2, "11": 3,
+    #                "12": 2, "13": 4, "14": 1, "15": 3, "17": 2, "21": 1, "23": 3, "24": 1, "28": 1, "30": 1, "36": 2, "50": 1}
+    # motif_data = {"0": 35, "1": 3, "2": 82, "3": 50, "4": 44, "5": 38, "6": 44, "7": 42, "8": 6, "9": 2, "10": 9,
+    #               "11": 9, "13": 2, "15": 3, "16": 1, "17": 2, "18": 1, "21": 1, "24": 6, "28": 2, "29": 1, "32": 1, "33": 1, "34": 1}
     manage_all(degree_data, motif_data)
