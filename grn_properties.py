@@ -90,10 +90,10 @@ def get_filter_data(data):
     return (data_x, data_y)
 
 
-def manage_all(degree_data, motif_data):
+def manage_all(degree_data, motif_data, degree_data_proposed, motif_data_proposed):
     """
     Function: manage_all\n
-    Parameters: degree_data -> data for the degree graph, motif_data -> data for the motif graph\n
+    Parameters: degree_data -> degree data for the GRN graph, motif_data -> motif data for the GRN graph, degree_data_proposed -> degree data for the Proposed graph, motif_data_proposed -> motif data for the Proposed graph\n
     Functionality: Manages the simulation\n
     """
     # Write data to file
@@ -103,35 +103,43 @@ def manage_all(degree_data, motif_data):
     file_path = os.path.join(
         os.getcwd(), 'analysis_output_files', 'grn_properties_motif_plot.json')
     write_to_json(motif_data, file_path)
+    file_path = os.path.join(
+        os.getcwd(), 'analysis_output_files', 'proposed_properties_degree_plot.json')
+    write_to_json(degree_data_proposed, file_path)
+    file_path = os.path.join(
+        os.getcwd(), 'analysis_output_files', 'proposed_properties_motif_plot.json')
+    write_to_json(motif_data_proposed, file_path)
     # End writing
-    file_name = 'degree_distribution_grn.png'
+    file_name = 'degree_distribution_grn_proposed.png'
     file_path = os.path.join(os.getcwd(), 'analysis_output_files', file_name)
     # Description of degree distribution plot
     data_x, data_y = get_filter_data(degree_data)
-    # plt.bar(data_x, data_y, color='b', width=0.5)
+    data_x_proposed, data_y_proposed = get_filter_data(degree_data_proposed)
     plt.scatter(data_x, data_y, color='b')
+    plt.scatter(data_x_proposed, data_y_proposed, color='r', marker='x')
     plt.ylabel('Frequency of occurance',
-               fontsize=17, fontweight='bold')
-    plt.xlabel('Degree of nodes', fontsize=16, fontweight='bold')
+               fontsize=12, fontweight='bold')
+    plt.xlabel('Degree of nodes', fontsize=12, fontweight='bold')
     # plt.title('Frequency Vs Degree of nodes',
     #           fontsize=17, fontweight='bold')
-    plt.xticks(fontsize=15, fontweight='bold', rotation=45)
-    plt.yticks(fontsize=15, fontweight='bold')
+    plt.xticks(fontsize=10, fontweight='bold')
+    plt.yticks(fontsize=10, fontweight='bold')
     plt.savefig(file_path)
     # Description of motif distribution plot
-    file_name = 'motif_distribution_grn.png'
+    file_name = 'motif_distribution_grn_proposed.png'
     file_path = os.path.join(os.getcwd(), 'analysis_output_files', file_name)
     data_x, data_y = get_filter_data(motif_data)
-    # plt.bar(data_x, data_y, color='b', width=0.5)
+    data_x_proposed, data_y_proposed = get_filter_data(motif_data_proposed)
     plt.scatter(data_x, data_y, color='b')
+    plt.scatter(data_x_proposed, data_y_proposed, color='r', marker='x')
     plt.ylabel('Frequency of occurance',
-               fontsize=17, fontweight='bold')
+               fontsize=12, fontweight='bold')
     plt.xlabel('Node motif centrality of nodes',
-               fontsize=16, fontweight='bold')
+               fontsize=12, fontweight='bold')
     # plt.title('Frequency Vs Node motif centrality of nodes',
     #           fontsize=17, fontweight='bold')
-    plt.xticks(fontsize=15, fontweight='bold', rotation=45)
-    plt.yticks(fontsize=15, fontweight='bold')
+    plt.xticks(fontsize=10, fontweight='bold')
+    plt.yticks(fontsize=10, fontweight='bold')
     plt.savefig(file_path)
 
 
@@ -176,9 +184,5 @@ if __name__ == "__main__":
     except OSError as error:
         pass
     degree_data, motif_data = init()
-    # degree_data, motif_data = init_proposed()
-    # degree_data = {"1": 19, "2": 8, "3": 77, "4": 90, "5": 52, "6": 75, "7": 22, "8": 17, "9": 6, "10": 2, "11": 3,
-    #                "12": 2, "13": 4, "14": 1, "15": 3, "17": 2, "21": 1, "23": 3, "24": 1, "28": 1, "30": 1, "36": 2, "50": 1}
-    # motif_data = {"0": 35, "1": 3, "2": 82, "3": 50, "4": 44, "5": 38, "6": 44, "7": 42, "8": 6, "9": 2, "10": 9,
-    #               "11": 9, "13": 2, "15": 3, "16": 1, "17": 2, "18": 1, "21": 1, "24": 6, "28": 2, "29": 1, "32": 1, "33": 1, "34": 1}
-    manage_all(degree_data, motif_data)
+    degree_data_proposed, motif_data_proposed = init_proposed()
+    manage_all(degree_data, motif_data, degree_data_proposed, motif_data_proposed)
