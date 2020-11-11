@@ -148,14 +148,14 @@ def all_plot(data1, data2, data3):
     # plt.savefig(file_path)
     plt.show()
     # Clear plot
-    # plt.clf()
+    plt.clf()
     # # Similarity Percentage
     similarity_percentage = [value[1] for key, value in data1.items()]
     plt.scatter(x_val, similarity_percentage)
     plt.plot(x_val, similarity_percentage, label="Similarity Percentage 100")
     similarity_percentage = [value[1] for key, value in data2.items()]
     plt.scatter(x_val, similarity_percentage)
-    plt.plot(x_val, similarity_percentage, label="Similarity Percentage 300")
+    plt.plot(x_val, similarity_percentage, label="Similarity Percentage 200")
     similarity_percentage = [value[1] for key, value in data3.items()]
     plt.scatter(x_val, similarity_percentage)
     plt.plot(x_val, similarity_percentage, label="Similarity Percentage 300")
