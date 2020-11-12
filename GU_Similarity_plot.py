@@ -1,9 +1,10 @@
 import os
 import json
 import matplotlib.pyplot as plt
+from matplotlib.legend_handler import HandlerLine2D
 
 number_UAVs = [4, 8, 16, 32]
-command = "python3"
+command = "python"
 script = "user_secnario_producer.py"
 
 
@@ -101,8 +102,8 @@ def line_plot(graph_data):
     plt.xticks(fontsize=10, fontweight='bold')
     plt.yticks(fontsize=10, fontweight='bold')
     plt.legend()
-    # plt.savefig(file_path)
-    plt.show()
+    plt.savefig(file_path)
+    # plt.show()
     # Clear plot
     plt.clf()
     # Similarity Percentage
@@ -118,8 +119,8 @@ def line_plot(graph_data):
     plt.legend()
     file_name = 'SimiPerctNewPlot.png'
     file_path = os.path.join(parent_dir, dir_name, file_name)
-    # plt.savefig(file_path)
-    plt.show()
+    plt.savefig(file_path)
+    # plt.show()
     
     
 def all_plot(data1, data2, data3):
@@ -128,44 +129,47 @@ def all_plot(data1, data2, data3):
     file_name = 'GUNewPlot.png'
     file_path = os.path.join(parent_dir, dir_name, file_name)
     x_val = [key for key in data1]
+
+    # for 100 ground users
     ground_user_covered = [value[0] for key, value in data1.items()]
-    plt.scatter(x_val, ground_user_covered)
-    plt.plot(x_val, ground_user_covered, label="Ground User served 100")
+    plt.plot(x_val, ground_user_covered, 'g--x', label="100 Ground Users", ms=8, linewidth=2)
+
+    # for 200 ground users
     ground_user_covered = [value[0] for key, value in data2.items()]
-    plt.scatter(x_val, ground_user_covered)
-    plt.plot(x_val, ground_user_covered, label="Ground User served 200")
+    plt.plot(x_val, ground_user_covered, 'b:+',label="200 Ground Users", ms=8, linewidth=2)
+
+    # for 300 ground users
     ground_user_covered = [value[0] for key, value in data3.items()]
-    plt.scatter(x_val, ground_user_covered)
-    plt.plot(x_val, ground_user_covered, label="Ground User served 300")
-    plt.ylabel('Percentage of Ground User covered',
-               fontsize=12, fontweight='bold')
-    plt.xlabel('Number of UAVs', fontsize=12, fontweight='bold')
-    plt.title('User coverage percentage Vs Number of UAVs',
-              fontsize=12, fontweight='bold')
-    plt.xticks(fontsize=10, fontweight='bold')
-    plt.yticks(fontsize=10, fontweight='bold')
+    plt.plot(x_val, ground_user_covered, 'r-.v',label="300 Ground Users", ms=8, linewidth=2)
+    
+    plt.ylabel('Ground User coverage (in %)',
+               fontsize=17, fontweight='bold')
+    plt.xlabel('Number of UAVs', fontsize=17, fontweight='bold')
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
     plt.legend()
     # plt.savefig(file_path)
     plt.show()
-    # Clear plot
+    #Clear plot
     plt.clf()
     # # Similarity Percentage
+    # 100 ground users
     similarity_percentage = [value[1] for key, value in data1.items()]
-    plt.scatter(x_val, similarity_percentage)
-    plt.plot(x_val, similarity_percentage, label="Similarity Percentage 100")
+    plt.plot(x_val, similarity_percentage, 'g--x', label="100 Ground Users", ms=8, linewidth=2)
+
+    # 200 ground users
     similarity_percentage = [value[1] for key, value in data2.items()]
-    plt.scatter(x_val, similarity_percentage)
-    plt.plot(x_val, similarity_percentage, label="Similarity Percentage 200")
+    plt.plot(x_val, similarity_percentage, 'b:+',label="200 Ground Users", ms=8, linewidth=2)
+
+    # 300 ground users
     similarity_percentage = [value[1] for key, value in data3.items()]
-    plt.scatter(x_val, similarity_percentage)
-    plt.plot(x_val, similarity_percentage, label="Similarity Percentage 300")
+    plt.plot(x_val, similarity_percentage, 'r-.v',label="300 Ground Users", ms=8, linewidth=2)
+    
     plt.ylabel('Similarity Percentage',
-               fontsize=12, fontweight='bold')
-    plt.xlabel('Number of UAVs', fontsize=12, fontweight='bold')
-    plt.title('Similarity percentage Vs Number of UAVs',
-              fontsize=12, fontweight='bold')
-    plt.xticks(fontsize=10, fontweight='bold')
-    plt.yticks(fontsize=10, fontweight='bold')
+               fontsize=17, fontweight='bold')
+    plt.xlabel('Number of UAVs', fontsize=17, fontweight='bold')
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
     plt.legend()
     file_name = 'SimiPerctNewPlot.png'
     file_path = os.path.join(parent_dir, dir_name, file_name)
@@ -231,4 +235,5 @@ if __name__ == "__main__":
     # line_plot(data_200)
     # line_plot(data_300)
     all_plot(data_100, data_200, data_300)
+
 
