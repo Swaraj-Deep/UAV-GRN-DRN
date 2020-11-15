@@ -84,9 +84,21 @@ def get_filter_data(data):
     Parameters: data -> data to plot\n
     Functionality: Filter the data and return the filtered data\n
     """
-    data_x = [key for key, frequency in data.items()]
+    # print(data)
+    dividend = 10
+    filter_data = {}
+    for key, frequency in data.items():
+        new_key = key // dividend
+        if new_key not in filter_data:
+            filter_data[new_key] = [frequency]
+        else:
+            filter_data[new_key].append(frequency)
+    new_data = {}
+    for key, values in filter_data.items():
+        new_data[key] = sum(values)
+    data_x = [key for key, frequency in new_data.items()]
     summation = sum(data.values())
-    data_y = [frequency / summation for key, frequency in data.items()]
+    data_y = [frequency / summation for key, frequency in new_data.items()]
     return (data_x, data_y)
 
 
@@ -143,6 +155,55 @@ def manage_all(degree_data, motif_data, degree_data_proposed, motif_data_propose
     plt.savefig(file_path)
 
 
+def manage_TRN(degree_data, motif_data):
+    """
+    Function: manage_TRN\n
+    Parameters: degree_data -> degree data for the GRN graph, motif_data -> motif data for the GRN graph\n
+    Functionality: Manages the simulation\n
+    """
+    # Write data to file
+    file_path = os.path.join(
+        os.getcwd(), 'analysis_output_files', 'grn_properties_degree_plot.json')
+    write_to_json(degree_data, file_path)
+    file_path = os.path.join(
+        os.getcwd(), 'analysis_output_files', 'grn_properties_motif_plot.json')
+    write_to_json(motif_data, file_path)
+    # End writing
+    file_name = 'degree_distribution_grn_proposed.png'
+    file_path = os.path.join(os.getcwd(), 'analysis_output_files', file_name)
+    # Description of degree distribution plot
+    data_x, data_y = get_filter_data(degree_data)
+    # data_x_proposed, data_y_proposed = get_filter_data(degree_data_proposed)
+    plt.bar(data_x, data_y, color='b')
+    # plt.scatter(data_x_proposed, data_y_proposed, color='r', marker='x')
+    plt.ylabel('Frequency of occurance',
+               fontsize=12, fontweight='bold')
+    plt.xlabel('Degree of nodes', fontsize=12, fontweight='bold')
+    # plt.title('Frequency Vs Degree of nodes',
+    #           fontsize=17, fontweight='bold')
+    plt.xticks(fontsize=10, fontweight='bold')
+    plt.yticks(fontsize=10, fontweight='bold')
+    # plt.savefig(file_path)
+    plt.show()
+    # Description of motif distribution plot
+    file_name = 'motif_distribution_grn_proposed.png'
+    file_path = os.path.join(os.getcwd(), 'analysis_output_files', file_name)
+    data_x, data_y = get_filter_data(motif_data)
+    # data_x_proposed, data_y_proposed = get_filter_data(motif_data_proposed)
+    plt.bar(data_x, data_y, color='b')
+    # plt.scatter(data_x_proposed, data_y_proposed, color='r', marker='x')
+    plt.ylabel('Frequency of occurance',
+               fontsize=12, fontweight='bold')
+    plt.xlabel('Node motif centrality of nodes',
+               fontsize=12, fontweight='bold')
+    # plt.title('Frequency Vs Node motif centrality of nodes',
+    #           fontsize=17, fontweight='bold')
+    plt.xticks(fontsize=10, fontweight='bold')
+    plt.yticks(fontsize=10, fontweight='bold')
+    # plt.savefig(file_path)
+    plt.show()
+
+
 def init_proposed():
     """
     Function: init_proposed\n
@@ -184,5 +245,5 @@ if __name__ == "__main__":
     except OSError as error:
         pass
     degree_data, motif_data = init()
-    degree_data_proposed, motif_data_proposed = init_proposed()
-    manage_all(degree_data, motif_data, degree_data_proposed, motif_data_proposed)
+    # degree_data_proposed, motif_data_proposed = init_proposed()
+    manage_TRN(degree_data, motif_data)
