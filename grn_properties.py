@@ -32,6 +32,21 @@ def get_UAV_graph(UAV_location):
     return UAV_G
 
 
+def get_triangles(dir_graph):
+    """
+    Function: get_triangles\n
+    Parameter: dir_graph -> Grn Graph\n
+    Returns: Number of triangles in a directed graph\n
+    """
+    triangles = 0
+    for u in dir_graph.nodes:
+        for v in dir_graph.nodes:
+            for w in dir_graph.nodes:
+                if dir_graph.has_edge(u, v) and dir_graph.has_edge(v, w) and dir_graph.has_edge(u, w):
+                    triangles += 1
+    return triangles // 6
+
+
 def init():
     """
     Function: init\n
@@ -41,6 +56,7 @@ def init():
     grn_endpoint.grn_info.init()
     degree_data = get_degree_count()
     motif_data = get_motif_count()
+    print(get_triangles(grn_endpoint.grn_info.get_grn_graph()))
     return (degree_data, motif_data)
 
 
@@ -246,4 +262,4 @@ if __name__ == "__main__":
         pass
     degree_data, motif_data = init()
     # degree_data_proposed, motif_data_proposed = init_proposed()
-    manage_TRN(degree_data, motif_data)
+    # manage_TRN(degree_data, motif_data)
