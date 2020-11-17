@@ -136,8 +136,10 @@ def plot_graph(UAV_G, UAV_location, file_name, plot_label, x_label, y_label, fla
             edge_x = [x1, x2]
             edge_y = [y1, y2]
             if legend_flag:
-                plt.plot(edge_x, edge_y, color='blue', label='Edges')
+                plt.plot(edge_x, edge_y, color='blue', label='Connecting Edges')
                 legend_flag = False
+            else:
+                plt.plot(edge_x, edge_y, color='blue')
         legend_flag = True
         common_lst = similarity_criteria(UAV_G)
         for edge in common_lst:
@@ -153,6 +155,8 @@ def plot_graph(UAV_G, UAV_location, file_name, plot_label, x_label, y_label, fla
             if legend_flag:
                 plt.plot(edge_x, edge_y, color='red', label='Common Edges')
                 legend_flag = False
+            else:
+                plt.plot(edge_x, edge_y, color='red')
     else:
         for edge in UAV_G.edges:
             edge_x = []
@@ -164,7 +168,11 @@ def plot_graph(UAV_G, UAV_location, file_name, plot_label, x_label, y_label, fla
             x2, y2 = loc_b
             edge_x = [x1, x2]
             edge_y = [y1, y2]
-            plt.plot(edge_x, edge_y, color='black')
+            if legend_flag:
+                plt.plot(edge_x, edge_y, color='black', label='Common Edges')
+                legend_flag = False
+            else:
+                plt.plot(edge_x, edge_y, color='black')
     plt.title(plot_label, fontweight="bold", fontsize=12)
     plt.xlabel(x_label, fontweight='bold', fontsize=12)
     plt.ylabel(y_label, fontweight='bold', fontsize=12)
