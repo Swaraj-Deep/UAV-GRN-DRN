@@ -19,9 +19,10 @@ M = 0
 UAV_to_UAV_threshold = 0
 radius_UAV = 0
 
-# Cell size of each subgrid
+# Cell size of each subgrid and unit_multiplier
 
 cell_size = 0
+unit_mul = 0
 
 # Nodes to remove
 
@@ -106,7 +107,7 @@ def plot_graph(UAV_G, UAV_location, file_name, plot_label, x_label, y_label, fla
     Parameters: UAV_G -> UAV network, UAV_location -> Coordinates of each UAV, file_name -> name of the file, plot_label -> title of the plot, x_label -> x label of the plot, y_label -> y label of the plot, flag -> which plot to draw\n
     Functionality: Saves the Corresponding graph\n
     """
-    global radius_UAV
+    global radius_UAV, N, cell_size, unit_mul
     plt.clf()
     g_x, g_y = get_user_location(os.getcwd())
     plt.scatter(g_x, g_y, color='gray')
@@ -176,6 +177,10 @@ def plot_graph(UAV_G, UAV_location, file_name, plot_label, x_label, y_label, fla
     plt.title(plot_label, fontweight="bold", fontsize=12)
     plt.xlabel(x_label, fontweight='bold', fontsize=12)
     plt.ylabel(y_label, fontweight='bold', fontsize=12)
+    ticks_label = list(range(0, int(N // (unit_mul // cell_size)) + 1))
+    ax = plt.gca()
+    ax.set_xticklabels(ticks_label)
+    ax.set_yticklabels(ticks_label)
     plt.xticks(fontweight='bold', fontsize=10)
     plt.yticks(fontweight='bold', fontsize=10)
     plt.legend()
@@ -744,7 +749,7 @@ def init(file_name_baseline, file_name_main):
     Parameters: file_name_baseline -> file name for the baseline output, file_name_main -> file name for the main output\n
     Functionality: Sets all the global variables\n
     """
-    global UAV_to_UAV_threshold, cell_size, nodes_rem_lst, N, M, radius_UAV
+    global UAV_to_UAV_threshold, cell_size, nodes_rem_lst, N, M, radius_UAV, unit_mul
     parent_dir = os.getcwd()
     parent_dir = os.getcwd()
     folder_name = 'input_files'
