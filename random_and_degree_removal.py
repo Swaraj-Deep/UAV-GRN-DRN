@@ -48,7 +48,7 @@ def init():
     file_names = filter_file_names()
     lst_file_names = sorted(file_names[0])
     targeted_degree.init(lst_file_names[0], lst_file_names[1])
-    targeted_random.init(lst_file_names[0], lst_file_names[1])
+    # targeted_random.init(lst_file_names[0], lst_file_names[1])
 
 
 if __name__ == "__main__":

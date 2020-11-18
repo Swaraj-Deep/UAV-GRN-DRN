@@ -176,13 +176,14 @@ def plot_graph(UAV_G, UAV_location, file_name, plot_label, x_label, y_label, fla
     plt.title(plot_label, fontweight="bold", fontsize=12)
     plt.xlabel(x_label, fontweight='bold', fontsize=12)
     plt.ylabel(y_label, fontweight='bold', fontsize=12)
-    ticks_label = list(range(0, int(N // (unit_mul // cell_size)) + 1))
     ax = plt.gca()
-    ax.set_xticklabels(ticks_label)
-    ax.set_yticklabels(ticks_label)
+    xticks_label = [tick / (unit_mul // cell_size) for tick in ax.get_xticks()]
+    yticks_label = [tick / (unit_mul // cell_size) for tick in ax.get_yticks()]
+    ax.set_xticklabels(xticks_label)
+    ax.set_yticklabels(yticks_label)
     plt.xticks(fontweight='bold', fontsize=10)
     plt.yticks(fontweight='bold', fontsize=10)
-    plt.legend()
+    # plt.legend()
     plt.savefig(os.path.join(os.getcwd(), 'node_failures_plots', file_name))
 
 
@@ -386,7 +387,7 @@ def run(i, file_name_baseline, file_name_main):
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val1 = (mc, cc, guser, ne, mx)
     plot_graph(UAV_G, UAV_location, f'EMST_degree_{file_num}_(0).png',
-               f'Baseline with {nodes_rem_lst[i] * 100}% removal', 'N', 'M', False)
+               f'E-MST', 'Length (in KM)', 'Width (in KM)', False)
     if flag:
         UAV_location_main, placed = parse_input_graph(
             file_name_main, os.path.join(parent_dir, dir_name))
@@ -410,7 +411,7 @@ def run(i, file_name_baseline, file_name_main):
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val2 = (mc, cc, guser, ne, mx)
     plot_graph(UAV_G, UAV_location, f'Proposed_degree_{file_num}.png',
-               f'Main with {nodes_rem_lst[i] * 100}% removal', 'N', 'M', True)
+               f'Proposed', 'Length (in KM)', 'Width (in KM)', True)
     if i == 0:
         x = int(nodes_baseline2 * nodes_rem_lst[i])
         UAV_location_baseline2, placed = process_baseline2(
@@ -431,7 +432,7 @@ def run(i, file_name_baseline, file_name_main):
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val3 = (mc, cc, guser, ne, mx)
     plot_graph(UAV_G, UAV_location, f'EMST_degree_{file_num}_(1).png',
-               f'Baseline2 with {nodes_rem_lst[i] * 100}% removal', 'N', 'M', False)
+               f'E-MST-1', 'Length (in KM)', 'Width (in KM)', False)
     if i == 0:
         x = int(nodes_baseline3 * nodes_rem_lst[i])
         UAV_location_baseline3, placed = process_baseline3(
@@ -452,7 +453,7 @@ def run(i, file_name_baseline, file_name_main):
     ne = get_network_efficiency(placed, UAV_location, UAV_G)
     ret_val4 = (mc, cc, guser, ne, mx)
     plot_graph(UAV_G, UAV_location, f'EMST_degree_{file_num}_(1.5).png',
-               f'Baseline3 with {nodes_rem_lst[i] * 100}% removal', 'N', 'M', False)
+               f'E-MST-1.5', 'Length (in KM)', 'Width (in KM)', False)
     return (ret_val1, ret_val2, ret_val3, ret_val4)
 
 
