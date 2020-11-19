@@ -7,6 +7,7 @@ import collections
 import matplotlib.pyplot as plt
 import pandas as pd
 import networkx as nx
+import pickle
 
 command = "python3"
 script = "user_secnario_producer.py"
@@ -113,7 +114,8 @@ def get_filter_data(data):
     for key, values in filter_data.items():
         new_data[key] = sum(values)
     data_x = [key for key, frequency in new_data.items()]
-    summation = sum(data.values())
+    # summation = sum(data.values())
+    summation = 1
     data_y = [frequency / summation for key, frequency in new_data.items()]
     return (data_x, data_y)
 
@@ -200,6 +202,7 @@ def manage_TRN(degree_data, motif_data):
     plt.xticks(fontsize=10, fontweight='bold')
     plt.yticks(fontsize=10, fontweight='bold')
     # plt.savefig(file_path)
+    plt.yscale("log")
     plt.show()
     # Description of motif distribution plot
     file_name = 'motif_distribution_grn_proposed.png'
@@ -216,6 +219,7 @@ def manage_TRN(degree_data, motif_data):
     #           fontsize=17, fontweight='bold')
     plt.xticks(fontsize=10, fontweight='bold')
     plt.yticks(fontsize=10, fontweight='bold')
+    plt.yscale("log")
     # plt.savefig(file_path)
     plt.show()
 
@@ -254,12 +258,37 @@ def init_proposed():
     return degrees_count, motifs_count
 
 
+def properties_original():
+    grn_file_name = 'Ecoli.gml'
+    motif_file_name = 'Ecoli_centrality.p'
+    dir_name = 'grn_endpoint'
+    grn_file_path = os.path.join (os.getcwd(),dir_name, 'gml_files', grn_file_name)
+    motif_file_path = os.path.join (os.getcwd(), dir_name, 'gml_files', motif_file_name)
+    grn_graph = nx.read_gml(grn_file_path)
+    grn_graph = nx.convert_node_labels_to_integers(grn_graph, first_label=0)
+    print(f'Number of Edges: {len(grn_graph.edges())}')
+    print(f'Number of Nodes: {len(grn_graph.nodes())}')
+    degrees_val = sorted([degree for node,
+                          degree in grn_graph.degree()])
+    degrees_count = dict(collections.Counter(degrees_val))
+    n_motif = pickle.load(open(motif_file_path, "rb"))
+    motifs_val = sorted([motif for node, motif in n_motif.items()])
+    motifs_count = dict(collections.Counter(motifs_val))
+    print(f'Minimum Degree: {min(degrees_count)}, Maximum Degree: {max(degrees_count)}')
+    print(f'Minimum Motif: {min(motifs_count)}, Maximum Motif: {max(motifs_count)}')
+    print(get_triangles(grn_graph))
+    return (degrees_count, motifs_count)
+
 if __name__ == "__main__":
     dir_path = os.path.join(os.getcwd(), 'analysis_output_files')
     try:
         os.mkdir(dir_path)
     except OSError as error:
         pass
-    degree_data, motif_data = init()
+    # degree_data, motif_data = init()
     # degree_data_proposed, motif_data_proposed = init_proposed()
     # manage_TRN(degree_data, motif_data)
+    degree_data, motif_data = properties_original()
+    manage_TRN(degree_data, motif_data)
+    
+
