@@ -87,6 +87,7 @@ def get_n_motif():
     global n_motif
     return n_motif
 
+
 def get_emc(u, v):
     """
     Function: get_emc\n
@@ -194,7 +195,7 @@ def subgraph_on_motif_centrality(non_increasing_grn_nodes, grn_graph, number_gen
     for edge in edge_list:
         u, v = edge
         SG.add_edge(u, v)
-    old_edges = len (SG.edges)
+    old_edges = len(SG.edges)
     new_edges = int(old_edges * req_per)
     nodes = list(SG.nodes)
     new_edge_list = []
@@ -219,6 +220,35 @@ def write_binary(n_motif_centrality_dict, file_name):
     Functionality: Writes node motif centrality dict to the passed file_name\n
     """
     pickle.dump(n_motif_centrality_dict, open(file_name, "wb"))
+
+
+def init_custom():
+    """
+    Function: init_custom\n
+    Parameter: none\n
+    Functionality: Initializes the variables\n
+    """
+    global grn_graph
+    grn_graph = nx.Graph()
+    grn_graph.add_nodes_from([i for i in range(0, 21)])
+    edges = [(0, 1), (0, 2), (0, 3), (1, 3), (2, 3), (3, 4), (4, 5), (4, 6), (4, 7), (5, 7), (6, 7), (7, 8), (8, 9), (8, 10), (8, 11), (9, 11),
+             (10, 11), (11, 12), (12, 13), (12, 14), (13, 15), (14, 15), (15, 16), (16, 17), (16, 19), (16, 18), (17, 18), (19, 18), (18, 20), (19, 20)]
+    grn_graph.add_edges_from(edges)
+    grn_graph.to_undirected()
+    global n_motif
+    global e_motif
+    global mapping
+    global PI
+    n_motif = get_motif_dict(grn_graph)
+    for edge in grn_graph.edges:
+        node1, node2 = edge
+        e_motif[edge] = min(n_motif[node1], n_motif[node2])
+        PI = max(PI, e_motif[edge])
+    non_increasing_grn_nodes = [node[0]
+                                for node in sorted(n_motif.items(), key=lambda node: node[1], reverse=True)]
+    mapping_function(non_increasing_grn_nodes, grn_graph)
+    for edge in grn_graph.edges:
+        GRN_edges[edge] = True
 
 
 def init():
@@ -300,4 +330,7 @@ def mapping_function(non_increasing_grn_nodes, grn_graph):
 
 
 if __name__ == "__main__":
-    init()
+    init_custom()
+    # grn_graph.neighbours(0)
+    for i in range(21):
+        print(list(nx.all_neighbors(grn_graph, i)))

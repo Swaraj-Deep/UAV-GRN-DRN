@@ -149,7 +149,7 @@ def init():
     t *= unit_mul
     t //= cell_size
     users_endpoint.users.init()
-    grn_endpoint.grn_info.init()
+    grn_endpoint.grn_info.init_custom()
 
 
 def q_learn(UAV_node, placed, flag):
