@@ -85,7 +85,7 @@ python3 user_scenario_cluster.py
 
 ## Sample Output Graph
 
-![Sample output graph](./sample_output_graph.png)
+![Sample output graph](./SampleOutput.png)
 
 In the above image the red cell are UAVs. The circles are their connection range. The blues cells are UAVs where ground user is placed just below it i.e. the UAV is on the top of the ground user. The black cells are the positions of ground users. The light blue lines denotes the edge between two UAVs.
 
